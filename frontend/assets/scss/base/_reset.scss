@@ -1,0 +1,37 @@
+body {
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Spoqa Han Sans", "Noto Sans CJK KR", "NanumGothic",
+    "Malgun Gothic", "맑은 고딕", 돋움, dotum, arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  //   overflow-x: hidden;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+button {
+  @include unstyle-button();
+}
+
+input {
+  font-family: inherit;
+}
