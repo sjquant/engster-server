@@ -1,0 +1,40 @@
+@import "~styles/utils.scss";
+
+.search-bar-container {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  @include media(">=lg") {
+    width: 60%;
+    // max-width: $large-w;
+  }
+
+  input {
+    width: 100%;
+    font-size: 1.6rem;
+    padding: 0.8rem 3.2rem 0.8rem 0.8rem;
+    border: 1px solid $gray-lighter;
+    background-color: $gray-lighter;
+    border-radius: 4px;
+    transition: all 0.1s ease-in;
+
+    &:focus {
+      outline: none;
+      background: white;
+      border: 1px solid $gray-light;
+    }
+
+    &::placeholder {
+      color: $gray;
+    }
+  }
+}
+
+.search-glass {
+  width: 1.6rem;
+  height: 1.6rem;
+  position: absolute;
+  right: 1.2rem;
+}

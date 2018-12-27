@@ -1,5 +1,5 @@
 <template>
-  <svg viewBox="0 0 244 67" fill="none" xmlns="http://www.w3.org/2000/svg" class="main-logo">
+  <svg viewBox="0 0 244 67" fill="none" xmlns="http://www.w3.org/2000/svg" class="main-full-logo">
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
@@ -35,9 +35,3 @@
     ></path>
   </svg>
 </template>
-
-<style lang="scss">
-.main-logo {
-  width: 16rem;
-}
-</style>
