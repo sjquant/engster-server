@@ -14,7 +14,7 @@
   input {
     width: 100%;
     font-size: 1.6rem;
-    padding: 0.8rem 3.2rem 0.8rem 0.8rem;
+    padding: 0.8rem 3.2rem 0.8rem 1.6rem;
     border: 1px solid $gray-lighter;
     background-color: $gray-lighter;
     border-radius: 4px;
@@ -37,4 +37,5 @@
   height: 1.6rem;
   position: absolute;
   right: 1.2rem;
+  cursor: pointer;
 }

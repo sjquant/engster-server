@@ -1,17 +1,37 @@
 <template>
   <div>
     <MainHead/>
-    <nuxt/>
+    <div class="container">
+      <SideContentContainer>
+        <div></div>
+      </SideContentContainer>
+      <MainContentContainer>
+        <nuxt/>
+      </MainContentContainer>
+      <SideContentContainer>
+        <div></div>
+      </SideContentContainer>
+    </div>
   </div>
 </template>
 
 <script>
-import MainHead from "~/components/main/MainNav/MainHead.vue";
+import MainHead from "~/components/base/MainNav/MainHead.vue";
+import MainContentContainer from "~/components/base/MainContentContainer/MainContentContainer.vue";
+import SideContentContainer from "~/components/base/SideContentContainer/SideContentContainer.vue";
 export default {
   components: {
-    MainHead
+    MainHead,
+    MainContentContainer,
+    SideContentContainer
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.container {
+  display: flex;
+}
+</style>
 
 
