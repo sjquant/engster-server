@@ -1,5 +1,11 @@
 <template>
-  <svg viewBox="0 0 244 67" fill="none" xmlns="http://www.w3.org/2000/svg" class="main-full-logo">
+  <svg
+    viewBox="0 0 244 67"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    class="main-full-logo"
+    @click="toHome"
+  >
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
@@ -35,3 +41,13 @@
     ></path>
   </svg>
 </template>
+
+<script>
+export default {
+  methods: {
+    toHome() {
+      this.$router.push("/");
+    }
+  }
+};
+</script>

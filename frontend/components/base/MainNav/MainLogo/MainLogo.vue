@@ -8,6 +8,7 @@
 <script>
 import MainMobileLogo from "./MainMobileLogo.vue";
 import MainFullLogo from "./MainFullLogo.vue";
+
 export default {
   components: {
     MainMobileLogo,
