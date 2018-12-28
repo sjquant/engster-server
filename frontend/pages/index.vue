@@ -15,7 +15,11 @@
             <span>IronMan3</span> /
             <span>Film</span>
           </div>
-          <div>#Action #Fantasy #Horror</div>
+          <div>
+            <Tag>#Action</Tag>
+            <Tag>#Fantasy</Tag>
+            <Tag>#Horror</Tag>
+          </div>
         </template>
       </LineCard>
     </section>
@@ -24,9 +28,11 @@
 
 <script>
 import LineCard from "~/components/common/LineCard/LineCard.vue";
+import Tag from "~/components/common/Tag/Tag.vue";
 export default {
   components: {
-    LineCard
+    LineCard,
+    Tag
   }
 };
 </script>

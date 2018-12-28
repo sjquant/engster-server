@@ -29,6 +29,10 @@
     &::placeholder {
       color: $gray;
     }
+
+    @include media("<=sm") {
+      font-size: 14px;
+    }
   }
 }
 
