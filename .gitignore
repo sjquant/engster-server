@@ -12,3 +12,7 @@ dist
 
 # vscode setting
 .vscode
+
+# secret files
+
+.env.*

@@ -8,6 +8,8 @@ verify_ssl = true
 pylint = "*"
 
 [packages]
+gino = "*"
+click = "*"
 sanic = "*"
 
 [requires]
