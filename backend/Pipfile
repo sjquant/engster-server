@@ -11,6 +11,7 @@ pylint = "*"
 gino = "*"
 click = "*"
 sanic = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.6"
