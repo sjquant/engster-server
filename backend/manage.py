@@ -1,5 +1,5 @@
 
-from app.utils.exceptions import UnknownKeyword
+from app.core.exceptions import UnknownKeyword
 import click
 
 
