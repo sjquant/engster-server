@@ -12,6 +12,10 @@ gino = "*"
 click = "*"
 sanic = "*"
 python-dotenv = "*"
+jwt = "*"
+simple-bcrypt = "*"
+alembic = "*"
+psycopg2 = "*"
 
 [requires]
 python_version = "3.6"
