@@ -1,9 +1,10 @@
 from sanic import Sanic
 from gino.ext.sanic import Gino
-from simple_bcrypt import Bcrypt
+from sanic_jwt import initialize
 
+from app.core import PasswordHasher
 db = Gino()
-bcrypt = Bcrypt()
+hasher = PasswordHasher()
 
 
 def create_app(config_file):
@@ -14,6 +15,9 @@ def create_app(config_file):
     app.config.from_object(config_file)
 
     db.init_app(app)
-    bcrypt.init_app(app)
+    hasher.init_app(app)
+
+    from app.utils import authenticate
+    initialize(app, authenticate=authenticate)
 
     return app

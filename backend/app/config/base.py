@@ -7,3 +7,5 @@ load_dotenv(os.path.join(ENVDIR, 'secrets/.env.base'))
 
 BASE_DIR = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))
+
+DB_PORT = '5432'

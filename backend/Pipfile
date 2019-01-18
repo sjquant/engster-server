@@ -13,9 +13,10 @@ click = "*"
 sanic = "*"
 python-dotenv = "*"
 jwt = "*"
-simple-bcrypt = "*"
 alembic = "*"
 psycopg2 = "*"
+sanic-jwt = "*"
+cryptography = "*"
 
 [requires]
 python_version = "3.6"

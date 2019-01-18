@@ -26,12 +26,19 @@ def runserver(port, config):
     app.run(port=port, debug=app.config['DEBUG'])
 
 
+@cli.command(help="Create admin user")
+@click.option('--config', default=None, help="Set the settings.")
+def creatsuperuser():
+    pass
+
+
 @cli.command(help="Show current revision")
 @click.option('--config', default=None, help="Set the settings.")
 def current(config):
     """
     Show current revision
     """
+    from alembic.command import current
     config = import_config_file(config)
 
     alembic_ini_path = os.path.join(config.BASE_DIR, 'alembic.ini')
@@ -42,7 +49,7 @@ def current(config):
 
 @cli.command(help="Show history revision")
 @click.option('--config', default=None, help="Set the settings.")
-def history(config):
+def migrationshistory(config):
     """
     Show history revision
     """
