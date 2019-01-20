@@ -1,7 +1,7 @@
 import os
 import click
 from alembic.config import Config
-from app.utils import import_config_file
+from app.utils.config import import_config_file
 
 
 @click.group()
@@ -29,7 +29,13 @@ def runserver(port, config):
 @cli.command(help="Create admin user")
 @click.option('--config', default=None, help="Set the settings.")
 def creatsuperuser():
-    pass
+    """
+    Create Admin User
+    """
+    config_file = import_config_file(config)
+    # It needs to be loaded after all config file loaded
+    from app import create_app
+    app = create_app(config_file)
 
 
 @cli.command(help="Show current revision")
