@@ -1,8 +1,17 @@
+### Register
+POST http://localhost:8000/auth/register
+Content-Type: application/json
 
+{
+    "email": "user@test.com",
+    "password": "abcdefg!!!"
+}
+
+### Obtain Token
 POST http://localhost:8000/auth/obtain_token
 Content-Type: application/json
 
 {
-    "username": "seonujang92@gmail.com",
-    "password": "abcdefg!"
+    "email": "user@test.com",
+    "password": "abcdefg!!!"
 }

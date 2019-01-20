@@ -32,4 +32,7 @@ def create_app(config_file):
     bcrypt.init_app(app)
     init_auth(app)
 
+    from app import routes
+    routes.init_app(app)
+
     return app
