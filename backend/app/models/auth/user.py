@@ -1,6 +1,6 @@
 import jwt
 import datetime
-from app import db, hasher
+from app import db, bcrypt
 
 
 class User(db.Model):
@@ -16,7 +16,7 @@ class User(db.Model):
     def __init__(self, email, password, admin=False, **kwargs):
         super().__init__(**kwargs)
         self.email = email
-        self.password = hasher.generate_password_hash(password)
+        self.password_hash = bcrypt.generate_password_hash(password)
         self.registered_on = datetime.datetime.now()
         self.is_admin = admin
 
@@ -25,4 +25,4 @@ class User(db.Model):
 
     def check_password(self, password: str) -> bool:
         """ check password """
-        return hasher.check_password(self.password, password)
+        return bcrypt.check_password(self.password_hash, password)

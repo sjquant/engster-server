@@ -9,3 +9,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))
 
 DB_PORT = '5432'
+
+BCRYPT_LOG_ROUNDS = 12
+BCRYPT_HASH_PREFIX = '2b'
+BCRYPT_HANDLE_LONG_PASSWORDS = False

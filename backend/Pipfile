@@ -16,7 +16,7 @@ jwt = "*"
 alembic = "*"
 psycopg2 = "*"
 sanic-jwt = "*"
-cryptography = "*"
+simple-bcrypt = "*"
 
 [requires]
 python_version = "3.6"
