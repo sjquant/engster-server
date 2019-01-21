@@ -1,9 +1,10 @@
 import jwt
 import datetime
 from app import db, bcrypt
+from app.utils.model import BaseModel
 
 
-class User(db.Model):
+class User(BaseModel):
     """ User Model for storing user related details """
     __tablename__ = "users"
 

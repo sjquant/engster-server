@@ -9,7 +9,7 @@ bcrypt = Bcrypt()
 
 
 def init_auth(app):
-    from app.utils.auth import authenticate
+    from app.core.auth import authenticate
     initialize(app,
                authenticate=authenticate,
                url_prefix='auth',
