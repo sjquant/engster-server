@@ -17,17 +17,17 @@ def init_auth(app):
                path_to_retrieve_user='/retrieve_user',
                path_to_verify='/verify_token',
                path_to_refresh='/refresh_token',
-               claim_iss='engster.co.kr'
+               claim_iss='engster.co.kr',
+               refresh_token_enabled=False,  # Temporarily
                )
 
 
-def create_app(config_file):
+def create_app(config):
     """
     Create Sanic Application
     """
     app = Sanic()
-    app.config.from_object(config_file)
-
+    app.config.from_object(config)
     db.init_app(app)
     bcrypt.init_app(app)
     init_auth(app)

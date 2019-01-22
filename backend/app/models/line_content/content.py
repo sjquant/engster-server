@@ -1,7 +1,8 @@
 from app import db
+from app.models import BaseModel
 
 
-class Content(db.Model):
+class Content(BaseModel):
 
     __tablename__ = 'contents'
 
@@ -15,7 +16,7 @@ class Content(db.Model):
         return '<Content {}>'.format(self.title)
 
 
-class Category(db.Model):
+class Category(BaseModel):
 
     __tablename__ = 'categories'
 
@@ -27,7 +28,7 @@ class Category(db.Model):
         return '<Category {}>'.format(self.category)
 
 
-class Genre(db.Model):
+class Genre(BaseModel):
 
     __tablename__ = 'genres'
 
@@ -38,7 +39,7 @@ class Genre(db.Model):
         return '<Genre {}>'.format(self.genre)
 
 
-class Content_Genre(db.Model):
+class Content_Genre(BaseModel):
 
     __tablename__ = 'content_genre'
 

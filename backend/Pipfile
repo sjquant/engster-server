@@ -17,6 +17,7 @@ alembic = "*"
 psycopg2 = "*"
 sanic-jwt = "*"
 simple-bcrypt = "*"
+pytest-sanic = "*"
 
 [requires]
 python_version = "3.6"

@@ -1,15 +1,12 @@
+import os
+import importlib
+
 from app.core.exceptions import UnknownKeyword
 
 
-def import_config_file(config: str):
-    config = config if config else 'local'
-
-    if config == 'local':
-        import app.config.local as config_file
-    elif config == 'test':
-        import app.config.test as config_file
-    elif config == 'production':
-        import app.config.production as config_file
-    else:
-        raise UnknownKeyword(config)
-    return config_file
+def set_env(env: str):
+    if env.lower() not in ['local', 'test', 'production']:
+        raise UnknownKeyword(env)
+    os.environ['ENV'] = env
+    config = importlib.import_module(f"app.config.{env}")
+    return config

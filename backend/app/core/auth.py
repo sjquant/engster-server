@@ -18,3 +18,13 @@ async def authenticate(request, *args, **kwargs):
         raise exceptions.AuthenticationFailed("Password is incorrect.")
 
     return user
+
+
+# async def store_refresh_token(user_id, refresh_token, *args, **kwargs):
+#     key = f'refresh_token_{user_id}'
+#     await aredis.set(key, refresh_token)
+
+
+# async def retrieve_refresh_token(request, user_id, *args, **kwargs):
+#     key = f'refresh_token_{user_id}'
+#     return await aredis.get(key)

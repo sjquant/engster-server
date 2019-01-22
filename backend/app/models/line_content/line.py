@@ -1,7 +1,8 @@
 from app import db
+from app.models import BaseModel
 
 
-class Line(db.Model):
+class Line(BaseModel):
 
     __tablename__ = 'lines'
 
@@ -14,7 +15,7 @@ class Line(db.Model):
         return '<Line {}>'.format(self.line)
 
 
-class LineLike(db.Model):
+class LineLike(BaseModel):
 
     __tablename__ = 'line_like'
 
@@ -27,7 +28,7 @@ class LineLike(db.Model):
         return '<Line Like {}>'.format(self.id)
 
 
-class Translation(db.Model):
+class Translation(BaseModel):
 
     __tablename__ = 'translations'
 
@@ -42,7 +43,7 @@ class Translation(db.Model):
         return '<Translations {}>'.format(self.translation)
 
 
-class TranslationLike(db.Model):
+class TranslationLike(BaseModel):
 
     __talbename__ = 'translation_like'
 
