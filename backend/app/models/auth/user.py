@@ -9,9 +9,10 @@ class User(BaseModel):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, db.Sequence('user_id_seq'), primary_key=True)
-    email = db.Column(db.String(255), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
+    photo = db.Column(db.String(255), nullable=True)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
@@ -32,3 +33,6 @@ class User(BaseModel):
     def check_password(self, password: str) -> bool:
         """ check password """
         return bcrypt.check_password_hash(self.password_hash, password)
+
+    def to_dict(self):
+        return super().to_dict(show=['email', 'registered_on', 'photo'])

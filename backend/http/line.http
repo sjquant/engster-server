@@ -1,0 +1,11 @@
+### Search By English
+GET http://localhost:8000/line/english/Hello Engster
+Content-Type: application/json
+
+### Search By Korean 2
+GET http://localhost:8000/line/korean/안녕 Engster
+Content-Type: application/json
+
+### Search Context
+GET http://localhost:8000/line/context/1
+Content-Type: application/json

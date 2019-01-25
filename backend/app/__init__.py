@@ -9,7 +9,7 @@ bcrypt = Bcrypt()
 
 
 def init_auth(app):
-    from app.core.auth import authenticate
+    from app.core.auth import authenticate, CustomResponse
     initialize(app,
                authenticate=authenticate,
                url_prefix='auth',
@@ -19,6 +19,7 @@ def init_auth(app):
                path_to_refresh='/refresh_token',
                claim_iss='engster.co.kr',
                refresh_token_enabled=False,  # Temporarily
+               responses_class=CustomResponse
                )
 
 
