@@ -4,13 +4,13 @@ from app.models import BaseModel
 
 class Content(BaseModel):
 
-    __tablename__ = 'contents'
+    __tablename__ = 'content'
 
     id = db.Column(db.Integer, db.Sequence('content_id_seq'), primary_key=True)
     title = db.Column(db.String(255))
     year = db.Column(db.String(4), nullable=False)
     reference = db.Column(db.Text, nullable=True)
-    category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
+    category_id = db.Column(db.Integer, db.ForeignKey("category.id"))
 
     def __repr__(self):
         return '<Content {}>'.format(self.title)
@@ -18,7 +18,7 @@ class Content(BaseModel):
 
 class Category(BaseModel):
 
-    __tablename__ = 'categories'
+    __tablename__ = 'category'
 
     id = db.Column(db.Integer, db.Sequence(
         'category_id_seq'), primary_key=True)
@@ -30,7 +30,7 @@ class Category(BaseModel):
 
 class Genre(BaseModel):
 
-    __tablename__ = 'genres'
+    __tablename__ = 'genre'
 
     id = db.Column(db.Integer, db.Sequence('content_id_seq'), primary_key=True)
     genre = db.Column(db.String(50), nullable=False)
@@ -45,5 +45,5 @@ class Content_Genre(BaseModel):
 
     id = db.Column(db.Integer, db.Sequence(
         'content_genre_id_seq'), primary_key=True),
-    content = db.Column(db.Integer, db.ForeignKey('contents.id')),
-    genre_id = db.Column(db.Integer, db.ForeignKey('genres.id'))
+    content_id = db.Column(db.Integer, db.ForeignKey('content.id'))
+    genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'))

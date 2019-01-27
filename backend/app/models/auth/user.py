@@ -6,7 +6,7 @@ from app.models import BaseModel
 
 class User(BaseModel):
     """ User Model for storing user related details """
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     id = db.Column(db.Integer, db.Sequence('user_id_seq'), primary_key=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
