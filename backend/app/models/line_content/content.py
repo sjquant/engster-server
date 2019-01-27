@@ -1,5 +1,5 @@
 from app import db
-from app.models import BaseModel
+from app.utils.basemodel import BaseModel
 
 
 class Content(BaseModel):
@@ -44,6 +44,6 @@ class Content_Genre(BaseModel):
     __tablename__ = 'content_genre'
 
     id = db.Column(db.Integer, db.Sequence(
-        'content_genre_id_seq'), primary_key=True),
+        'content_genre_id_seq'), primary_key=True)
     content_id = db.Column(db.Integer, db.ForeignKey('content.id'))
     genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'))

@@ -1,7 +1,7 @@
 import jwt
 import datetime
 from app import db, bcrypt
-from app.models import BaseModel
+from app.utils.basemodel import BaseModel
 
 
 class User(BaseModel):
@@ -16,7 +16,7 @@ class User(BaseModel):
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
-        return "User <{}>".format(self.email)
+        return "<User {}>".format(self.email)
 
     async def create_user(self, email: str, password: str, is_admin: bool = False):
         self.email = email

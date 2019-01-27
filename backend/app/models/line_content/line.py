@@ -1,5 +1,5 @@
 from app import db
-from app.models import BaseModel
+from app.utils.basemodel import BaseModel
 
 
 class Line(BaseModel):
@@ -40,7 +40,7 @@ class Translation(BaseModel):
     content_id = db.Column(db.Integer, db.ForeignKey('content.id'))
 
     def __repr__(self):
-        return '<Translations {}>'.format(self.translation)
+        return '<Translation {}>'.format(self.translation)
 
 
 class TranslationLike(BaseModel):
