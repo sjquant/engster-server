@@ -14,7 +14,7 @@ class BaseModel(db.Model):
         """
 
         if show is None:
-            return self.__values__
+            return {each.name: getattr(self, each.name) for each in self.__table__.columns}
 
         else:
-            return {each: self.__values__[each] for each in show}
+            return {each: getattr(self, each) for each in show}

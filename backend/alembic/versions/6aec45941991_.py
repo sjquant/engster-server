@@ -1,16 +1,16 @@
-"""first migration
+"""empty message
 
-Revision ID: 7087854352ac
+Revision ID: 6aec45941991
 Revises: 
-Create Date: 2019-01-27 19:36:37.011149
+Create Date: 2019-02-01 22:27:08.824462
 
 """
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '7087854352ac'
+revision = '6aec45941991'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,15 +21,17 @@ def upgrade():
     op.create_table('category',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('category', sa.String(length=50), nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('category')
     )
     op.create_table('genre',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('genre', sa.String(length=50), nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('genre')
     )
     op.create_table('user',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', postgresql.UUID(), nullable=False),
     sa.Column('email', sa.String(length=100), nullable=False),
     sa.Column('password_hash', sa.String(length=255), nullable=False),
     sa.Column('registered_on', sa.DateTime(), nullable=False),
@@ -63,7 +65,7 @@ def upgrade():
     )
     op.create_table('line_like',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', postgresql.UUID(), nullable=True),
     sa.Column('line_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['line_id'], ['line.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
@@ -73,7 +75,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('translation', sa.Text(), nullable=False),
     sa.Column('line_id', sa.Integer(), nullable=True),
-    sa.Column('translator_id', sa.Integer(), nullable=True),
+    sa.Column('translator_id', postgresql.UUID(), nullable=True),
     sa.Column('content_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['content_id'], ['content.id'], ),
     sa.ForeignKeyConstraint(['line_id'], ['line.id'], ),

@@ -1,3 +1,5 @@
+from sqlalchemy.dialects.postgresql import UUID
+
 from app import db
 from app.utils.basemodel import BaseModel
 
@@ -21,7 +23,7 @@ class LineLike(BaseModel):
 
     id = db.Column('id', db.Integer, db.Sequence(
         'line_like_seq'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(UUID, db.ForeignKey('user.id'))
     line_id = db.Column(db.Integer, db.ForeignKey('line.id'))
 
     def __repr__(self):
@@ -36,7 +38,7 @@ class Translation(BaseModel):
         'translation_id_seq'), primary_key=True)
     translation = db.Column(db.Text, nullable=False)
     line_id = db.Column(db.Integer, db.ForeignKey('line.id'))
-    translator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    translator_id = db.Column(UUID, db.ForeignKey('user.id'))
     content_id = db.Column(db.Integer, db.ForeignKey('content.id'))
 
     def __repr__(self):
@@ -49,7 +51,7 @@ class TranslationLike(BaseModel):
 
     id = db.Column('id', db.Integer, db.Sequence(
         'translation_like_seq'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(UUID, db.ForeignKey('user.id'))
     translation_id = db.Column(db.Integer, db.ForeignKey('translation.id'))
 
     def __repr__(self):

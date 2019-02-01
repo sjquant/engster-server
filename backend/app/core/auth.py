@@ -30,8 +30,8 @@ class CustomResponse(Responses):
                             access_token=None,
                             refresh_token=None):
         user_dict = user.to_dict()
-        user_dict['registered_on'] = user_dict['registered_on'].strftime(
-            '%Y-%m-%dT%H:%M:%S')
+        user_dict['id'] = str(user_dict['id'])
+
         return {
             'user': user_dict
         }

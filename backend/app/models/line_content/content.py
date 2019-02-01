@@ -22,7 +22,7 @@ class Category(BaseModel):
 
     id = db.Column(db.Integer, db.Sequence(
         'category_id_seq'), primary_key=True)
-    category = db.Column(db.String(50), nullable=False)
+    category = db.Column(db.String(50), nullable=False, unique=True)
 
     def __repr__(self):
         return '<Category {}>'.format(self.category)
@@ -33,7 +33,7 @@ class Genre(BaseModel):
     __tablename__ = 'genre'
 
     id = db.Column(db.Integer, db.Sequence('content_id_seq'), primary_key=True)
-    genre = db.Column(db.String(50), nullable=False)
+    genre = db.Column(db.String(50), nullable=False, unique=True)
 
     def __repr__(self):
         return '<Genre {}>'.format(self.genre)
@@ -43,7 +43,5 @@ class Content_Genre(BaseModel):
 
     __tablename__ = 'content_genre'
 
-    id = db.Column(db.Integer, db.Sequence(
-        'content_genre_id_seq'), primary_key=True)
     content_id = db.Column(db.Integer, db.ForeignKey('content.id'))
     genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'))

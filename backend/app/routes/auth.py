@@ -11,4 +11,4 @@ auth_bp = Blueprint('_auth_bp', url_prefix='/auth')
 async def register(request):
     """ register user """
     user = await User().create_user(**request.json)
-    return json(user.to_dict(show=['id', 'email', 'registered_on']), default=json_serial)
+    return json(user.to_dict(), default=json_serial)

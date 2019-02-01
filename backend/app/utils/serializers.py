@@ -1,5 +1,6 @@
 import json
 import datetime
+import uuid
 
 
 def json_serial(obj):
@@ -10,4 +11,6 @@ def json_serial(obj):
 
     if isinstance(obj, (datetime.datetime, datetime.date)):
         return obj.isoformat()
+    elif isinstance(obj, uuid.UUID):
+        return str(obj)
     raise TypeError("Type %s not serializable" % type(obj))
