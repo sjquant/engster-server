@@ -1,7 +1,7 @@
 import os
 import importlib
 
-from app.core.exceptions import UnknownKeyword
+from app.utils.exceptions import UnknownKeyword
 
 
 def set_env(env: str):
