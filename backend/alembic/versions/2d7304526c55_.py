@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 6aec45941991
+Revision ID: 2d7304526c55
 Revises: 
-Create Date: 2019-02-01 22:27:08.824462
+Create Date: 2019-02-03 04:28:11.618819
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '6aec45941991'
+revision = '2d7304526c55'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -33,12 +33,14 @@ def upgrade():
     op.create_table('user',
     sa.Column('id', postgresql.UUID(), nullable=False),
     sa.Column('email', sa.String(length=100), nullable=False),
+    sa.Column('nickname', sa.String(length=10), nullable=False),
     sa.Column('password_hash', sa.String(length=255), nullable=False),
     sa.Column('registered_on', sa.DateTime(), nullable=False),
     sa.Column('photo', sa.String(length=255), nullable=True),
     sa.Column('is_admin', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email')
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('nickname')
     )
     op.create_table('content',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -52,8 +54,8 @@ def upgrade():
     op.create_table('content_genre',
     sa.Column('content_id', sa.Integer(), nullable=True),
     sa.Column('genre_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['content_id'], ['content.id'], ),
-    sa.ForeignKeyConstraint(['genre_id'], ['genre.id'], )
+    sa.ForeignKeyConstraint(['content_id'], ['content.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['genre_id'], ['genre.id'], ondelete='CASCADE')
     )
     op.create_table('line',
     sa.Column('id', sa.Integer(), nullable=False),

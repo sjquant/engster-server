@@ -17,7 +17,7 @@ class User(BaseModel):
     nickname = db.Column(db.String(10), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
-    photo = db.Column(db.String(255), nullable=True)
+    photo = db.Column(db.String(255))
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
