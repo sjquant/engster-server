@@ -1,0 +1,63 @@
+### Line List
+GET http://localhost:8000/lines/lines/23?page=2
+Content-Type: application/json
+
+### Content List
+GET http://localhost:8000/lines/contents
+Content-Type: application/json
+
+### Category List
+GET http://localhost:8000/lines/categories
+Content-Type: application/json
+
+### genre List
+GET http://localhost:8000/lines/genres
+Content-Type: application/json
+
+### Post Category
+POST http://localhost:8000/lines/categories
+Content-Type: application/json
+
+{
+    "category": "youtube"
+}
+
+### Post genre
+POST http://localhost:8000/lines/genres
+Content-Type: application/json
+
+{
+    "genre": "crime"
+}
+
+### Get Individual Category
+GET http://localhost:8000/lines/categories/1
+Content-Type: application/json
+
+### Change Individual Category
+PUT http://localhost:8000/lines/categories/7
+Content-Type: application/json
+
+{
+    "category":"drama series"
+}
+
+### Delete Individual Category
+DELETE http://localhost:8000/lines/categories/7
+Content-Type: application/json
+
+### Get Individual genre
+GET http://localhost:8000/lines/genres/2
+Content-Type: application/json
+
+### Change Individual genre
+PUT http://localhost:8000/lines/genres/10
+Content-Type: application/json
+
+{
+    "genre":"science fiction"
+}
+
+### Delete Individual genre
+DELETE http://localhost:8000/lines/genres/2
+Content-Type: application/json

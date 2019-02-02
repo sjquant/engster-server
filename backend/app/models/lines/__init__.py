@@ -1,2 +1,2 @@
-from .auth import *
+from .lines import *
 from .lines import *

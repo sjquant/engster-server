@@ -7,7 +7,7 @@ from app.utils.config import set_env
 @click.group()
 def cli():
     """
-    Simple CLI For Managing Flask App
+    Simple CLI For Managing Sanic App
     """
     pass
 

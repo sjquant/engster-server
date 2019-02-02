@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 
 # load env
@@ -27,3 +28,6 @@ DB_HOST = os.getenv('DB_HOST')
 DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_URL = f'postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}'
+
+with open('app/config/settings.json') as f:
+    SETTINGS = json.loads(f.read())

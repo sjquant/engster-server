@@ -18,6 +18,7 @@ psycopg2 = "*"
 sanic-jwt = "*"
 simple-bcrypt = "*"
 pytest-sanic = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.6"
