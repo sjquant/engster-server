@@ -2,7 +2,7 @@
 import pytest
 
 from app import create_app
-from app.utils import set_env
+from app.utils.config import set_env
 
 
 @pytest.yield_fixture
