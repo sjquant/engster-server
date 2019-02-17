@@ -19,6 +19,7 @@ sanic-jwt = "*"
 simple-bcrypt = "*"
 pytest-sanic = "*"
 pandas = "*"
+sanic-cors = "*"
 
 [requires]
 python_version = "3.6"
