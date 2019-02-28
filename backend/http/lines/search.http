@@ -1,6 +1,9 @@
 ### Search By English
-GET http://localhost:8000/lines/search/english/hi?page=1
+GET http://localhost:8000/lines/search/english/this?page=1
 Content-Type: application/json
+
+### Get Matched Translations
+GET http://localhost:8000/lines/search/most_liked_translations?line_ids=[2,5,12,14,15,16,19,20,25,32]
 
 ### Search By Korean
 GET http://localhost:8000/lines/search/korean/민호

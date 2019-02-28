@@ -1,4 +1,5 @@
-from sanic.response import json
+import json
+
 from sanic.exceptions import ServerError
 
 from .blueprint import lines_bp
@@ -13,21 +14,24 @@ page_size = 10
 async def search_english(request, keyword: str):
     """ search english """
 
+    line = models.Line
+
     page = int(request.args.get('page', 1))
 
     if len(keyword) < 2:
         raise ServerError(
             "Keyword length must be greater than 2", status_code=400)
 
-    line = models.Line
-
-    max_page = await calc_max_page(page_size, line.line.ilike('%'+keyword+'%'))
+    max_page = await calc_max_page(page_size, line.line.op('~*')(keyword+'[\.?, ]'))
 
     if page > max_page:
         raise ServerError("Nothing Found", status_code=404)
 
-    lines = await line.query.where(line.line.ilike('%'+keyword+'%')).limit(page_size).offset(page).gino.all()
-    lines = [each.to_dict() for each in lines]
+    lines = await line.query.where(
+        line.line.op('~*')(keyword+'[\.?, ]')
+    ).limit(page_size).offset(page).gino.all()
+
+    lines = [line.to_dict() for line in lines]
 
     data = {
         'max_page': max_page,
@@ -37,8 +41,42 @@ async def search_english(request, keyword: str):
     return jsonify(data)
 
 
+@lines_bp.route('/search/most_liked_translations', methods=['GET'])
+async def get_most_liked_translations(request):
+    """
+    각 라인별로 가장 좋아요를 많이 받은 번역을 리턴
+
+    url params
+    ----------
+    line_ids: array-like-string 
+    """
+    line_ids = request.args.get('line_ids', '[]')
+    line_ids = json.loads(line_ids)
+
+    if not line_ids:
+        raise ServerError("Nothing Found", status_code=404)
+
+    query = f"""
+        SELECT t2.id, t2.translation, t2.line_id FROM (
+            SELECT t1.*, row_number() over (partition by t1.line_id ORDER BY t1.trans_like_count DESC) as rn 
+            FROM (
+                SELECT translation.id, translation.translation, 
+                    translation.line_id, count(translation_like.translation_id) AS trans_like_count
+                FROM translation LEFT OUTER JOIN translation_like ON translation.id = translation_like.translation_id 
+                    GROUP BY translation.id HAVING translation.line_id IN {tuple(line_ids)}
+            ) t1 ) t2
+        WHERE t2.rn = 1
+    """
+
+    res = await db.status(query)
+    data = {f'line_{each[2]}': {'id': each[0], 'translation': each[1]}
+            for each in res[1]}
+
+    return jsonify(data, ensure_ascii=False)
+
+
 @lines_bp.route('/search/korean/<keyword>', methods=['GET'])
-async def search_korean(request, keyword):
+async def search_korean(request, keyword: str):
     """ search korean """
 
     page = int(request.args.get('page', 1))
@@ -57,10 +95,14 @@ async def search_korean(request, keyword):
     translations = await translation.load(line=line).where(
         translation.translation.ilike('%'+keyword+'%')).gino.all()
 
-    data = []
-    for each in translations:
-        data.append({**each.to_dict(), **{'line': each.line.to_dict()}})
+    translations = [{**each.to_dict(show=['id', 'translation']),
+                     **each.line.to_dict(show=['line'])} for each in translations]
 
+    data = {
+        'max_page': max_page,
+        'page': page,
+        'lines': translations,
+    }
     return jsonify(data, ensure_ascii=False)
 
 
