@@ -18,3 +18,10 @@ class BaseModel(db.Model):
 
         else:
             return {each: getattr(self, each) for each in show}
+
+
+class TimeStampedModel(BaseModel):
+
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(
+        db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
