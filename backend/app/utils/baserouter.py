@@ -6,7 +6,7 @@ from sanic.exceptions import ServerError
 from sanic.views import HTTPMethodView
 
 from app import db
-from app.utils.serializers import jsonify
+from app.utils.serializer import jsonify
 
 
 class ListRouter(HTTPMethodView):

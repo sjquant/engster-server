@@ -8,7 +8,7 @@ from sanic.exceptions import ServerError
 
 from .blueprint import lines_bp
 from app.core import converter
-from app.utils.serializers import jsonify
+from app.utils.serializer import jsonify
 from app import models, db
 
 
