@@ -1,5 +1,5 @@
 ### Search By English
-GET http://localhost:8000/lines/search/english/this?page=4
+GET http://localhost:8000/lines/search/english/minho
 Content-Type: application/json
 
 ### Search By Korean

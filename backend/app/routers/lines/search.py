@@ -76,7 +76,6 @@ async def search_english(request, keyword: str):
 
     line = models.Line
     content = models.Content
-
     page = int(request.args.get('page', 1))
 
     if len(keyword) < 2:
@@ -88,22 +87,22 @@ async def search_english(request, keyword: str):
     if page > max_page:
         raise ServerError("Nothing Found", status_code=404)
 
-    lines = await line.load(content=content).load().query.where(
+    lines = await line.load(content=content).query.where(
         line.line.op('~*')(keyword+r'[\.?, ]')
     ).limit(page_size).offset(page).gino.all()
 
     line_ids = []
     content_ids = []
-    for line in lines:
-        line_ids.append(line.id)
-        content_ids.append(line.content.id)
+    for each in lines:
+        line_ids.append(each.id)
+        content_ids.append(each.content.id)
 
     translations = await get_most_liked_translations(line_ids)
     genres = await get_genres_for_content(content_ids)
 
     lines = [
         {
-            **line.to_dict(['id', 'line', 'time']),
+            **line.to_dict(['id', 'line']),
             **{
                 'translation': translations[f'line_{line.id}']
             },
@@ -132,16 +131,30 @@ async def search_korean(request, keyword: str):
 
     translation = models.Translation
     line = models.Line
+    content = models.Content
 
     max_page = await calc_max_page(page_size, translation.translation.ilike('%'+keyword+'%'))
     if page > max_page:
         raise ServerError("Nothing Found", status_code=404)
 
-    translations = await translation.load(line=line).where(
+    translations = await translation.load(line=line).load(content=content).where(
         translation.translation.ilike('%'+keyword+'%')).gino.all()
 
-    translations = [{**each.to_dict(show=['id', 'translation']),
-                     **each.line.to_dict(show=['line'])} for each in translations]
+    content_ids = [each.content.id for each in translations]
+
+    genres = await get_genres_for_content(content_ids)
+    translations = [{
+        **each.to_dict(show=['id', 'translation']),
+        **{
+            'line': each.line.to_dict(show=['id', 'line'])
+        },
+        **{
+            'content': each.content.to_dict(show=['id', 'title'])
+        },
+        **{
+            'genres':  genres[f'content_{each.content.id}']
+        }
+    } for each in translations]
 
     data = {
         'max_page': max_page,
