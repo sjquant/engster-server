@@ -2,7 +2,7 @@ from sanic import Blueprint
 from sanic.response import json
 
 from app.models import User
-from app.utils.serializers import jsonify
+from app.utils.serializer import jsonify
 
 auth_bp = Blueprint('_auth_bp', url_prefix='/auth')
 

@@ -1,7 +1,7 @@
 from sqlalchemy.dialects.postgresql import UUID
 
 from app import db
-from app.utils.basemodel import BaseModel
+from app.utils.basemodel import BaseModel, TimeStampedModel
 
 
 class Content(BaseModel):
@@ -97,11 +97,23 @@ class Line(BaseModel):
     content_id = db.Column(db.Integer, db.ForeignKey(
         'content.id'), nullable=False)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._translations = list()
+
     def __repr__(self):
         return '<Line {}>'.format(self.line)
 
+    @property
+    def translations(self):
+        return self._translations
 
-class LineLike(BaseModel):
+    @translations.setter
+    def add_translation(self, translation):
+        self._translations.append(translation)
+
+
+class LineLike(TimeStampedModel):
 
     __tablename__ = 'line_like'
 
@@ -114,7 +126,7 @@ class LineLike(BaseModel):
         return '<Line Like {}>'.format(self.id)
 
 
-class Translation(BaseModel):
+class Translation(TimeStampedModel):
 
     __tablename__ = 'translation'
 
@@ -130,9 +142,9 @@ class Translation(BaseModel):
         return '<Translation {}>'.format(self.translation)
 
 
-class TranslationLike(BaseModel):
+class TranslationLike(TimeStampedModel):
 
-    __talbename__ = 'translation_like'
+    __tablename__ = 'translation_like'
 
     id = db.Column('id', db.Integer, db.Sequence(
         'translation_like_seq'), primary_key=True)
