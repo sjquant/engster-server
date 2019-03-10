@@ -7,5 +7,5 @@ GET http://localhost:8000/lines/search/korean/민호
 Content-Type: application/json
 
 ### Search Context
-GET http://localhost:8000/lines/search/context/1
+GET http://localhost:8000/lines/search/context/19/1462
 Content-Type: application/json

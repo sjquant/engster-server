@@ -29,17 +29,11 @@
 <script>
 import LineCard from "~/components/common/LineCard.vue";
 import Tag from "~/components/common/Tag.vue";
-import { searchLineEnglish } from "~/api/lines.js";
 
 export default {
   components: {
     LineCard,
     Tag
-  },
-  mounted() {
-    searchLineEnglish("hi").then(res => {
-      console.log(res);
-    });
   }
 };
 </script>
