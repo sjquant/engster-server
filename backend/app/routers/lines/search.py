@@ -46,15 +46,15 @@ async def get_genres_for_content(content_ids: List[int]):
     """
     해당 id를 가진 genres를 리턴
     """
-    genre = models.Genre
-    contentXgenre = models.ContentXGenre
+    Genre = models.Genre
+    ContentXGenre = models.ContentXGenre
 
     query = db.select(
-        [genre.id, genre.genre, contentXgenre.content_id]
+        [Genre.id, Genre.genre, ContentXGenre.content_id]
     ).select_from(
-        genre.join(contentXgenre)
+        Genre.join(ContentXGenre)
     ).where(
-        contentXgenre.content_id.in_(content_ids)
+        ContentXGenre.content_id.in_(content_ids)
     )
 
     res = await query.gino.all()
@@ -74,21 +74,21 @@ async def get_genres_for_content(content_ids: List[int]):
 async def search_english(request, keyword: str):
     """ search english """
 
-    line = models.Line
-    content = models.Content
+    Line = models.Line
+    Content = models.Content
     page = int(request.args.get('page', 1))
 
     if len(keyword) < 2:
         raise ServerError(
             "Keyword length must be greater than 2", status_code=400)
 
-    max_page = await calc_max_page(page_size, line.line.op('~*')(keyword+r'[\.?, ]'))
+    max_page = await calc_max_page(page_size, Line.line.op('~*')(keyword+r'[\.?, ]'))
 
     if page > max_page:
         raise ServerError("Nothing Found", status_code=404)
 
-    lines = await line.load(content=content).query.where(
-        line.line.op('~*')(keyword+r'[\.?, ]')
+    lines = await Line.load(content=Content).query.where(
+        Line.line.op('~*')(keyword+r'[\.?, ]')
     ).limit(page_size).offset(page).gino.all()
 
     line_ids = []
@@ -129,16 +129,16 @@ async def search_korean(request, keyword: str):
         raise ServerError(
             "Keyword length must be greater than 2", status_code=400)
 
-    translation = models.Translation
-    line = models.Line
-    content = models.Content
+    Translation = models.Translation
+    Line = models.Line
+    Content = models.Content
 
-    max_page = await calc_max_page(page_size, translation.translation.ilike('%'+keyword+'%'))
+    max_page = await calc_max_page(page_size, Translation.translation.ilike('%'+keyword+'%'))
     if page > max_page:
         raise ServerError("Nothing Found", status_code=404)
 
-    translations = await translation.load(line=line).load(content=content).where(
-        translation.translation.ilike('%'+keyword+'%')).gino.all()
+    translations = await Translation.load(line=Line).load(content=Content).where(
+        Translation.translation.ilike('%'+keyword+'%')).gino.all()
 
     content_ids = [each.content.id for each in translations]
 
@@ -167,6 +167,5 @@ async def search_korean(request, keyword: str):
 @lines_bp.route('/search/context/<line_id:int>', methods=['GET'])
 async def search_context(request, line_id):
     """ search context """
-    return jsonify({
-        "context를": '반환합니다.'
-    }, ensure_ascii=False)
+
+    Line = models.Line

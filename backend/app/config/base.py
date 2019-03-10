@@ -18,10 +18,6 @@ elif ENV == 'production':
 BASE_DIR = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))
 
-BCRYPT_LOG_ROUNDS = 12
-BCRYPT_HASH_PREFIX = '2b'
-BCRYPT_HANDLE_LONG_PASSWORDS = False
-
 DB_PORT = '5432'
 DB_DATABASE = os.getenv('DB_NAME')
 DB_HOST = os.getenv('DB_HOST')

@@ -15,11 +15,10 @@ python-dotenv = "*"
 jwt = "*"
 alembic = "*"
 psycopg2 = "*"
-sanic-jwt = "*"
-simple-bcrypt = "*"
 pytest-sanic = "*"
 pandas = "*"
 sanic-cors = "*"
+sanic-jwt = "*"
 
 [requires]
 python_version = "3.6"

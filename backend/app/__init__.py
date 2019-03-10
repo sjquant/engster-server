@@ -2,10 +2,8 @@ from sanic import Sanic
 from gino.ext.sanic import Gino
 from sanic_jwt import initialize
 from sanic_cors import CORS
-from simple_bcrypt import Bcrypt
 
 db = Gino()
-bcrypt = Bcrypt()
 
 
 def init_auth(app):
@@ -31,7 +29,6 @@ def create_app(config):
     app.config.from_object(config)
     db.init_app(app)
     CORS(app, origins=app.config.get('ORIGINS', '*'))
-    bcrypt.init_app(app)
     init_auth(app)
 
     from app import routers
