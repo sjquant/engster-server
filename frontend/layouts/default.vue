@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import MainHead from "~/components/base/MainNav/MainHead.vue";
-import MainContentContainer from "~/components/base/MainContentContainer/MainContentContainer.vue";
-import SideContentContainer from "~/components/base/SideContentContainer/SideContentContainer.vue";
+import MainHead from "~/components/MainNav/MainHead.vue";
+import MainContentContainer from "~/components/MainContentContainer/MainContentContainer.vue";
+import SideContentContainer from "~/components/SideContentContainer/SideContentContainer.vue";
 export default {
   components: {
     MainHead,

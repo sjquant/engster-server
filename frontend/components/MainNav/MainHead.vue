@@ -4,7 +4,7 @@
       <MainLogo/>
       <MainSearchBar/>
       <div class="side-head-container">
-        <MobileMenu/>
+        <MobileMenuIcon/>
       </div>
     </div>
   </div>
@@ -12,12 +12,12 @@
 <script>
 import MainLogo from "./MainLogo/MainLogo.vue";
 import MainSearchBar from "./MainSearchBar/MainSearchBar.vue";
-import MobileMenu from "./MobileMenu/MobileMenu.vue";
+import MobileMenuIcon from "./MobileMenu/MobileMenuIcon.vue";
 export default {
   components: {
     MainLogo,
     MainSearchBar,
-    MobileMenu
+    MobileMenuIcon
   }
 };
 </script>
