@@ -6,7 +6,6 @@ Thanks Django (https://github.com/django/django/blob/master/django)
 import hashlib
 import hmac
 import secrets
-import time
 import base64
 
 

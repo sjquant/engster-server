@@ -2,7 +2,6 @@ import datetime
 import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import text as sa_text
 
 from app import db
 from app.core.hasher import PBKDF2PasswordHasher

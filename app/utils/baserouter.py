@@ -1,6 +1,5 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
-from sqlalchemy.sql.selectable import Select
 from sanic.response import json
 from sanic.exceptions import ServerError
 from sanic.views import HTTPMethodView
@@ -11,9 +10,9 @@ from app.utils.serializer import jsonify
 
 class ListRouter(HTTPMethodView):
 
-    model: db.Model = None
-    list_display: list = None
-    page_size: int = None
+    model: Optional[db.Model] = None
+    list_display: Optional[list] = None
+    page_size: Optional[int] = None
 
     def get_query(self):
         return self.model.query
@@ -27,9 +26,9 @@ class ListRouter(HTTPMethodView):
         offset = (page-1) * page_size
         return page_size, offset
 
-    async def get(self, request, **kwargs) -> json:
+    async def get(self, request) -> json:
 
-        query = self.get_query(**kwargs)
+        query = self.get_query()
         pagesize, offset = self.get_pagesize_and_offset(request)
 
         data = await query.limit(pagesize).offset(offset).gino.all()
@@ -49,7 +48,7 @@ class ListRouter(HTTPMethodView):
 class DetailRouter(HTTPMethodView):
 
     # Model
-    model: db.Model = None
+    model: Optional[db.Model] = None
     list_display: list = []
 
     async def get_instance(self, id):

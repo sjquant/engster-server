@@ -1,4 +1,3 @@
-import json
 import datetime
 import uuid
 
@@ -6,8 +5,8 @@ from sanic.response import json
 
 
 def custom_json_encoder(obj):
-    """ 
-    JSON serializer for objects not serializable by default json code 
+    """
+    JSON serializer for objects not serializable by default json code
     https://stackoverflow.com/a/22238613
     """
 

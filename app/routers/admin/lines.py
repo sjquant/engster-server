@@ -1,7 +1,5 @@
-import os
 import datetime
 from io import BytesIO
-from typing import Optional
 
 import pandas as pd
 from sanic.exceptions import ServerError
@@ -9,7 +7,7 @@ from sanic.exceptions import ServerError
 from .blueprint import admin_bp
 from app.core import converter
 from app.utils.serializer import jsonify
-from app import models, db
+from app import models
 
 
 @admin_bp.route('/lines/convert_subtitle', methods=['POST'])

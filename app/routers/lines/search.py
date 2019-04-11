@@ -1,5 +1,4 @@
 from typing import List
-import json
 
 from sanic.exceptions import ServerError
 
@@ -42,7 +41,7 @@ async def get_most_liked_translations(line_ids: List[int]):
     return data
 
 
-async def get_genres_for_content(content_ids: List[int]):
+async def get_genres_for_content(content_ids: List[int]) -> dict:
     """
     해당 id를 가진 genres를 리턴
     """
@@ -59,7 +58,7 @@ async def get_genres_for_content(content_ids: List[int]):
 
     res = await query.gino.all()
 
-    data = {}
+    data: dict = {}
     for each in res:
         content = data.setdefault(f'content_{each[2]}', [])
         content.append({

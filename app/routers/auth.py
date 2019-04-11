@@ -1,6 +1,5 @@
 import asyncpg
 from sanic import Blueprint
-from sanic.response import json
 from sanic.exceptions import ServerError
 
 from app.models import User
