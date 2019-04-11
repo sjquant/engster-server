@@ -10,12 +10,6 @@ Learn Real English with Engster!
 
 ## Development Stack
 
-### Frontend
-
-- Vue.js
-- Nuxt.js
-- scss
-
 ### Backend
 
 - Python
