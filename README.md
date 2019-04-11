@@ -1,20 +1,21 @@
-# Engster
+# Engster-Server
 
-engster.co.kr
+**Engster** is my personal project to help korean people to learn real English from film, youtube, etc.
 
-(Currently, this website has not been implemented by this source. I'm going to change it soon.)
-
-Learn Real English with Engster!
-
-실제 표현을 통해 진짜 영어를 배우자!
+This is server side repository
 
 ## Development Stack
 
-### Backend
+### Language
 
 - Python
-- Sanic
-- Gino
+
+### 3rd Party Library
+
+- [sanic](https://github.com/huge-success/sanic)
+- [Sanic-JWT](https://github.com/ahopkins/sanic-jwt)
+- [Sanic-CORS](https://github.com/ashleysommer/sanic-cors)
+- [Gino](https://github.com/fantix/gino/blob/master/docs/index.rst)
 
 ### Database
 
