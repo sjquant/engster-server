@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 
 # load env
 ENVDIR = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(os.path.join(ENVDIR, 'secrets/.env.base'))
+load_dotenv(os.path.join(ENVDIR, 'secrets/.env'))
 
-ENV = os.getenv('ENV', 'local')
+ENV = os.getenv('ENGSTER_ENV', 'local')
 
 if ENV == 'local':
     load_dotenv(os.path.join(ENVDIR, 'secrets/.env.local'))

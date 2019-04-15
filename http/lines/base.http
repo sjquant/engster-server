@@ -35,11 +35,11 @@ GET http://localhost:8000/lines/base/categories/1
 Content-Type: application/json
 
 ### Change Individual Category
-PUT http://localhost:8000/lines/base/categories/7
+PUT http://localhost:8000/lines/base/categories/3
 Content-Type: application/json
 
 {
-    "category":"drama series"
+    "category":"tv drama"
 }
 
 ### Delete Individual Category

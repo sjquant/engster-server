@@ -142,7 +142,7 @@ async def upload_eng_subtitle(request, content_id):
 
 @admin_bp.route('/lines/upload_kor_subtitle/<content_id:int>', methods=['POST'])
 async def update_kor_subtitle(request, content_id):
-    lines = await models.Line.query.where(content_id == content_id).gino.all()
+    lines = await models.Line.query.where(content_id == content_id).order_by('id').gino.all()
 
     if lines is None:
         # lines are necessary

@@ -6,7 +6,7 @@ Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0g
 Content-Disposition: form-data; name="input"; filename="Inside Out.smi"
 Content-Type: text/plain
 
-< D:/SJ/engster/subtitles/InsideOut.smi
+< ../examples/InsideOut.smi
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="output"
 
@@ -21,7 +21,7 @@ Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0g
 Content-Disposition: form-data; name="input"; filename="Inside Out.srt"
 Content-Type: text/plain
 
-< D:/SJ/engster/subtitles/InsideOut.srt
+< ../examples/InsideOut.srt
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="output"
 
@@ -36,12 +36,12 @@ Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0g
 Content-Disposition: form-data; name="input_eng"; filename="Inside Out.srt"
 Content-Type: text/plain
 
-< D:/SJ/engster/subtitles/InsideOut.srt
+< ../examples/InsideOut.srt
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="input_kor"; filename="Inside Out.smi"
 Content-Type: text/plain
 
-< D:/SJ/engster/subtitles/InsideOut.smi
+< ../examples/InsideOut.smi
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="output"
 
@@ -61,24 +61,24 @@ Content-Type: application/json
 }
 
 ### Upload Eng Subtitle (Maze Runner)
-POST http://localhost:8000/admin/lines/upload_eng_subtitle/19
+POST http://localhost:8000/admin/lines/upload_eng_subtitle/1
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="input_file"; filename="TheMazeRunner.csv"
 Content-Type: text/csv
 
-< D:/SJ/engster/processed/TheMazeRunner.csv
+< ../examples/TheMazeRunner.csv
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 
 ### Upload Kor Subtitle
-POST http://localhost:8000/admin/lines/upload_kor_subtitle/19
+POST http://localhost:8000/admin/lines/upload_kor_subtitle/1
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="input_file"; filename="TheMazeRunner.csv"
 Content-Type: text/csv
 
-< D:/SJ/engster/processed/TheMazeRunner.csv
+< ../examples/TheMazeRunner.csv
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--

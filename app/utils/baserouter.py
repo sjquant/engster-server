@@ -14,7 +14,7 @@ class ListRouter(HTTPMethodView):
     list_display: Optional[list] = None
     page_size: Optional[int] = None
 
-    def get_query(self):
+    def get_query(self, *args, **kwargs):
         return self.model.query
 
     def get_pagesize_and_offset(self, request) -> Tuple[int, int]:
@@ -26,9 +26,9 @@ class ListRouter(HTTPMethodView):
         offset = (page-1) * page_size
         return page_size, offset
 
-    async def get(self, request) -> json:
+    async def get(self, request, *args, **kwargs) -> json:
 
-        query = self.get_query()
+        query = self.get_query(*args, **kwargs)
         pagesize, offset = self.get_pagesize_and_offset(request)
 
         data = await query.limit(pagesize).offset(offset).gino.all()
