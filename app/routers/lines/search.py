@@ -91,21 +91,13 @@ async def search_english(request, keyword: str):
         Line.line.op('~*')(keyword+r'[\.?, ]')
     ).limit(page_size).offset(page).gino.all()
 
-    line_ids = []
-    content_ids = []
-    for each in lines:
-        line_ids.append(each.id)
-        content_ids.append(each.content.id)
+    content_ids = [each.content.id for each in lines]
 
-    translations = await get_most_liked_translations(line_ids)
     genres = await get_genres_for_content(content_ids)
 
     lines = [
         {
             **line.to_dict(['id', 'line']),
-            **{
-                'translation': translations[f'line_{line.id}']
-            },
             **{'content': line.content.to_dict(['id', 'title'])},
             **{'genre': genres[f'content_{line.content.id}']}
         } for line in lines
