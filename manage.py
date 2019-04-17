@@ -1,7 +1,7 @@
 import os
 import click
 from alembic.config import Config
-from app.utils.config import set_env
+from app.utils.config import get_config
 
 
 @click.group()
@@ -19,7 +19,7 @@ def runserver(port, env):
     """
     Run Sanic server
     """
-    config = set_env(env)
+    config = get_config(env)
     from app import create_app
     app = create_app(config)
     app.run(port=port, debug=app.config['DEBUG'])
@@ -31,7 +31,7 @@ def creatsuperuser(env):
     """
     Create Admin User
     """
-    config = set_env(env)
+    config = get_config(env)
     # It needs to be loaded after all config file loaded
     from app import create_app
     app = create_app(config)
@@ -45,7 +45,7 @@ def current(env):
     """
     from alembic.command import current
 
-    config = set_env(env)
+    config = get_config(env)
 
     alembic_ini_path = os.path.join(config.BASE_DIR, 'alembic.ini')
     alembic_cfg = Config(alembic_ini_path)
@@ -60,7 +60,7 @@ def migrationshistory(env):
     Show history revision
     """
     from alembic.command import history
-    config = set_env(env)
+    config = get_config(env)
 
     alembic_ini_path = os.path.join(config.BASE_DIR, 'alembic.ini')
     alembic_cfg = Config(alembic_ini_path)
@@ -76,7 +76,7 @@ def makemigrations(m, env):
     Auto make migrations
     """
     from alembic.command import revision
-    config = set_env(env)
+    config = get_config(env)
 
     alembic_ini_path = os.path.join(config.BASE_DIR, 'alembic.ini')
     alembic_cfg = Config(alembic_ini_path)
@@ -95,7 +95,7 @@ def migrate(env):
     Apply migrations
     """
     from alembic.command import upgrade
-    config = set_env(env)
+    config = get_config(env)
 
     alembic_ini_path = os.path.join(config.BASE_DIR, 'alembic.ini')
     alembic_cfg = Config(alembic_ini_path)

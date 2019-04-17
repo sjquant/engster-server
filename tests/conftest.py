@@ -2,12 +2,12 @@
 import pytest
 
 from app import create_app
-from app.utils.config import set_env
+from app.utils.config import get_config
 
 
 @pytest.yield_fixture
 def app():
-    set_env('test')
+    get_config('test')
     from app import create_app
     app = create_app('test')
     yield app
