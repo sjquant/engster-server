@@ -4,8 +4,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-"autopep8" = "*"
-pylint = "*"
+autopep8 = "*"
+flake8 = "*"
+mypy = "*"
+rope = "*"
 
 [packages]
 gino = "*"
@@ -14,11 +16,8 @@ sanic = "*"
 python-dotenv = "*"
 jwt = "*"
 alembic = "*"
-psycopg2 = "*"
+psycopg2 = "==2.7.7"
 pytest-sanic = "*"
 pandas = "*"
 sanic-cors = "*"
 sanic-jwt = "*"
-
-[requires]
-python_version = "3.6"
