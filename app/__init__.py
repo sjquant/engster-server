@@ -31,7 +31,7 @@ def create_app(config):
     CORS(app, origins=app.config.get('ORIGINS', '*'))
     init_auth(app)
 
-    from app import routers
-    routers.init_app(app)
+    from app import views
+    views.init_app(app)
 
     return app
