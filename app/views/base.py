@@ -1,6 +1,9 @@
+from sanic.blueprints import Blueprint
+
 from app import models
 from app.utils.baserouter import ListRouter, DetailRouter
-from .blueprint import lines_bp
+
+blueprint = Blueprint('base_blueprint', url_prefix='/base')
 
 
 class ContentList(ListRouter):
@@ -36,9 +39,9 @@ class GenreDetail(DetailRouter):
     list_display = ['id', 'genre']
 
 
-lines_bp.add_route(ContentList.as_view(), '/base/contents')
-lines_bp.add_route(CategoryList.as_view(), '/base/categories')
-lines_bp.add_route(GenreList.as_view(), '/base/genres')
-lines_bp.add_route(LineList.as_view(), '/base/lines/<content_id:int>')
-lines_bp.add_route(CategoryDetail.as_view(), '/base/categories/<id:int>')
-lines_bp.add_route(GenreDetail.as_view(), '/base/genres/<id:int>')
+blueprint.add_route(ContentList.as_view(), '/contents')
+blueprint.add_route(CategoryList.as_view(), '/categories')
+blueprint.add_route(GenreList.as_view(), '/genres')
+blueprint.add_route(LineList.as_view(), '/lines/<content_id:int>')
+blueprint.add_route(CategoryDetail.as_view(), '/categories/<id:int>')
+blueprint.add_route(GenreDetail.as_view(), '/genres/<id:int>')

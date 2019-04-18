@@ -5,10 +5,10 @@ from sanic.exceptions import ServerError
 from app.models import User
 from app.utils.serializer import jsonify
 
-auth_bp = Blueprint('_auth_bp', url_prefix='/auth')
+blueprint = Blueprint('auth_blueprint', url_prefix='/auth')
 
 
-@auth_bp.route('/register', methods=['POST'])
+@blueprint.route('/register', methods=['POST'])
 async def register(request):
     """ register user """
 

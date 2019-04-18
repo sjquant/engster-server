@@ -1,16 +1,19 @@
 import datetime
 from io import BytesIO
 
-import pandas as pd
 from sanic.exceptions import ServerError
+from sanic.blueprints import Blueprint
 
-from .blueprint import admin_bp
+import pandas as pd
+
 from app.core import converter
 from app.utils.serializer import jsonify
 from app import models
 
+blueprint = Blueprint('subtitle', url_prefix='/subtitle')
 
-@admin_bp.route('/lines/convert_subtitle', methods=['POST'])
+
+@blueprint.route('/convert_subtitle', methods=['POST'])
 async def convert_single_file(request):
     """
     Convert Single File
@@ -40,7 +43,7 @@ async def convert_single_file(request):
     }, 201)
 
 
-@admin_bp.route('/lines/combine_convert', methods=['POST'])
+@blueprint.route('/combine_convert', methods=['POST'])
 async def combine_to_single_file(request):
     """
     Convert Single File
@@ -81,7 +84,7 @@ async def combine_to_single_file(request):
     }, status=201)
 
 
-@admin_bp.route('/lines/upload_content', methods=['POST'])
+@blueprint.route('/upload_content', methods=['POST'])
 async def upload_content(request):
     """
     Upload Single File
@@ -122,7 +125,7 @@ async def upload_content(request):
     return jsonify(content.to_dict(), 201)
 
 
-@admin_bp.route('/lines/upload_eng_subtitle/<content_id:int>', methods=['POST'])
+@blueprint.route('/upload_eng_subtitle/<content_id:int>', methods=['POST'])
 async def upload_eng_subtitle(request, content_id):
     content = await models.Content.get(content_id)
     if content is None:
@@ -140,7 +143,7 @@ async def upload_eng_subtitle(request, content_id):
     return jsonify({'message': 'eng subtitle uploaded...'}, 201)
 
 
-@admin_bp.route('/lines/upload_kor_subtitle/<content_id:int>', methods=['POST'])
+@blueprint.route('/upload_kor_subtitle/<content_id:int>', methods=['POST'])
 async def update_kor_subtitle(request, content_id):
     lines = await models.Line.query.where(content_id == content_id).order_by('id').gino.all()
 

@@ -1,13 +1,14 @@
 from typing import List
 
 from sanic.exceptions import ServerError
+from sanic.blueprints import Blueprint
 
-from .blueprint import lines_bp
 from app import models, db
 from app.utils import calc_max_page
 from app.utils.serializer import jsonify
 
 page_size = 10
+blueprint = Blueprint('search_blueprint', url_prefix='search')
 
 
 async def get_most_liked_translations(line_ids: List[int]):
@@ -69,7 +70,7 @@ async def get_genres_for_content(content_ids: List[int]) -> dict:
     return data
 
 
-@lines_bp.route('/search/english/<keyword:string>', methods=['GET'])
+@blueprint.route('/english/<keyword:string>', methods=['GET'])
 async def search_english(request, keyword: str):
     """ search english """
 
@@ -111,7 +112,7 @@ async def search_english(request, keyword: str):
     return jsonify(data, ensure_ascii=False)
 
 
-@lines_bp.route('/search/korean/<keyword:string>', methods=['GET'])
+@blueprint.route('/korean/<keyword:string>', methods=['GET'])
 async def search_korean(request, keyword: str):
     """ search korean """
 
@@ -156,7 +157,7 @@ async def search_korean(request, keyword: str):
     return jsonify(data, ensure_ascii=False)
 
 
-@lines_bp.route('/search/context/<content_id:int>/<line_id:int>', methods=['GET'])
+@blueprint.route('/context/<content_id:int>/<line_id:int>', methods=['GET'])
 async def search_context(request, content_id, line_id):
     """ search context """
 
