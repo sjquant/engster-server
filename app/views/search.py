@@ -86,7 +86,11 @@ async def search_english(request, keyword: str):
     max_page = await calc_max_page(page_size, Line.line.op('~*')(keyword+r'[\.?, ]'))
 
     if page > max_page:
-        raise ServerError("Nothing Found", status_code=404)
+        return jsonify({
+            'max_page': 0,
+            'page': 0,
+            'lines': []
+        })
 
     lines = await Line.load(content=Content).query.where(
         Line.line.op('~*')(keyword+r'[\.?, ]')
@@ -128,8 +132,11 @@ async def search_korean(request, keyword: str):
 
     max_page = await calc_max_page(page_size, Translation.translation.ilike('%'+keyword+'%'))
     if page > max_page:
-        raise ServerError("Nothing Found", status_code=404)
-
+        return {
+            'max_page': 0,
+            'page': 0,
+            'lines': []
+        }
     translations = await Translation.load(line=Line).load(content=Content).where(
         Translation.translation.ilike('%'+keyword+'%')).gino.all()
 
