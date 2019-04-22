@@ -64,24 +64,26 @@ async def get_genres_for_content(content_ids: List[int]) -> dict:
         content = data.setdefault(f'content_{each[2]}', [])
         content.append({
             'id': each[0],
-            'genres': each[1]
+            'genre': each[1]
         })
 
     return data
 
 
-@blueprint.route('/english/<keyword:string>', methods=['GET'])
-async def search_english(request, keyword: str):
+@blueprint.route('/english', methods=['GET'])
+async def search_english(request):
     """ search english """
 
     page = int(request.args.get('page', 1))
+    keyword = request.args.get('keyword', '')
 
     Line = models.Line
     Content = models.Content
+    Category = models.Category
 
     if len(keyword) < 2:
         raise ServerError(
-            "Keyword length must be greater than 2", status_code=400)
+            "keyword length must be greater than 2", status_code=400)
 
     max_page = await calc_max_page(page_size, Line.line.op('~*')(keyword+r'[\.?, ]'))
 
@@ -92,7 +94,7 @@ async def search_english(request, keyword: str):
             'lines': []
         })
 
-    lines = await Line.load(content=Content).query.where(
+    lines = await Line.load(content=Content).load(category=Category).query.where(
         Line.line.op('~*')(keyword+r'[\.?, ]')
     ).limit(page_size).offset(page).gino.all()
 
@@ -104,7 +106,8 @@ async def search_english(request, keyword: str):
         {
             **line.to_dict(['id', 'line']),
             **{'content': line.content.to_dict(['id', 'title'])},
-            **{'genre': genres[f'content_{line.content.id}']}
+            **{'category': line.category.to_dict()},
+            **{'genres': genres[f'content_{line.content.id}']}
         } for line in lines
     ]
 
@@ -116,19 +119,21 @@ async def search_english(request, keyword: str):
     return jsonify(data, ensure_ascii=False)
 
 
-@blueprint.route('/korean/<keyword:string>', methods=['GET'])
-async def search_korean(request, keyword: str):
+@blueprint.route('/korean', methods=['GET'])
+async def search_korean(request):
     """ search korean """
 
     page = int(request.args.get('page', 1))
+    keyword = request.args.get('keyword', '')
 
     if len(keyword) < 2:
         raise ServerError(
-            "Keyword length must be greater than 2", status_code=400)
+            "keyword length must be greater than 2", status_code=400)
 
     Translation = models.Translation
     Line = models.Line
     Content = models.Content
+    Category = models.Category
 
     max_page = await calc_max_page(page_size, Translation.translation.ilike('%'+keyword+'%'))
     if page > max_page:
@@ -137,7 +142,8 @@ async def search_korean(request, keyword: str):
             'page': 0,
             'lines': []
         }
-    translations = await Translation.load(line=Line).load(content=Content).where(
+    translations = await Translation.load(
+        line=Line).load(content=Content).load(category=Category).where(
         Translation.translation.ilike('%'+keyword+'%')).gino.all()
 
     content_ids = [each.content.id for each in translations]
@@ -150,6 +156,9 @@ async def search_korean(request, keyword: str):
         },
         **{
             'content': each.content.to_dict(show=['id', 'title'])
+        },
+        **{
+            'category': each.category.to_dict()
         },
         **{
             'genres':  genres[f'content_{each.content.id}']

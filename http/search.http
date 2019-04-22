@@ -1,9 +1,9 @@
 ### Search By English
-GET http://localhost:8000/search/english/minho
+GET http://localhost:8000/search/english?keyword=minho
 Content-Type: application/json
 
 ### Search By Korean
-GET http://localhost:8000/search/korean/아니
+GET http://localhost:8000/search/korean?keyword=아니
 Content-Type: application/json
 
 ### Search Context
