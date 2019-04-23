@@ -3,6 +3,7 @@ from gino.ext.sanic import Gino
 from sanic_jwt import initialize
 from sanic_cors import CORS
 
+
 db = Gino()
 
 
@@ -21,10 +22,13 @@ def init_auth(app):
                )
 
 
-def create_app(config):
+def create_app(env: str = 'local'):
     """
     Create Sanic Application
     """
+    from app.utils.config import get_config
+    config = get_config(env)
+
     app = Sanic()
     app.config.from_object(config)
     db.init_app(app)

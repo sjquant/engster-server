@@ -19,9 +19,8 @@ def runserver(port, env):
     """
     Run Sanic server
     """
-    config = get_config(env)
     from app import create_app
-    app = create_app(config)
+    app = create_app(env)
     app.run(port=port, debug=app.config['DEBUG'])
 
 
@@ -61,7 +60,7 @@ def migrationshistory(env):
     """
     from alembic.command import history
     config = get_config(env)
-
+    print(config.BASE_DIR)
     alembic_ini_path = os.path.join(config.BASE_DIR, 'alembic.ini')
     alembic_cfg = Config(alembic_ini_path)
 
@@ -77,7 +76,6 @@ def makemigrations(m, env):
     """
     from alembic.command import revision
     config = get_config(env)
-
     alembic_ini_path = os.path.join(config.BASE_DIR, 'alembic.ini')
     alembic_cfg = Config(alembic_ini_path)
     alembic_cfg.set_main_option('db_url', config.DB_URL)

@@ -3,7 +3,16 @@ from typing import List
 from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
 
-from app import models, db
+from app import db
+from app.models import (
+    Line,
+    Translation,
+    Content,
+    Genre,
+    Category,
+    ContentXGenre
+)
+
 from app.utils import calc_max_page
 from app.utils.serializer import jsonify
 
@@ -46,8 +55,6 @@ async def get_genres_for_content(content_ids: List[int]) -> dict:
     """
     해당 id를 가진 genres를 리턴
     """
-    Genre = models.Genre
-    ContentXGenre = models.ContentXGenre
 
     query = db.select(
         [Genre.id, Genre.genre, ContentXGenre.content_id]
@@ -76,10 +83,6 @@ async def search_english(request):
 
     page = int(request.args.get('page', 1))
     keyword = request.args.get('keyword', '')
-
-    Line = models.Line
-    Content = models.Content
-    Category = models.Category
 
     if len(keyword) < 2:
         raise ServerError(
@@ -130,11 +133,6 @@ async def search_korean(request):
         raise ServerError(
             "keyword length must be greater than 2", status_code=400)
 
-    Translation = models.Translation
-    Line = models.Line
-    Content = models.Content
-    Category = models.Category
-
     max_page = await calc_max_page(page_size, Translation.translation.ilike('%'+keyword+'%'))
     if page > max_page:
         return {
@@ -176,9 +174,6 @@ async def search_korean(request):
 @blueprint.route('/context/<content_id:int>/<line_id:int>', methods=['GET'])
 async def search_context(request, content_id, line_id):
     """ search context """
-
-    Line = models.Line
-    Content = models.Content
 
     before_lines = await Line.query.where(
         db.and_(Line.id <= line_id, Content.id == content_id)

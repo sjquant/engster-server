@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 # load env
 ENVDIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(ENVDIR, 'secrets/.env'))
-
 ENV = os.getenv('ENGSTER_ENV', 'local')
 
 if ENV == 'local':
@@ -15,9 +14,7 @@ elif ENV == 'test':
 elif ENV == 'production':
     load_dotenv(os.path.join(ENVDIR, 'secrets/.env.production'))
 
-BASE_DIR = os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))))
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PORT = '5432'
 DB_DATABASE = os.getenv('DB_NAME')
 DB_HOST = os.getenv('DB_HOST')

@@ -3,8 +3,7 @@ POST http://localhost:8000/auth/register
 Content-Type: application/json
 
 {
-    "email": "user@test.com",
-    "nickname": "testuser",
+    "email": "user6test.com",
     "password": "abcdefg!!!"
 }
 
