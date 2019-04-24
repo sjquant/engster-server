@@ -128,21 +128,22 @@ async def search_korean(request):
 
     page = int(request.args.get('page', 1))
     keyword = request.args.get('keyword', '')
-
     if len(keyword) < 2:
         raise ServerError(
             "keyword length must be greater than 2", status_code=400)
 
     max_page = await calc_max_page(page_size, Translation.translation.ilike('%'+keyword+'%'))
+
     if page > max_page:
-        return {
+        return jsonify({
             'max_page': 0,
             'page': 0,
             'lines': []
-        }
+        })
+
     translations = await Translation.load(
         line=Line).load(content=Content).load(category=Category).where(
-        Translation.translation.ilike('%'+keyword+'%')).gino.all()
+        Translation.translation.ilike('%'+keyword+'%')).limit(page_size).offset(page).gino.all()
 
     content_ids = [each.content.id for each in translations]
 
@@ -168,6 +169,7 @@ async def search_korean(request):
         'page': page,
         'lines': translations,
     }
+
     return jsonify(data, ensure_ascii=False)
 
 

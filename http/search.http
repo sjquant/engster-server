@@ -3,7 +3,7 @@ GET http://localhost:8000/search/english?keyword=minho
 Content-Type: application/json
 
 ### Search By Korean
-GET http://localhost:8000/search/korean?keyword=아니
+GET http://localhost:8000/search/korean?keyword=트레사
 Content-Type: application/json
 
 ### Search Context
