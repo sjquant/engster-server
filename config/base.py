@@ -22,5 +22,6 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_URL = f'postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}'
 
+JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 with open('config/settings.json') as f:
     SETTINGS = json.loads(f.read())
