@@ -1,8 +1,7 @@
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
-from sanic.views import HTTPMethodView
 
 from app import db
 from app.models import (
@@ -22,7 +21,7 @@ page_size = 10
 blueprint = Blueprint('search_blueprint', url_prefix='search')
 
 
-async def get_most_liked_translations(line_ids: List[int]) -> Dict[str, Dict[int, str]]:
+async def get_most_liked_translations(line_ids: List[int]) -> Dict[str, Dict[str, Any]]:
     """
     각 라인별로 가장 좋아요를 많이 받은 번역을 리턴
 
@@ -36,7 +35,7 @@ async def get_most_liked_translations(line_ids: List[int]) -> Dict[str, Dict[int
 
     query = f"""
         SELECT t2.id, t2.translation, t2.line_id FROM (
-            SELECT t1.*, row_number() over (partition by t1.line_id ORDER BY t1.trans_like_count DESC) as rn
+            SELECT t1.*, row_number() OVER (partition by t1.line_id ORDER BY t1.trans_like_count DESC) as rn
             FROM (
                 SELECT translation.id, translation.translation,
                     translation.line_id, count(translation_like.translation_id) AS trans_like_count
@@ -47,13 +46,18 @@ async def get_most_liked_translations(line_ids: List[int]) -> Dict[str, Dict[int
     """
 
     res = await db.status(query)
-    data = {f'line_{each[2]}': {'id': each[0], 'translation': each[1]}
-            for each in res[1]}
+    data = {
+        f'line_{each[2]}': {
+            'id': each[0],
+            'translation': each[1]
+        }
+        for each in res[1]
+    }
 
     return data
 
 
-async def get_genres_for_content(content_ids: List[int]) -> Dict[str, Dict[int, str]]:
+async def get_genres_for_content(content_ids: List[int]) -> Dict[str, Dict[str, Any]]:
     """
     해당 id를 가진 genres를 리턴
     """
@@ -84,8 +88,9 @@ async def get_english_like_count(line_ids: List[int]) -> Dict[int, int]:
     query = db.select([
         LineLike.line_id, db.func.count(LineLike.line_id)
     ]).group_by(LineLike.line_id)
+
     res = await query.gino.all()
-    data = {each.id: each.count for each in res}
+    data = {each[0]: each[1] for each in res}
     return data
 
 
@@ -221,28 +226,3 @@ async def search_context(request, content_id, line_id):
     }
 
     return jsonify(data, ensure_ascii=False)
-
-
-class LikeEnglish(HTTPMethodView):
-
-    async def get(self):
-        return
-
-    async def post(self, line_id: int):
-        user_id = 1
-        like = LineLike(line_id=line_id, user_id=user_id)
-        await like.create()
-        return jsonify({'message': 'liked'}, 201)
-
-    async def delete(self, line_id: int):
-        user_id = 1
-        await LineLike.delete.where(
-            db.and_(
-                LineLike.line_id == line_id,
-                LineLike.user_id == user_id
-            )
-        ).gino.status()
-        return jsonify({'message': 'deleted like'}, 204)
-
-
-blueprint.add_route(LikeEnglish.as_view(), '/english/<line_id:int>/like')
