@@ -31,7 +31,7 @@ async def get_most_liked_translations(line_ids: List[int]) -> Dict[str, Dict[str
     """
 
     if not line_ids:
-        raise ServerError("Nothing Found", status_code=404)
+        raise ServerError('Nothing Found', status_code=404)
 
     query = f"""
         SELECT t2.id, t2.translation, t2.line_id FROM (
@@ -105,7 +105,8 @@ async def search_english(request):
         raise ServerError(
             "keyword length must be greater than 2", status_code=400)
 
-    max_page = await calc_max_page(page_size, Line.line.op('~*')(keyword+r'[\.?, ]'))
+    max_page = await calc_max_page(
+        page_size, Line.line.op('~*')(keyword+r'[\.?, ]'))
 
     if page > max_page:
         return jsonify({
@@ -114,7 +115,9 @@ async def search_english(request):
             'lines': []
         })
 
-    lines = await Line.load(content=Content).load(category=Category).query.where(
+    lines = await Line.load(
+        content=Content).load(
+            category=Category).query.where(
         Line.line.op('~*')(keyword+r'[\.?, ]')
     ).limit(page_size).offset(page).gino.all()
 
@@ -153,7 +156,7 @@ async def search_korean(request):
     keyword = request.args.get('keyword', '')
     if len(keyword) < 2:
         raise ServerError(
-            "keyword length must be greater than 2", status_code=400)
+            'keyword length must be greater than 2', status_code=400)
 
     max_page = await calc_max_page(page_size, Translation.translation.ilike('%'+keyword+'%'))
 

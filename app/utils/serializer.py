@@ -14,7 +14,7 @@ def custom_json_encoder(obj):
         return obj.isoformat()
     elif isinstance(obj, uuid.UUID):
         return str(obj)
-    raise TypeError("Type %s not serializable" % type(obj))
+    raise TypeError('Type %s not serializable' % type(obj))
 
 
 def jsonify(*arg, **kwargs):

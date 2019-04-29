@@ -54,7 +54,7 @@ class DetailRouter(HTTPMethodView):
     async def get_instance(self, id):
         instance = await self.model.get(id)
         if instance is None:
-            raise ServerError("No Such Instance", status_code=404)
+            raise ServerError('No Such Instance', status_code=404)
         return instance
 
     async def get(self, request, id):
