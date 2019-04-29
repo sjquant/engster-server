@@ -97,6 +97,8 @@ class Line(BaseModel):
     content_id = db.Column(db.Integer, db.ForeignKey(
         'content.id'), nullable=False)
 
+    _idx = db.Index('line_idx_line', 'line')
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._translations = list()
@@ -122,6 +124,9 @@ class LineLike(TimeStampedModel):
     user_id = db.Column(UUID, db.ForeignKey('user.id'))
     line_id = db.Column(db.Integer, db.ForeignKey('line.id'))
 
+    _unique = db.UniqueConstraint(
+        'user_id', 'line_id', name='line_like_unique')
+
     def __repr__(self):
         return '<Line Like {}>'.format(self.id)
 
@@ -138,6 +143,8 @@ class Translation(TimeStampedModel):
     content_id = db.Column(db.Integer, db.ForeignKey(
         'content.id'), nullable=False)
 
+    _idx = db.Index('translation_idx_translation', 'translation')
+
     def __repr__(self):
         return '<Translation {}>'.format(self.translation)
 
@@ -151,6 +158,9 @@ class TranslationLike(TimeStampedModel):
     user_id = db.Column(UUID, db.ForeignKey('user.id'))
     translation_id = db.Column(db.Integer, db.ForeignKey(
         'translation.id'), nullable=False)
+
+    _unique = db.UniqueConstraint(
+        'user_id', 'translation_id', name='translation_like_unique')
 
     def __repr__(self):
         return '<Translation Like {}>'.format(self.id)
