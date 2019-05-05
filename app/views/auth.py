@@ -24,8 +24,10 @@ async def register(request: Request):
     except asyncpg.exceptions.UniqueViolationError:
         raise ServerError('Already Registered', status_code=400)
 
-    access_token = await create_access_token(app=request.app, identity=str(user.id))
-    refresh_token = await create_refresh_token(app=request.app, identity=str(user.id))
+    access_token = await create_access_token(
+        app=request.app, identity=str(user.id))
+    refresh_token = await create_refresh_token(
+        app=request.app, identity=str(user.id))
 
     return jsonify(
         dict(
@@ -49,8 +51,10 @@ async def obtain_token(request: Request):
     if not user.check_password(password):
         raise ServerError('Password is wrong.', status_code=400)
 
-    access_token = await create_access_token(app=request.app, identity=str(user.id))
-    refresh_token = await create_refresh_token(app=request.app, identity=str(user.id))
+    access_token = await create_access_token(
+        app=request.app, identity=str(user.id))
+    refresh_token = await create_refresh_token(
+        app=request.app, identity=str(user.id))
 
     return jsonify(
         dict(
@@ -65,8 +69,10 @@ async def obtain_token(request: Request):
 @jwt_refresh_token_required
 async def refresh_token(request, token: Token):
     """ refresh access token """
-    access_token = await create_access_token(app=request.app, identity=token.jwt_identity)
-    refresh_token = await create_refresh_token(app=request.app, identity=token.jwt_identity)
+    access_token = await create_access_token(
+        app=request.app, identity=token.jwt_identity)
+    refresh_token = await create_refresh_token(
+        app=request.app, identity=token.jwt_identity)
     return jsonify({
         'access_token': access_token,
         'refresh_token': refresh_token

@@ -1,3 +1,8 @@
+### GET Likes for a Line
+GET http://localhost:8000/like/english/1423
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiL
+
 ### Like English Line
 POST http://localhost:8000/like/english/1423
 Content-Type: application/json
@@ -7,3 +12,19 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NTY1MTI5M
 DELETE http://localhost:8000/like/english/1423
 Content-Type: application/json
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NTY1MTI5MTIsIm5iZiI6MTU1NjUxMjkxMiwianRpIjoiMzUyOTgxM2UtMjRmZC00MTBjLTk3MzQtN2Q1YjI4OGIyYjk4IiwiZXhwIjo4Nzk1NjQyNjUxMiwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.dfXnoS-t_GN_QwhBHC_jFS5Ijn4rIpOOzXejl9rg9YI
+
+### GET Likes for a Korean Line
+GET http://localhost:8000/like/korean/1207
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiL
+
+### Like Korean Line
+POST http://localhost:8000/like/korean/1207
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NTY1MTI5MTIsIm5iZiI6MTU1NjUxMjkxMiwianRpIjoiMzUyOTgxM2UtMjRmZC00MTBjLTk3MzQtN2Q1YjI4OGIyYjk4IiwiZXhwIjo4Nzk1NjQyNjUxMiwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.dfXnoS-t_GN_QwhBHC_jFS5Ijn4rIpOOzXejl9rg9YI
+
+### Cancel the like of Korean Line
+DELETE http://localhost:8000/like/korean/1207
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NTY1MTI5MTIsIm5iZiI6MTU1NjUxMjkxMiwianRpIjoiMzUyOTgxM2UtMjRmZC00MTBjLTk3MzQtN2Q1YjI4OGIyYjk4IiwiZXhwIjo4Nzk1NjQyNjUxMiwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.dfXnoS-t_GN_QwhBHC_jFS5Ijn4rIpOOzXejl9rg9YI
+

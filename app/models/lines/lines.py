@@ -154,7 +154,7 @@ class TranslationLike(TimeStampedModel):
     __tablename__ = 'translation_like'
 
     id = db.Column('id', db.Integer, db.Sequence(
-        'translation_like_seq'), primary_key=True)
+        'translation_like_id_seq'), primary_key=True)
     user_id = db.Column(UUID, db.ForeignKey('user.id'))
     translation_id = db.Column(db.Integer, db.ForeignKey(
         'translation.id'), nullable=False)
