@@ -96,7 +96,9 @@ async def get_english_like_count(line_ids: List[int]) -> Dict[int, int]:
     """ get like count for lines """
     query = db.select([
         LineLike.line_id, db.func.count(LineLike.line_id)
-    ]).group_by(LineLike.line_id)
+    ]).where(
+        LineLike.line_id.in_(line_ids)
+    ).group_by(LineLike.line_id)
 
     res = await query.gino.all()
     data = {each[0]: each[1] for each in res}
@@ -108,8 +110,22 @@ async def get_korean_like_count(translation_ids: List[int]) -> Dict[int, int]:
     query = db.select([
         TranslationLike.translation_id,
         db.func.count(TranslationLike.translation_id)
-    ]).group_by(TranslationLike.translation_id)
+    ]).where(
+        TranslationLike.id.in_(translation_ids)
+    ).group_by(TranslationLike.translation_id)
 
+    res = await query.gino.all()
+    data = {each[0]: each[1] for each in res}
+    return data
+
+
+async def get_translation_count(line_ids: List[int]) -> Dict[int, int]:
+    query = db.select([
+        Translation.line_id,
+        db.func.count(Translation.line_id)
+    ]).where(
+        Translation.line_id.in_(line_ids)
+    ).group_by(Translation.line_id)
     res = await query.gino.all()
     data = {each[0]: each[1] for each in res}
     return data
@@ -128,6 +144,7 @@ async def search_english(request):
 
     max_page = await calc_max_page(
         page_size, Line.line.op('~*')(keyword+r'[\.?, ]'))
+    offset = page_size * (page - 1)
 
     if page > max_page:
         return jsonify({
@@ -140,7 +157,7 @@ async def search_english(request):
         content=Content).load(
             category=Category).query.where(
         Line.line.op('~*')(keyword+r'[\.?, ]')
-    ).limit(page_size).offset(page).gino.all()
+    ).limit(page_size).offset(offset).gino.all()
 
     content_ids = []
     line_ids = []
@@ -150,23 +167,25 @@ async def search_english(request):
 
     genres = await get_genres_for_content(content_ids)
     like_count = await get_english_like_count(line_ids)
+    translation_count = await get_translation_count(line_ids)
 
     lines = [
         {
             **line.to_dict(['id', 'line']),
             **{'like_count': like_count.get(line.id, 0)},
+            **{'translation_count': translation_count.get(line.id, 0)},
             **{'content': line.content.to_dict(['id', 'title'])},
             **{'category': line.category.to_dict()},
             **{'genres': genres[f'content_{line.content.id}']}
         } for line in lines
     ]
 
-    data = {
+    resp = {
         'max_page': max_page,
         'page': page,
         'lines': lines,
     }
-    return jsonify(data, ensure_ascii=False)
+    return jsonify(resp, ensure_ascii=False)
 
 
 @blueprint.route('/korean', methods=['GET'])
@@ -181,6 +200,7 @@ async def search_korean(request):
 
     max_page = await calc_max_page(
         page_size, Translation.translation.ilike('%'+keyword+'%'))
+    offset = page_size * (page - 1)
 
     if page > max_page:
         return jsonify({
@@ -192,42 +212,38 @@ async def search_korean(request):
     translations = await Translation.load(
         line=Line).load(content=Content).load(category=Category).where(
         Translation.translation.ilike(
-            '%'+keyword+'%')).limit(page_size).offset(page).gino.all()
+            '%'+keyword+'%')).limit(page_size).offset(offset).gino.all()
 
     content_ids = []
     translation_ids = []
+    line_ids = []
 
     for each in translations:
         content_ids.append(each.content.id)
         translation_ids.append(each.id)
+        line_ids.append(each.line_id)
 
     genres = await get_genres_for_content(content_ids)
     like_count = await get_korean_like_count(translation_ids)
+    translation_count = await get_translation_count(line_ids)
 
     translations = [{
         **each.to_dict(show=['id', 'translation']),
-        **{
-            'line': each.line.to_dict(show=['id', 'line'])
-        },
+        **{'line': each.line.to_dict(show=['id', 'line'])},
         **{'like_count': like_count.get(each.id, 0)},
-        **{
-            'content': each.content.to_dict(show=['id', 'title'])
-        },
-        **{
-            'category': each.category.to_dict()
-        },
-        **{
-            'genres':  genres[f'content_{each.content.id}']
-        }
+        **{'translation_count': translation_count.get(each.id, 0)},
+        **{'content': each.content.to_dict(show=['id', 'title'])},
+        **{'category': each.category.to_dict()},
+        **{'genres':  genres[f'content_{each.content.id}']}
     } for each in translations]
 
-    data = {
+    resp = {
         'max_page': max_page,
         'page': page,
         'lines': translations,
     }
 
-    return jsonify(data, ensure_ascii=False)
+    return jsonify(resp, ensure_ascii=False)
 
 
 @blueprint.route('/context/<content_id:int>/<line_id:int>', methods=['GET'])
