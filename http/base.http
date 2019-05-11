@@ -1,21 +1,21 @@
 ### Line List
-GET http://localhost:8000/base/lines/19?page=2
+GET http://localhost:8000/lines?content_id=1&page=1
 Content-Type: application/json
 
 ### Content List
-GET http://localhost:8000/base/contents
+GET http://localhost:8000/contents
 Content-Type: application/json
 
 ### Category List
-GET http://localhost:8000/base/categories
+GET http://localhost:8000/categories
 Content-Type: application/json
 
 ### genre List
-GET http://localhost:8000/base/genres
+GET http://localhost:8000/genres
 Content-Type: application/json
 
 ### Post Category
-POST http://localhost:8000/base/categories
+POST http://localhost:8000/categories
 Content-Type: application/json
 
 {
@@ -23,7 +23,7 @@ Content-Type: application/json
 }
 
 ### Post genre
-POST http://localhost:8000/base/genres
+POST http://localhost:8000/genres
 Content-Type: application/json
 
 {
@@ -31,11 +31,11 @@ Content-Type: application/json
 }
 
 ### Get Individual Category
-GET http://localhost:8000/base/categories/1
+GET http://localhost:8000/categories/1
 Content-Type: application/json
 
 ### Change Individual Category
-PUT http://localhost:8000/base/categories/3
+PUT http://localhost:8000/categories/3
 Content-Type: application/json
 
 {
@@ -43,15 +43,15 @@ Content-Type: application/json
 }
 
 ### Delete Individual Category
-DELETE http://localhost:8000/base/categories/7
+DELETE http://localhost:8000/categories/7
 Content-Type: application/json
 
 ### Get Individual genre
-GET http://localhost:8000/base/genres/2
+GET http://localhost:8000/genres/2
 Content-Type: application/json
 
 ### Change Individual genre
-PUT http://localhost:8000/base/genres/10
+PUT http://localhost:8000/genres/10
 Content-Type: application/json
 
 {
@@ -59,5 +59,30 @@ Content-Type: application/json
 }
 
 ### Delete Individual genre
-DELETE http://localhost:8000/base/genres/2
+DELETE http://localhost:8000/genres/2
 Content-Type: application/json
+
+### Get translations
+GET http://localhost:8000/translations?line_id=1423
+Content-Type: application/json
+
+### Create new ranslation
+POST http://localhost:8000/translations?line_id=1423
+Content-Type: application/json
+
+{
+    "translation": "힘내라 민호야!"
+}
+
+### Get Specific translation
+GET http://localhost:8000/translations/2178
+
+### Change specific translation
+PUT http://localhost:8000/translations/2178
+
+{
+    "translation": "민호야 힘내!"
+}
+
+### Delete specific translation
+DELETE http://localhost:8000/translations/2178
