@@ -102,5 +102,22 @@ def migrate(env):
     upgrade(alembic_cfg, "head")
 
 
+@cli.command(help="Downgrade")
+@click.option('--env', default='local', help="Set the settings.")
+@click.argument('revision', default='-1')
+def downgrade(env, revision):
+    """
+    Apply migrations
+    """
+    from alembic.command import downgrade
+    config = get_config(env)
+
+    alembic_ini_path = os.path.join(config.BASE_DIR, 'alembic.ini')
+    alembic_cfg = Config(alembic_ini_path)
+    alembic_cfg.set_main_option('db_url', config.DB_URL)
+
+    downgrade(alembic_cfg, revision)
+
+
 if __name__ == '__main__':
     cli()
