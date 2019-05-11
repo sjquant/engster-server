@@ -18,4 +18,6 @@ def custom_json_encoder(obj):
 
 
 def jsonify(*arg, **kwargs):
-    return json(default=custom_json_encoder, *arg, **kwargs)
+    return json(
+        default=custom_json_encoder,
+        ensure_ascii=False, *arg, **kwargs)

@@ -185,7 +185,7 @@ async def search_english(request):
         'page': page,
         'lines': lines,
     }
-    return jsonify(resp, ensure_ascii=False)
+    return jsonify(resp)
 
 
 @blueprint.route('/korean', methods=['GET'])
@@ -243,7 +243,7 @@ async def search_korean(request):
         'lines': translations,
     }
 
-    return jsonify(resp, ensure_ascii=False)
+    return jsonify(resp)
 
 
 @blueprint.route('/context/<content_id:int>/<line_id:int>', methods=['GET'])
@@ -275,4 +275,4 @@ async def search_context(request, content_id, line_id):
         'lines': lines,
     }
 
-    return jsonify(data, ensure_ascii=False)
+    return jsonify(data)
