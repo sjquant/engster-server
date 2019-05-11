@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from app import db
 from app.core.hasher import PBKDF2PasswordHasher
-from app.utils.basemodel import TimeStampedModel
+from app.utils.model import TimeStampedModel
 
 
 class User(TimeStampedModel):

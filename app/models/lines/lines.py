@@ -1,7 +1,7 @@
 from sqlalchemy.dialects.postgresql import UUID
 
 from app import db
-from app.utils.basemodel import BaseModel, TimeStampedModel
+from app.utils.model import BaseModel, TimeStampedModel
 
 
 class Content(BaseModel):
@@ -140,8 +140,8 @@ class Translation(TimeStampedModel):
     translation = db.Column(db.Text, nullable=False)
     line_id = db.Column(db.Integer, db.ForeignKey('line.id'), nullable=False)
     translator_id = db.Column(UUID, db.ForeignKey('user.id'))
-    content_id = db.Column(db.Integer, db.ForeignKey(
-        'content.id'), nullable=False)
+    is_accepted = db.Column(db.Boolean, server_default='f',
+                            default=False, nullable=False)
 
     _idx = db.Index('translation_idx_translation', 'translation')
 
