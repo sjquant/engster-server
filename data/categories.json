@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "category": "film"
+  },
+  {
+    "id": 2,
+    "category": "tv show"
+  },
+  {
+    "id": 3,
+    "category": "tv drama"
+  },
+  {
+    "id": 4,
+    "category": "youtube"
+  }
+]

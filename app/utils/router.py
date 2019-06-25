@@ -10,7 +10,7 @@ from app.utils.serializer import jsonify
 
 class ListRouter(HTTPMethodView):
 
-    model: Optional[db.Model] = None
+    model: Optional[db.Model] = None  # type:ignore
     list_display: Optional[list] = None
     page_size: Optional[int] = None
 
@@ -49,7 +49,7 @@ class ListRouter(HTTPMethodView):
 class DetailRouter(HTTPMethodView):
 
     # Model
-    model: Optional[db.Model] = None
+    model: Optional[db.Model] = None  # type:ignore
     list_display: Optional[list] = None
 
     async def get_instance(self, id):

@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "genre": "drama"
+  },
+  {
+    "id": 2,
+    "genre": "romance"
+  },
+  {
+    "id": 3,
+    "genre": "cult"
+  },
+  {
+    "id": 4,
+    "genre": "mystery"
+  },
+  {
+    "id": 5,
+    "genre": "musical"
+  },
+  {
+    "id": 6,
+    "genre": "fantasy"
+  },
+  {
+    "id": 7,
+    "genre": "adventure"
+  },
+  {
+    "id": 8,
+    "genre": "documentary"
+  },
+  {
+    "id": 9,
+    "genre": "war"
+  },
+  {
+    "id": 10,
+    "genre": "science fiction"
+  },
+  {
+    "id": 11,
+    "genre": "thriller"
+  },
+  {
+    "id": 12,
+    "genre": "comdey"
+  },
+  {
+    "id": 13,
+    "genre": "anime"
+  },
+  {
+    "id": 14,
+    "genre": "action"
+  },
+  {
+    "id": 15,
+    "genre": "horror"
+  },
+  {
+    "id": 16,
+    "genre": "crime"
+  }
+]

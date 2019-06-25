@@ -1,7 +1,21 @@
+from functools import wraps
 import os
-import click
+import json
+import asyncio
+
 from alembic.config import Config
+import click
+
 from app.utils.config import get_config
+
+
+def coroutine(f):
+    """coroutine decorator"""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return asyncio.run(f(*args, **kwargs))
+
+    return wrapper
 
 
 @click.group()
@@ -14,7 +28,8 @@ def cli():
 
 @cli.command(help="Run Sanic server")
 @click.option('--env', default='local', help="Set the settings.")
-@click.option('-p', '--port', default=8000, help="Set the port where server runs.")
+@click.option('-p', '--port', default=8000,
+              help="Set the port where server runs.")
 def runserver(port, env):
     """
     Run Sanic server
@@ -30,10 +45,8 @@ def creatsuperuser(env):
     """
     Create Admin User
     """
-    config = get_config(env)
-    # It needs to be loaded after all config file loaded
     from app import create_app
-    app = create_app(config)
+    app = create_app(env)
 
 
 @cli.command(help="Show current revision")
@@ -117,6 +130,40 @@ def downgrade(env, revision):
     alembic_cfg.set_main_option('db_url', config.DB_URL)
 
     downgrade(alembic_cfg, revision)
+
+
+@cli.command(help="set genres")
+@click.option('--env', default='local', help="Set the settings.")
+@coroutine
+async def setgenres(env):
+    from app import db
+    from app.models import Genre
+
+    config = get_config(env)
+    await db.set_bind(config.DB_URL)
+
+    with open('data/genres.json') as f:
+        genres = json.loads(f.read())
+
+    # Insert Genres
+    await Genre.insert().gino.all(*genres)
+
+
+@cli.command(help="set categories")
+@click.option('--env', default='local', help="Set the settings.")
+@coroutine
+async def setcategories(env):
+    from app import db
+    from app.models import Category
+
+    config = get_config(env)
+    await db.set_bind(config.DB_URL)
+
+    with open('data/categories.json') as f:
+        categories = json.loads(f.read())
+
+    # Insert Categories
+    await Category.insert().gino.all(*categories)
 
 
 if __name__ == '__main__':
