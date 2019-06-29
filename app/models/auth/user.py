@@ -59,7 +59,4 @@ class User(TimeStampedModel):
         return self.hasher.verify_password(password, self.password_hash)
 
     def to_dict(self):
-        return {
-            'id': str(self.id),
-            **super().to_dict(show=['email', 'nickname', 'photo'])
-        }
+        return super().to_dict(show=['id', 'email', 'nickname', 'photo'])
