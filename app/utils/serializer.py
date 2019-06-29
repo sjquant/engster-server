@@ -21,16 +21,15 @@ def custom_json_encoder(obj):
 def jsonify(*args, **kwargs):
     """
     customized json response
-    ujson is only supported by linux platform
 
     Args:
         sanic.response.json args
 
     Kwargs:
-        ujson: (bool) whether to use json, default: True
+        ujson: (bool) whether to use json, default: False
         sanic.response.json kwargs
     """
-    ujson = kwargs.pop('ujson', True)
+    ujson = kwargs.pop('ujson', False)
     if ujson:
         return json(ensure_ascii=False, *args, **kwargs)
     else:
