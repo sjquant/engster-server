@@ -43,7 +43,7 @@ class User(TimeStampedModel):
                           password: str,
                           nickname: str = None,
                           is_admin: bool = False):
-        self.id = str(uuid.uuid4())
+        self.id = uuid.uuid4()
         self.email = email
         self.nickname = nickname or self.generate_random_nickname()
         self.set_password(password)
@@ -59,4 +59,7 @@ class User(TimeStampedModel):
         return self.hasher.verify_password(password, self.password_hash)
 
     def to_dict(self):
-        return super().to_dict(show=['id', 'email', 'nickname', 'photo'])
+        return {
+            'id': str(self.id),
+            **super().to_dict(show=['email', 'nickname', 'photo'])
+        }
