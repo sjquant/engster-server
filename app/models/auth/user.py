@@ -38,8 +38,12 @@ class User(TimeStampedModel):
                          for i in range(random.randint(1, 7)))
         return prefix+suffix
 
-    async def create_user(self, email: str, password: str,  nickname: str = None, is_admin: bool = False):
-        self.id = uuid.uuid4()
+    async def create_user(self,
+                          email: str,
+                          password: str,
+                          nickname: str = None,
+                          is_admin: bool = False):
+        self.id = str(uuid.uuid4())
         self.email = email
         self.nickname = nickname or self.generate_random_nickname()
         self.set_password(password)
