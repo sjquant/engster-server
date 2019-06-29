@@ -62,18 +62,6 @@ Content-Type: application/json
 DELETE http://localhost:8000/genres/2
 Content-Type: application/json
 
-### Get translations
-GET http://localhost:8000/translations?line_id=1423
-Content-Type: application/json
-
-### Create new ranslation
-POST http://localhost:8000/translations?line_id=1423
-Content-Type: application/json
-
-{
-    "translation": "힘내라 민호야!"
-}
-
 ### Get Specific translation
 GET http://localhost:8000/translations/1423
 
