@@ -18,7 +18,7 @@ from app.models import (
 from app.utils import calc_max_page
 from app.utils.serializer import jsonify
 
-page_size = 10
+
 blueprint = Blueprint('search_blueprint', url_prefix='search')
 
 
@@ -137,18 +137,20 @@ async def search_english(request):
 
     page = int(request.args.get('page', 1))
     keyword = request.args.get('keyword', '')
+    page_size = request.app.config.get('PAGE_SIZE', 10)
 
     if len(keyword) < 2:
         raise ServerError(
             "keyword length must be greater than 2", status_code=400)
 
-    max_page = await calc_max_page(
+    max_page, count = await calc_max_page(
         page_size, Line.line.op('~*')(keyword+r'[\.?, ]'))
     offset = page_size * (page - 1)
 
     if page > max_page:
         return jsonify({
             'max_page': 0,
+            'count': 0,
             'page': 0,
             'lines': []
         })
@@ -183,6 +185,7 @@ async def search_english(request):
     resp = {
         'max_page': max_page,
         'page': page,
+        'count': count,
         'lines': lines,
     }
     return jsonify(resp)
@@ -194,11 +197,13 @@ async def search_korean(request):
 
     page = int(request.args.get('page', 1))
     keyword = request.args.get('keyword', '')
+    page_size = request.app.config.get('PAGE_SIZE', 10)
+
     if len(keyword) < 2:
         raise ServerError(
             'keyword length must be greater than 2', status_code=400)
 
-    max_page = await calc_max_page(
+    max_page, count = await calc_max_page(
         page_size, Translation.translation.ilike('%'+keyword+'%'))
     offset = page_size * (page - 1)
 
@@ -206,6 +211,7 @@ async def search_korean(request):
         return jsonify({
             'max_page': 0,
             'page': 0,
+            'count': 0,
             'lines': []
         })
 
@@ -240,6 +246,7 @@ async def search_korean(request):
     resp = {
         'max_page': max_page,
         'page': page,
+        'count': count,
         'lines': translations,
     }
 

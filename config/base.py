@@ -25,3 +25,7 @@ DB_URL = f'postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}'
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 with open('config/settings.json') as f:
     SETTINGS = json.loads(f.read())
+
+# Constants
+PAGESIZE = 10
+COMMENT_PAGESIZE = 5
