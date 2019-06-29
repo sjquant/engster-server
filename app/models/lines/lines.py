@@ -62,19 +62,9 @@ class Genre(BaseModel):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._contents = set()
 
     def __repr__(self):
         return '<Genre {}>'.format(self.genre)
-
-    @property
-    def contents(self):
-        return self._genres
-
-    @contents.setter
-    def add_content(self, content):
-        self._contents.add(content)
-        content._genres.add(self)
 
 
 class ContentXGenre(BaseModel):
@@ -101,18 +91,9 @@ class Line(BaseModel):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._translations = list()
 
     def __repr__(self):
         return '<Line {}>'.format(self.line)
-
-    @property
-    def translations(self):
-        return self._translations
-
-    @translations.setter
-    def add_translation(self, translation):
-        self._translations.append(translation)
 
 
 class LineLike(TimeStampedModel):
