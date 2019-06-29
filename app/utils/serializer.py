@@ -37,6 +37,6 @@ def jsonify(*args, **kwargs):
         return json(
             default=custom_json_encoder,
             ensure_ascii=False,
-            dump=dumps,
+            dumps=dumps,
             *args,
             **kwargs)
