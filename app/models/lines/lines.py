@@ -16,29 +16,9 @@ class Content(BaseModel):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._category = None
-        self._genres = set()
 
     def __repr__(self):
         return '<Content {}>'.format(self.title)
-
-    @property
-    def category(self):
-        return self._category
-
-    @category.setter
-    def category(self, category):
-        self._cateogry = category
-        self.category_id = category.id
-
-    @property
-    def genres(self):
-        return self._genres
-
-    @genres.setter
-    def add_genre(self, genre):
-        self._genres.add(genre)
-        genre._contents.add(self)
 
 
 class Category(BaseModel):
