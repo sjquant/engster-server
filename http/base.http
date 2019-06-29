@@ -75,10 +75,10 @@ Content-Type: application/json
 }
 
 ### Get Specific translation
-GET http://localhost:8000/translations/2178
+GET http://localhost:8000/translations/1423
 
 ### Change specific translation
-PUT http://localhost:8000/translations/2178
+PUT http://localhost:8000/translations/1423
 
 {
     "translation": "민호야 힘내!"
