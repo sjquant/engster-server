@@ -21,7 +21,7 @@ def create_app(env: str = 'local'):
     app = Sanic()
     app.config.from_object(config)
     db.init_app(app)
-    CORS(app, origins=app.config.get('ORIGINS', '*'))
+    CORS(app, origins=app.config.get('ORIGINS', '*'), automatic_options=True)
     init_auth(app)
 
     from app import views
