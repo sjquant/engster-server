@@ -1,4 +1,4 @@
 flake8
 mypy
-autopep8
+black
 rope
