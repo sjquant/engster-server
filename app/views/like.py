@@ -3,10 +3,10 @@ from sanic.request import Request
 from sanic.blueprints import Blueprint
 from sanic.views import HTTPMethodView
 from sanic_jwt_extended.tokens import Token
+from sanic_jwt_extended import jwt_required
 
 from app import db
-from app.models import LineLike, TranslationLike
-from app.utils.jwt import jwt_required
+from app.db_models import LineLike, TranslationLike
 
 from app.utils.serializer import jsonify
 

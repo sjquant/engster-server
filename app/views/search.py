@@ -2,9 +2,11 @@ from typing import List, Dict, Any
 
 from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
+from sanic_jwt_extended import jwt_optional
+from sanic_jwt_extended.tokens import Token
 
 from app import db
-from app.models import (
+from app.db_models import (
     Line,
     Translation,
     Content,
@@ -68,7 +70,7 @@ async def get_most_liked_translations(
 async def get_genres_for_content(
         content_ids: List[int]) -> Dict[str, Dict[str, Any]]:
     """
-    해당 id를 가진 genres를 리턴
+    get genres of each content
     """
 
     query = db.select(
@@ -95,7 +97,8 @@ async def get_genres_for_content(
 async def get_english_like_count(line_ids: List[int]) -> Dict[int, int]:
     """ get like count for lines """
     query = db.select([
-        LineLike.line_id, db.func.count(LineLike.line_id)
+        LineLike.line_id,
+        db.func.count(LineLike.line_id)
     ]).where(
         LineLike.line_id.in_(line_ids)
     ).group_by(LineLike.line_id)
@@ -119,6 +122,30 @@ async def get_korean_like_count(translation_ids: List[int]) -> Dict[int, int]:
     return data
 
 
+async def get_user_liked_english_lines(
+        user_id, line_ids: List[int]) -> List[int]:
+    query = db.select([LineLike.line_id]).where(
+        db.and_(
+            LineLike.user_id == user_id,
+            LineLike.line_id.in_(line_ids)
+        )
+    )
+    res = await query.gino.all()
+    return [each[0] for each in res]
+
+
+async def get_user_liked_korean_lines(
+        user_id, translation_ids: List[int]) -> List[int]:
+    query = db.select([TranslationLike.translation_id]).where(
+        db.and_(
+            TranslationLike.user_id == user_id,
+            TranslationLike.translation_id.in_(translation_ids)
+        )
+    )
+    res = await query.gino.all()
+    return [each[0] for each in res]
+
+
 async def get_translation_count(line_ids: List[int]) -> Dict[int, int]:
     query = db.select([
         Translation.line_id,
@@ -132,7 +159,8 @@ async def get_translation_count(line_ids: List[int]) -> Dict[int, int]:
 
 
 @blueprint.route('/english', methods=['GET'])
-async def search_english(request):
+@jwt_optional
+async def search_english(request, token: Token):
     """ search english """
 
     page = int(request.args.get('page', 1))
@@ -152,7 +180,8 @@ async def search_english(request):
             'max_page': 0,
             'count': 0,
             'page': 0,
-            'lines': []
+            'lines': [],
+            'user_liked': []
         })
 
     lines = await Line.load(
@@ -169,6 +198,11 @@ async def search_english(request):
 
     genres = await get_genres_for_content(content_ids)
     like_count = await get_english_like_count(line_ids)
+    user_id = token.jwt_identity
+    if user_id:
+        user_liked = await get_user_liked_english_lines(user_id, line_ids)
+    else:
+        user_liked = []
     translation_count = await get_translation_count(line_ids)
 
     lines = [
@@ -176,7 +210,7 @@ async def search_english(request):
             **line.to_dict(['id', 'line']),
             **{'like_count': like_count.get(line.id, 0)},
             **{'translation_count': translation_count.get(line.id, 0)},
-            **{'content': line.content.to_dict(['id', 'title'])},
+            **{'content': line.content.to_dict(['id', 'title', 'year'])},
             **{'category': line.category.to_dict()},
             **{'genres': genres[f'content_{line.content.id}']}
         } for line in lines
@@ -187,12 +221,14 @@ async def search_english(request):
         'page': page,
         'count': count,
         'lines': lines,
+        'user_liked': user_liked
     }
     return jsonify(resp)
 
 
 @blueprint.route('/korean', methods=['GET'])
-async def search_korean(request):
+@jwt_optional
+async def search_korean(request, token: Token):
     """ search korean """
 
     page = int(request.args.get('page', 1))
@@ -212,7 +248,8 @@ async def search_korean(request):
             'max_page': 0,
             'page': 0,
             'count': 0,
-            'lines': []
+            'lines': [],
+            'user_liked': []
         })
 
     translations = await Translation.load(
@@ -231,6 +268,12 @@ async def search_korean(request):
 
     genres = await get_genres_for_content(content_ids)
     like_count = await get_korean_like_count(translation_ids)
+    user_id = token.jwt_identity
+    if user_id:
+        user_liked = await get_user_liked_english_lines(
+            user_id, translation_ids)
+    else:
+        user_liked = []
     translation_count = await get_translation_count(line_ids)
 
     translations = [{
@@ -238,7 +281,7 @@ async def search_korean(request):
         **{'line': each.line.to_dict(show=['id', 'line'])},
         **{'like_count': like_count.get(each.id, 0)},
         **{'translation_count': translation_count.get(each.id, 0)},
-        **{'content': each.content.to_dict(show=['id', 'title'])},
+        **{'content': each.content.to_dict(show=['id', 'title', 'year'])},
         **{'category': each.category.to_dict()},
         **{'genres':  genres[f'content_{each.content.id}']}
     } for each in translations]
@@ -248,6 +291,7 @@ async def search_korean(request):
         'page': page,
         'count': count,
         'lines': translations,
+        'user_liked': user_liked
     }
 
     return jsonify(resp)

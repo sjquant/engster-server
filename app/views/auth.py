@@ -9,7 +9,7 @@ from sanic_jwt_extended import (
 )
 from sanic_jwt_extended.tokens import Token
 
-from app.models import User
+from app.db_models import User
 from app.utils.serializer import jsonify
 
 blueprint = Blueprint('auth_blueprint', url_prefix='/auth')

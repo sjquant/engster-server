@@ -2,10 +2,10 @@ from sanic.request import Request
 from sanic.blueprints import Blueprint
 from sanic.views import HTTPMethodView
 from sanic_jwt_extended.tokens import Token
+from sanic_jwt_extended import jwt_required
 from sanic.exceptions import ServerError
 
-from app.models import User, Translation
-from app.utils.jwt import jwt_required
+from app.db_models import User, Translation
 from app.utils import calc_max_page
 from app.utils.serializer import jsonify
 

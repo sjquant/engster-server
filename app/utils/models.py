@@ -2,7 +2,7 @@ from typing import List, Optional
 from app import db
 
 
-class BaseModel(db.Model):  # type: ignore
+class BaseModel(db.Model):
 
     def to_dict(self, show: Optional[List[str]] = None):
         """
