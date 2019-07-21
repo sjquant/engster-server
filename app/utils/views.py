@@ -30,7 +30,7 @@ class APIView(HTTPMethodView):
         return query
 
     async def get_object(self, *args, **kwargs):
-        
+
         lookup_field = self.lookup_field or "id"
         try:
             field = getattr(self.model, lookup_field)
@@ -40,9 +40,7 @@ class APIView(HTTPMethodView):
                 "or override the `get_object()` method." % self.__class__.__name__
             )
 
-        obj = await self.model.query.where(
-            field == kwargs[lookup_field]
-        ).gino.first()
+        obj = await self.model.query.where(field == kwargs[lookup_field]).gino.first()
         if obj is None:
             raise ServerError(status_code=404)
         return obj
