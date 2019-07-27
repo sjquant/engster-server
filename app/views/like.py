@@ -1,19 +1,18 @@
 import asyncpg
 from sanic.request import Request
 from sanic.blueprints import Blueprint
-from sanic.views import HTTPMethodView
 from sanic_jwt_extended.tokens import Token
 from sanic_jwt_extended import jwt_required
 
 from app import db
 from app.db_models import LineLike, TranslationLike
-
+from app.utils.views import APIView
 from app.utils.serializer import jsonify
 
 blueprint = Blueprint('like_blueprint', url_prefix='/like')
 
 
-class LikeEnglish(HTTPMethodView):
+class LikeEnglish(APIView):
 
     async def get(self, request: Request, line_id: int):
         likes = await LineLike.query.where(
@@ -44,7 +43,7 @@ class LikeEnglish(HTTPMethodView):
         return jsonify({'message': 'deleted like'}, 204)
 
 
-class LikeKorean(HTTPMethodView):
+class LikeKorean(APIView):
 
     async def get(self, request: Request, translation_id: int):
         likes = await TranslationLike.query.where(
