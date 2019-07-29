@@ -1,9 +1,10 @@
 from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
 
-
 from app.db_models import Content, Category, Genre, Line, Translation
 from app.utils.views import ListAPIView, DetailAPIView
+from app.utils.validators import validate_queries
+
 
 blueprint = Blueprint("admin_lines_blueprint")
 
@@ -23,13 +24,14 @@ class GenreList(ListAPIView):
 class LineList(ListAPIView):
     model = Line
 
-    def get_query(self, request):
-        content_id = request.args.get("content_id")
-        if not content_id:
-            ServerError("content_id is required", 422)
-        return Line.query.where(Line.content_id == int(content_id))
+    def get_query(self, request, content_id: int):
+        return Line.query.where(Line.content_id == content_id)
 
-    def post(self, request):
+    @validate_queries(page=(int, 1), content_id=(int, ...))
+    async def get(self, request, page, content_id):
+        return await super().get(request, page=page, content_id=content_id)
+
+    async def post(self, request):
         raise ServerError("Not Allowed Method", 405)
 
 

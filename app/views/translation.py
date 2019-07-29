@@ -8,15 +8,15 @@ from app.db_models import User, Translation
 from app.utils import calc_max_page
 from app.utils.serializer import jsonify
 from app.utils.views import APIView
+from app.utils.validators import validate_queries
 
 blueprint = Blueprint('translation_blueprint', url_prefix='/translations')
 
 
 class TranslationListView(APIView):
 
-    async def get(self, request: Request):
-        page = int(request.args.get('page', 1))
-        line_id = int(request.args.get('line_id'))
+    @validate_queries(page=(int, 1), line_id=(int, ...))
+    async def get(self, request: Request, page: int, line_id: int):
         page_size = request.app.config.get('COMMENT_PAGE_SIZE', 10)
 
         if not line_id:
