@@ -58,7 +58,6 @@ def expect_body(**field_definitions):
 
 def expect_query_with_model(model: BaseModel):
     def actual_expect_query(func):
-
         @wraps(func)
         async def wrapper(*args, **kwargs):
             request = _get_request(*args)
@@ -76,7 +75,6 @@ def expect_query_with_model(model: BaseModel):
 
 def expect_body_with_model(model: BaseModel):
     def actual_expect_body(func):
-
         @wraps(func)
         async def wrapper(*args, **kwargs):
             request = _get_request(*args)

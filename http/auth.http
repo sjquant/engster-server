@@ -3,7 +3,7 @@ POST http://localhost:8000/auth/register
 Content-Type: application/json
 
 {
-    "email": "usearxr@test.com",
+    "email": "usseasdfasdf@test.com",
     "password": "abcdefg!!!"
 }
 
@@ -19,4 +19,4 @@ Content-Type: application/json
 ### Refresh Token
 POST http://localhost:8000/auth/refresh-token
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjE3OTE4NzIsIm5iZiI6MTU2MTc5MTg3MiwianRpIjoiZDMyNWUxZGItNjY2Mi00Y2IwLTgyNjUtNjhmM2JkODkzMjllIiwiZXhwIjoxNTY0MzgzODcyLCJpZGVudGl0eSI6IjI2MWNmYjE4LTFlOWQtNDk0YS04ZDcyLTI5ZTY5OTNlMmMxYSIsInR5cGUiOiJyZWZyZXNoIn0.fBnEaEQJj7jvv_8RDhI1os5VAoM4BHolnke_ObqI1Pw
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjQ1MDYwNjMsIm5iZiI6MTU2NDUwNjA2MywianRpIjoiZDg2NTVjNDQtNTNlMi00M2Y4LWE0YzUtNDRmN2JjZDY5N2Y5IiwiZXhwIjoxNTY3MDk4MDYzLCJpZGVudGl0eSI6IjI2MWNmYjE4LTFlOWQtNDk0YS04ZDcyLTI5ZTY5OTNlMmMxYSIsInR5cGUiOiJyZWZyZXNoIn0.W94K_6AsJyC_yjFBEvx_ZCbAl3RG9tQh8LGk4g3L5uY

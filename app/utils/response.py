@@ -115,7 +115,11 @@ def jsonable_encoder(
 
 
 def JsonResponse(
-    obj: Any, status: int=200, headers: Optional[dict]=None, content_type: str="application/json", **kwargs
+    obj: Any,
+    status: int = 200,
+    headers: Optional[dict] = None,
+    content_type: str = "application/json",
+    **kwargs
 ):
     return json(
         jsonable_encoder(obj, **kwargs),

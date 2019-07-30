@@ -12,6 +12,7 @@ from sanic_jwt_extended.tokens import Token
 from app.db_models import User
 from app.utils.response import JsonResponse
 from app.utils.validators import expect_body
+from app.models.auth import AuthModel, UserModel
 
 blueprint = Blueprint("auth_blueprint", url_prefix="/auth")
 
@@ -32,7 +33,11 @@ async def register(request: Request):
     refresh_token = await create_refresh_token(app=request.app, identity=str(user.id))
 
     return JsonResponse(
-        dict(access_token=access_token, refresh_token=refresh_token, **user.to_dict()),
+        AuthModel(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user=UserModel.from_orm(user),
+        ),
         status=201,
     )
 
@@ -54,7 +59,11 @@ async def obtain_token(request: Request):
     refresh_token = await create_refresh_token(app=request.app, identity=str(user.id))
 
     return JsonResponse(
-        dict(access_token=access_token, refresh_token=refresh_token, **user.to_dict()),
+        AuthModel(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user=UserModel.from_orm(user),
+        ),
         status=201,
     )
 
@@ -69,6 +78,13 @@ async def refresh_token(request, token: Token):
     refresh_token = await create_refresh_token(
         app=request.app, identity=token.jwt_identity
     )
+
+    user = await User.query.where(User.id == token.jwt_identity).gino.first()
     return JsonResponse(
-        {"access_token": access_token, "refresh_token": refresh_token}, status=201
+        AuthModel(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user=UserModel.from_orm(user),
+        ),
+        status=201,
     )
