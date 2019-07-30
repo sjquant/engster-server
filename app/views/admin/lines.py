@@ -3,7 +3,7 @@ from sanic.blueprints import Blueprint
 
 from app.db_models import Content, Category, Genre, Line, Translation
 from app.utils.views import ListAPIView, DetailAPIView
-from app.utils.validators import validate_queries
+from app.utils.validators import expect_query
 
 
 blueprint = Blueprint("admin_lines_blueprint")
@@ -27,7 +27,7 @@ class LineList(ListAPIView):
     def get_query(self, request, content_id: int):
         return Line.query.where(Line.content_id == content_id)
 
-    @validate_queries(page=(int, 1), content_id=(int, ...))
+    @expect_query(page=(int, 1), content_id=(int, ...))
     async def get(self, request, page, content_id):
         return await super().get(request, page=page, content_id=content_id)
 

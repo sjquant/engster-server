@@ -3,7 +3,7 @@ import asyncio
 import uuid
 
 from sanic.request import Request
-from pydantic import create_model
+from pydantic import create_model, BaseModel
 
 
 def _get_request(*args):
@@ -17,14 +17,15 @@ def _get_request(*args):
     return request
 
 
-def validate_queries(**field_definitions):
-    def actual_validate_queries(func):
+def expect_query(**field_definitions):
+    def actual_expect_query(func):
+        model = create_model(f"QUERY_{uuid.uuid4().hex}", **field_definitions)
+
         @wraps(func)
         async def wrapper(*args, **kwargs):
             request = _get_request(*args)
-            model = create_model(f"QUERY_{uuid.uuid4().hex}", **field_definitions)
-            validated_queries = model(**dict(request.query_args)).dict()
-            kwargs.update(validated_queries)
+            processed = model(**dict(request.query_args)).dict()
+            kwargs.update(processed)
             if asyncio.iscoroutinefunction(func):
                 return await func(*args, **kwargs)
             else:
@@ -32,16 +33,61 @@ def validate_queries(**field_definitions):
 
         return wrapper
 
-    return actual_validate_queries
+    return actual_expect_query
 
 
-def validate_body():
-    pass
+def expect_body(**field_definitions):
+    def actual_expect_body(func):
+        model = create_model(f"BODY_{uuid.uuid4().hex}", **field_definitions)
+
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            request = _get_request(*args)
+            processed = model(**request.json).dict()
+            # update parsed_json (which is called by request.json)
+            request.parsed_json = processed
+            if asyncio.iscoroutinefunction(func):
+                return await func(*args, **kwargs)
+            else:
+                return func(*args, **kwargs)
+
+        return wrapper
+
+    return actual_expect_body
 
 
-def validate_form():
-    pass
+def expect_query_with_model(model: BaseModel):
+    def actual_expect_query(func):
+
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            request = _get_request(*args)
+            processed = model(**dict(request.query_args)).dict()
+            kwargs.update(processed)
+            if asyncio.iscoroutinefunction(func):
+                return await func(*args, **kwargs)
+            else:
+                return func(*args, **kwargs)
+
+        return wrapper
+
+    return actual_expect_query
 
 
-def validate_response():
-    pass
+def expect_body_with_model(model: BaseModel):
+    def actual_expect_body(func):
+
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            request = _get_request(*args)
+            processed = model(**request.json).dict()
+            # update parsed_json (which is called by request.json)
+            request.parsed_json = processed
+            if asyncio.iscoroutinefunction(func):
+                return await func(*args, **kwargs)
+            else:
+                return func(*args, **kwargs)
+
+        return wrapper
+
+    return actual_expect_body

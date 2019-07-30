@@ -1,5 +1,6 @@
-import datetime
 from io import BytesIO
+from typing import List
+import datetime
 
 from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
@@ -7,7 +8,8 @@ from sanic.blueprints import Blueprint
 import pandas as pd
 
 from app.core import converter
-from app.utils.serializer import jsonify
+from app.utils.response import JsonResponse
+from app.utils.validators import expect_body
 from app.db_models import (
     Line,
     Content,
@@ -45,9 +47,9 @@ async def convert_single_file(request):
     output = output_dir + '/' + output_name
 
     converter.df_to_csv(df, output)
-    return jsonify({
+    return JsonResponse({
         "message": "successfully convertd subtitle to csv"
-    }, 201)
+    }, status=201)
 
 
 @blueprint.route('/combine_convert', methods=['POST'])
@@ -86,25 +88,22 @@ async def combine_to_single_file(request):
 
     converter.df_to_csv(df, output)
 
-    return jsonify({
+    return JsonResponse({
         "message": "successfully combined eng and kor and converted it to csv"
     }, status=201)
 
 
 @blueprint.route('/upload_content', methods=['POST'])
+@expect_body(
+    title=(str, ...),
+    year=(str, ...),
+    reference=str,
+    category_id=(int, ...),
+    genre_ids=(List[int], ...)
+)
 async def upload_content(request):
     """
     Upload Single File
-
-    Body Params
-    ----------
-    {
-        "title": str,
-        "year": str,
-        "reference": str,
-        "category_id": int,
-        "genre_ids": array
-    }
     """
     title = request.json['title']
     year = request.json['year']
@@ -129,7 +128,7 @@ async def upload_content(request):
 
     await ContentXGenre.insert().gino.all(*content_genre_list)
 
-    return jsonify(content.to_dict(), 201)
+    return JsonResponse(content.to_dict(), status=201)
 
 
 @blueprint.route('/upload_eng_subtitle/<content_id:int>', methods=['POST'])
@@ -147,7 +146,7 @@ async def upload_eng_subtitle(request, content_id):
                      for each in df[['time', 'line', 'content_id']].values]
     await Line.insert().gino.all(*eng_line_list)
 
-    return jsonify({'message': 'eng subtitle uploaded...'}, 201)
+    return JsonResponse({'message': 'eng subtitle uploaded...'}, status=201)
 
 
 @blueprint.route('/upload_kor_subtitle/<content_id:int>', methods=['POST'])
@@ -163,7 +162,7 @@ async def update_kor_subtitle(request, content_id):
                      encoding='cp949', header=0)
 
     if len(lines) != len(df):
-        return jsonify({'message': 'line and translation length does not match.'}, 400)
+        return JsonResponse({'message': 'line and translation length does not match.'}, status=400)
 
     df.loc[:, 'content_id'] = content_id
     df.loc[:, 'line_id'] = [each.id for each in lines]
@@ -173,4 +172,4 @@ async def update_kor_subtitle(request, content_id):
     # Insert Line Data
     await Translation.insert().gino.all(*kor_line_list)
 
-    return jsonify({'message': 'kor subtitle uploaded...'}, 201)
+    return JsonResponse({'message': 'kor subtitle uploaded...'}, status=201)

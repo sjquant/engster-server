@@ -5,7 +5,7 @@ I refered to django-rest-framework mixins
 from typing import Tuple
 
 
-from app.utils.serializer import jsonify
+from app.utils.response import JsonResponse
 
 
 class CreateModelMixin:
@@ -14,7 +14,7 @@ class CreateModelMixin:
     async def create(self, request, *args, **kwargs):
         instance = self.model(**request.json)
         await instance.create()
-        return jsonify(instance.to_dict(), status=201)
+        return JsonResponse(instance.to_dict(), status=201)
 
 
 class ListModelMixin:
@@ -32,12 +32,12 @@ class ListModelMixin:
 
     async def list(self, request, *args, **kwargs):
 
-        page = kwargs.pop('page', 1)
+        page = kwargs.pop("page", 1)
         query = self.get_paginated_query(
             self.get_query(request, *args, **kwargs), page=page
         )
         data = await query.gino.all()
-        return jsonify([each.to_dict() for each in data])
+        return JsonResponse([each.to_dict() for each in data], status=200)
 
 
 class RetrieveModelMixin:
@@ -45,7 +45,7 @@ class RetrieveModelMixin:
 
     async def retrieve(self, request, *args, **kwargs):
         instance = await self.get_object(*args, **kwargs)
-        return jsonify(instance.to_dict(), status=200)
+        return JsonResponse(instance.to_dict(), status=200)
 
 
 class UpdateModelMixin:
@@ -54,7 +54,7 @@ class UpdateModelMixin:
     async def update(self, request, *args, **kwargs):
         instance = await self.get_object(*args, **kwargs)
         await instance.update(**request.json).apply()
-        return jsonify(instance.to_dict(), status=202)
+        return JsonResponse(instance.to_dict(), status=202)
 
 
 class DestroyModelMixin:
@@ -63,4 +63,4 @@ class DestroyModelMixin:
     async def destroy(self, request, *args, **kwargs):
         instance = await self.get_object(*args, **kwargs)
         await instance.delete()
-        return jsonify(status=204)
+        return JsonResponse(status=204)

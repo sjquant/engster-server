@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 import secrets
 import random
@@ -41,7 +42,7 @@ class User(TimeStampedModel):
     async def create_user(self,
                           email: str,
                           password: str,
-                          nickname: str = None,
+                          nickname: Optional[str] = None,
                           is_admin: bool = False):
         self.id = uuid.uuid4()
         self.email = email

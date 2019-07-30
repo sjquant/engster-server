@@ -19,8 +19,8 @@ from app.db_models import (
 )
 
 from app.utils import calc_max_page
-from app.utils.serializer import jsonify
-from app.utils.validators import validate_queries
+from app.utils.response import JsonResponse
+from app.utils.validators import expect_query
 
 
 blueprint = Blueprint("search_blueprint", url_prefix="search")
@@ -148,7 +148,7 @@ async def get_translation_count(line_ids: List[int]) -> Dict[int, int]:
 
 @blueprint.route("/english", methods=["GET"])
 @jwt_optional
-@validate_queries(page=(int, 1), keyword=(constr(min_length=2), ...))
+@expect_query(page=(int, 1), keyword=(constr(min_length=2), ...))
 async def search_english(request, page: int, keyword: str, token: Token):
     """ search english """
 
@@ -160,8 +160,9 @@ async def search_english(request, page: int, keyword: str, token: Token):
     offset = page_size * (page - 1)
 
     if page > max_page:
-        return jsonify(
-            {"max_page": 0, "count": 0, "page": 0, "lines": [], "user_liked": []}
+        return JsonResponse(
+            {"max_page": 0, "count": 0, "page": 0, "lines": [], "user_liked": []},
+            status=200,
         )
 
     lines = (
@@ -207,12 +208,12 @@ async def search_english(request, page: int, keyword: str, token: Token):
         "lines": lines,
         "user_liked": user_liked,
     }
-    return jsonify(resp)
+    return JsonResponse(resp, status=200)
 
 
 @blueprint.route("/korean", methods=["GET"])
 @jwt_optional
-@validate_queries(page=(int, 1), keyword=(constr(min_length=2), ...))
+@expect_query(page=(int, 1), keyword=(constr(min_length=2), ...))
 async def search_korean(request, page: int, keyword: str, token: Token):
     """ search korean """
 
@@ -224,8 +225,9 @@ async def search_korean(request, page: int, keyword: str, token: Token):
     offset = page_size * (page - 1)
 
     if page > max_page:
-        return jsonify(
-            {"max_page": 0, "page": 0, "count": 0, "lines": [], "user_liked": []}
+        return JsonResponse(
+            {"max_page": 0, "page": 0, "count": 0, "lines": [], "user_liked": []},
+            status=200,
         )
 
     translations = (
@@ -277,7 +279,7 @@ async def search_korean(request, page: int, keyword: str, token: Token):
         "user_liked": user_liked,
     }
 
-    return jsonify(resp)
+    return JsonResponse(resp)
 
 
 @blueprint.route("/context/<content_id:int>/<line_id:int>", methods=["GET"])
@@ -312,4 +314,4 @@ async def search_context(request, content_id, line_id):
 
     data = {"lines": lines}
 
-    return jsonify(data)
+    return JsonResponse(data, status=200)
