@@ -36,7 +36,7 @@ class User(TimeStampedModel):
         prefix = ''.join(secrets.choice(allowed_prefix_chars)
                          for i in range(4))
         suffix = ''.join(secrets.choice(allowed_suffix_chars)
-                         for i in range(random.randint(1, 7)))
+                         for i in range(random.randint(1, 6)))
         return prefix+suffix
 
     async def create_user(self,
@@ -58,6 +58,3 @@ class User(TimeStampedModel):
     def check_password(self, password: str) -> bool:
         """ check password """
         return self.hasher.verify_password(password, self.password_hash)
-
-    def to_dict(self):
-        return super().to_dict(show=['id', 'email', 'nickname', 'photo'])
