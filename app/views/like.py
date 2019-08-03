@@ -27,7 +27,7 @@ class LikeEnglish(APIView):
             await like.create()
         except asyncpg.exceptions.UniqueViolationError:
             return JsonResponse({"message": "already liked"}, status=400)
-        return JsonResponse({"message": "liked"}, stastus=201)
+        return JsonResponse({"message": "liked"}, status=201)
 
     @jwt_required
     async def delete(self, request: Request, line_id: int, token: Token):

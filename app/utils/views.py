@@ -42,7 +42,7 @@ class APIView(HTTPMethodView):
 
         obj = await self.model.query.where(field == kwargs[lookup_field]).gino.first()
         if obj is None:
-            raise ServerError(status_code=404)
+            raise ServerError("no such object", status_code=404)
         return obj
 
 
