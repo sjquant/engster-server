@@ -283,7 +283,7 @@ async def search_korean(request, page: int, keyword: str, token: Token):
 
 
 @blueprint.route("/context/<content_id:int>/<line_id:int>", methods=["GET"])
-async def search_context(request, content_id, line_id):
+async def search_context(request, content_id: int, line_id: int):
     """ search context """
 
     before_lines = (
