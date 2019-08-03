@@ -8,3 +8,4 @@ psycopg2-binary>=2.7.7
 pandas==0.24.2
 Click==7.0
 alembic==1.0.9
+pydantic==0.31
