@@ -3,14 +3,17 @@ from alembic import context
 from sqlalchemy import create_engine, pool
 from logging.config import fileConfig
 import logging
+
 # import db
 from app import db
+
 # import models
-from app.models import *
+from app.db_models import *
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-logger = logging.getLogger('alembic.env')
+logger = logging.getLogger("alembic.env")
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -43,7 +46,8 @@ def run_migrations_offline():
     """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True, compare_type=True)
+        url=url, target_metadata=target_metadata, literal_binds=True, compare_type=True
+    )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -60,20 +64,21 @@ def run_migrations_online():
     # when there are no changes to the schema
     # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
     def process_revision_directives(context, revision, directives):
-        if getattr(config.cmd_opts, 'autogenerate', False):
+        if getattr(config.cmd_opts, "autogenerate", False):
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
-                logger.info('No changes in schema detected.')
+                logger.info("No changes in schema detected.")
 
-    engine = create_engine(config.get_main_option(
-        'db_url'), poolclass=pool.NullPool)
+    engine = create_engine(config.get_main_option("db_url"), poolclass=pool.NullPool)
 
     connection = engine.connect()
-    context.configure(connection=connection,
-                      target_metadata=target_metadata,
-                      process_revision_directives=process_revision_directives,
-                      compare_type=True)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        process_revision_directives=process_revision_directives,
+        compare_type=True,
+    )
 
     try:
         with context.begin_transaction():

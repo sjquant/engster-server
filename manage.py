@@ -39,14 +39,14 @@ def runserver(port, env):
     app.run(port=port, debug=app.config['DEBUG'])
 
 
-@cli.command(help="Create admin user")
-@click.option('--env', default='local', help="Set the settings.")
-def creatsuperuser(env):
-    """
-    Create Admin User
-    """
-    from app import create_app
-    app = create_app(env)
+# @cli.command(help="Create admin user")
+# @click.option('--env', default='local', help="Set the settings.")
+# def creatsuperuser(env):
+#     """
+#     Create Admin User
+#     """
+#     from app import create_app
+#     app = create_app(env)
 
 
 @cli.command(help="Show current revision")
@@ -137,7 +137,7 @@ def downgrade(env, revision):
 @coroutine
 async def setgenres(env):
     from app import db
-    from app.models import Genre
+    from app.db_models import Genre
 
     config = get_config(env)
     await db.set_bind(config.DB_URL)
@@ -154,7 +154,7 @@ async def setgenres(env):
 @coroutine
 async def setcategories(env):
     from app import db
-    from app.models import Category
+    from app.db_models import Category
 
     config = get_config(env)
     await db.set_bind(config.DB_URL)

@@ -1,22 +1,22 @@
 from sanic.request import Request
 from sanic.blueprints import Blueprint
-from sanic.views import HTTPMethodView
 from sanic_jwt_extended.tokens import Token
+from sanic_jwt_extended import jwt_required
 from sanic.exceptions import ServerError
 
-from app.models import User, Translation
-from app.utils.jwt import jwt_required
+from app.db_models import User, Translation
 from app.utils import calc_max_page
-from app.utils.serializer import jsonify
+from app.utils.response import JsonResponse
+from app.utils.views import APIView
+from app.utils.validators import expect_query, expect_body
 
 blueprint = Blueprint('translation_blueprint', url_prefix='/translations')
 
 
-class TranslationListView(HTTPMethodView):
+class TranslationListView(APIView):
 
-    async def get(self, request: Request):
-        page = int(request.args.get('page', 1))
-        line_id = int(request.args.get('line_id'))
+    @expect_query(page=(int, 1), line_id=(int, ...))
+    async def get(self, request: Request, page: int, line_id: int):
         page_size = request.app.config.get('COMMENT_PAGE_SIZE', 10)
 
         if not line_id:
@@ -28,12 +28,12 @@ class TranslationListView(HTTPMethodView):
         offset = page_size * (page - 1)
 
         if page > max_page:
-            return jsonify({
+            return JsonResponse({
                 'max_page': 0,
                 'page': 0,
                 'count': 0,
                 'lines': []
-            })
+            }, status=200)
 
         translations = await Translation.load(
             translator=User).query.where(
@@ -52,9 +52,13 @@ class TranslationListView(HTTPMethodView):
                     'translator': translator
                 }
             )
-        return jsonify(resp)
+        return JsonResponse(resp)
 
     @jwt_required
+    @expect_body(
+        line_id=(int, ...),
+        translation=(str, ...)
+    )
     async def post(self, request: Request, token: Token):
         user_id = token.jwt_identity
         translation = await Translation(
@@ -63,7 +67,7 @@ class TranslationListView(HTTPMethodView):
         nickname = await User.select(
             'nickname').where(
                 User.id == user_id).gino.scalar()
-        return jsonify(
+        return JsonResponse(
             {
                 **translation.to_dict(),
                 'translator': nickname
