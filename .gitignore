@@ -8,3 +8,7 @@
 
 # Python Cache
 __pycache__
+.mypy_cache
+
+# Virtualenv
+.python-version

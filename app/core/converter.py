@@ -1,15 +1,20 @@
 from typing import List, Tuple, Optional
-from app.utils.exceptions import UnsupportedExtensionError, InvalidDataFrameError
 import re
-import csv
-import pandas as pd
 from datetime import timedelta
+
+import pandas as pd
+
+from app.utils.exceptions import (
+    UnsupportedExtensionError,
+    InvalidDataFrameError
+)
 
 
 def trim_smi_text(text: str) -> str:
     text = text.replace('\r', '')
-    text = re.search(r"<BODY>.*</BODY>", text,
-                     flags=re.IGNORECASE | re.DOTALL).group()
+    extracted_text = re.search(r"<BODY>.*</BODY>", text,
+                               flags=re.IGNORECASE | re.DOTALL)
+    text = extracted_text.group() if extracted_text else ''
     # remove comments
     text = re.sub(r"<!--.*-->", "", text,
                   flags=re.DOTALL)
@@ -38,7 +43,9 @@ def trim_srt_text(text: str) -> str:
     return text
 
 
-def _get_smi_line_info(time: str, line: str, lang: str) -> Tuple[str, str, str]:
+def _get_smi_line_info(time: str,
+                       line: str,
+                       lang: str) -> Optional[Tuple[str, str, str]]:
     """
     get info from a line
 
@@ -48,14 +55,15 @@ def _get_smi_line_info(time: str, line: str, lang: str) -> Tuple[str, str, str]:
     """
     try:
         if line == '':
-            return
-        time = timedelta(seconds=int(float(time)/1000))
+            return None
+        time = str(timedelta(seconds=int(float(time)/1000)))
         time = f"{time}".zfill(8)
         line_info = (time, line, lang)
         return line_info
+
     # No time_list
     except IndexError:
-        pass
+        return None
 
 
 def _convert_lang(lang: str) -> str:

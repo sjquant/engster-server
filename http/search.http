@@ -1,0 +1,11 @@
+### Search By English
+GET http://localhost:8000/search/english?keyword=minho
+Content-Type: application/json
+
+### Search By Korean
+GET http://localhost:8000/search/korean?keyword=위험
+Content-Type: application/json
+
+### Search Context
+GET http://localhost:8000/search/context/1/1092
+Content-Type: application/json

@@ -1,84 +1,76 @@
-### Convert File (smi)
-POST http://localhost:8000/admin/lines/convert_subtitle
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+### Line List
+GET http://localhost:8000/admin/lines?content_id=1&page=1
+Content-Type: application/json
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="input"; filename="Inside Out.smi"
-Content-Type: text/plain
+### Content List
+GET http://localhost:8000/admin/contents
+Content-Type: application/json
 
-< D:/SJ/engster/subtitles/InsideOut.smi
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="output"
+### Category List
+GET http://localhost:8000/admin/categories
+Content-Type: application/json
 
-InsideOutKor.csv
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+### genre List
+GET http://localhost:8000/admin/genres
+Content-Type: application/json
 
-### Convert File (srt)
-POST http://localhost:8000/admin/lines/convert_subtitle
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="input"; filename="Inside Out.srt"
-Content-Type: text/plain
-
-< D:/SJ/engster/subtitles/InsideOut.srt
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="output"
-
-InsideOutEng.csv
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### Combine eng and kor and Convert them to single file
-POST http://localhost:8000/admin/lines/combine_convert
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="input_eng"; filename="Inside Out.srt"
-Content-Type: text/plain
-
-< D:/SJ/engster/subtitles/InsideOut.srt
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="input_kor"; filename="Inside Out.smi"
-Content-Type: text/plain
-
-< D:/SJ/engster/subtitles/InsideOut.smi
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="output"
-
-InsideOut.csv
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### Upload Content
-POST http://localhost:8000/admin/lines/upload_content
+### Post Category
+POST http://localhost:8000/admin/categories
 Content-Type: application/json
 
 {
-    "title": "The Maze Runner",
-    "year": "2014",
-    "reference": "",
-    "category_id": 1,
-    "genre_ids": [4, 10, 11, 14]
+    "category": "youtube"
 }
 
-### Upload Eng Subtitle (Maze Runner)
-POST http://localhost:8000/admin/lines/upload_eng_subtitle/19
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+### Post genre
+POST http://localhost:8000/admin/genres
+Content-Type: application/json
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="input_file"; filename="TheMazeRunner.csv"
-Content-Type: text/csv
+{
+    "genre": "crime"
+}
 
-< D:/SJ/engster/processed/TheMazeRunner.csv
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+### Get Individual Category
+GET http://localhost:8000/admin/categories/1
+Content-Type: application/json
 
+### Change Individual Category
+PUT http://localhost:8000/admin/categories/3
+Content-Type: application/json
 
-### Upload Kor Subtitle
-POST http://localhost:8000/admin/lines/upload_kor_subtitle/19
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+{
+    "category":"tv drama"
+}
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="input_file"; filename="TheMazeRunner.csv"
-Content-Type: text/csv
+### Delete Individual Category
+DELETE http://localhost:8000/admin/categories/7
+Content-Type: application/json
 
-< D:/SJ/engster/processed/TheMazeRunner.csv
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+### Get Individual genre
+GET http://localhost:8000/admin/genres/2
+Content-Type: application/json
+
+### Change Individual genre
+PUT http://localhost:8000/admin/genres/10
+Content-Type: application/json
+
+{
+    "genre":"science fiction"
+}
+
+### Delete Individual genre
+DELETE http://localhost:8000/admin/genres/2
+Content-Type: application/json
+
+### Get Specific translation
+GET http://localhost:8000/admin/translations/1423
+
+### Change specific translation
+PUT http://localhost:8000/admin/translations/1423
+
+{
+    "translation": "민호야 힘내!"
+}
+
+### Delete specific translation
+DELETE http://localhost:8000/admin/translations/2181

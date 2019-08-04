@@ -1,27 +1,26 @@
 """
 I referenced django's utils/crypto.py, and contrib/hashers.py
-Thanks Django (https://github.com/django/django/blob/master/django)
 """
 
 import hashlib
 import hmac
 import secrets
-import time
 import base64
 
 
-def force_bytes(s, encoding='utf-8'):
+def force_bytes(s, encoding="utf-8"):
     if isinstance(s, bytes):
         return s
     else:
         return str(s).encode(encoding)
 
 
-def get_random_salt(length=12,
-                    allowed_chars='abcdefghijklmnopqrstuvwxyz'
-                    'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'):
+def get_random_salt(
+    length=12,
+    allowed_chars="abcdefghijklmnopqrstuvwxyz" "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+):
 
-    return ''.join(secrets.choice(allowed_chars) for i in range(length))
+    return "".join(secrets.choice(allowed_chars) for i in range(length))
 
 
 def constant_time_compare(val1, val2):
@@ -46,6 +45,7 @@ class PBKDF2PasswordHasher:
     The result is a 64 byte binary string.  Iterations may be changed
     safely but you must rename the algorithm if you change SHA256.
     """
+
     algorithm = "pbkdf2_sha256"
     iterations = 180000
     digest = hashlib.sha256
@@ -59,11 +59,11 @@ class PBKDF2PasswordHasher:
 
         iterations = iterations or self.iterations
         hash = pbkdf2(password, salt, iterations, digest=self.digest)
-        hash = base64.b64encode(hash).decode('ascii').strip()
+        hash = base64.b64encode(hash).decode("ascii").strip()
         return "%s$%d$%s$%s" % (self.algorithm, iterations, salt, hash)
 
     def verify_password(self, password, encoded):
-        algorithm, iterations, salt, hash = encoded.split('$', 3)
+        algorithm, iterations, salt, hash = encoded.split("$", 3)
         assert algorithm == self.algorithm
         encoded_2 = self.encode(password, salt, int(iterations))
         return constant_time_compare(encoded, encoded_2)
