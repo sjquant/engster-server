@@ -12,7 +12,7 @@ from sanic_jwt_extended.tokens import Token
 from app.db_models import User
 from app.utils.response import JsonResponse
 from app.utils.validators import expect_body
-from app.models.auth import AuthModel, UserModel
+from app.models import AuthModel, UserModel
 
 blueprint = Blueprint("auth_blueprint", url_prefix="/auth")
 

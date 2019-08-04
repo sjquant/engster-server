@@ -115,7 +115,7 @@ def jsonable_encoder(
 
 
 def JsonResponse(
-    obj: Any,
+    obj: Any = None,
     status: int = 200,
     headers: Optional[dict] = None,
     content_type: str = "application/json",

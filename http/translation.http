@@ -1,5 +1,5 @@
 ### Get Trnaslations for line
-GET http://localhost:8000/translations?line_id=1092
+GET http://localhost:8000/translations?line_id=1213
 Content-Type: application/json
 
 ### Post Translation
@@ -11,3 +11,21 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjE4MzI0O
     "line_id": 1213,
     "translation": "가운데 있는 녀석 보이지? 민호야."
 }
+
+### Get Translation Detail
+GET http://localhost:8000/translations/2196
+Content-Type: application.json
+
+### Put Translation Detail
+PUT http://localhost:8000/translations/2196
+Content-Type: application.json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjE4MzI0ODksIm5iZiI6MTU2MTgzMjQ4OSwianRpIjoiMDkzNDA2OGYtZGIwYy00NWU0LTkwODktNGNjZjNjOGNjNzE4IiwiZXhwIjo4Nzk2MTc0NjA4OSwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.UmGQCAHy6fW-j5mII7WBBfPZZhFJfSkYolfzdMrEuZM
+
+{
+    "translation": "가운데 있는 애가 민호야."
+}
+
+### Delete Translation Detail
+DELETE http://localhost:8000/translations/2196
+Content-Type: application.json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjE4MzI0ODksIm5iZiI6MTU2MTgzMjQ4OSwianRpIjoiMDkzNDA2OGYtZGIwYy00NWU0LTkwODktNGNjZjNjOGNjNzE4IiwiZXhwIjo4Nzk2MTc0NjA4OSwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.UmGQCAHy6fW-j5mII7WBBfPZZhFJfSkYolfzdMrEuZM
