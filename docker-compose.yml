@@ -1,6 +1,0 @@
-verison: '3'
-
-services:
-  engster:
-    build: .
-  

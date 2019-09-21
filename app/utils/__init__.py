@@ -4,8 +4,7 @@ from sqlalchemy.sql.elements import BinaryExpression
 from app import db
 
 
-async def calc_max_page(page_size: int,
-                        condition: BinaryExpression) -> Tuple[int, int]:
+async def calc_max_page(page_size: int, condition: BinaryExpression) -> Tuple[int, int]:
     """
     Calculate Max Page
 

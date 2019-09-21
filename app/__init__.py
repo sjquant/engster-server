@@ -1,3 +1,6 @@
+import os
+import importlib
+
 from sanic import Sanic
 from gino.ext.sanic import Gino
 from sanic_jwt_extended import JWTManager
@@ -7,24 +10,31 @@ from sanic_cors import CORS
 db = Gino()
 
 
-def init_auth(app):
-    JWTManager(app)
+def get_config():
+    env = os.getenv("ENV", "development")
+    config = importlib.import_module(f"app.config.{env}")
+    return config
 
 
-def create_app(env: str = 'local'):
+def init_config(app):
+    app.config.from_object(get_config())
+
+
+def create_app():
     """
     Create Sanic Application
     """
-    from app.utils.config import get_config
-    config = get_config(env)
-
     app = Sanic()
-    app.config.from_object(config)
+    init_config(app)
+
+    CORS(app)
     db.init_app(app)
-    CORS(app, origins=app.config.get('ORIGINS', '*'), automatic_options=True)
-    init_auth(app)
 
+    JWTManager(app)
     from app import views
-    views.init_app(app)
 
+    views.init_app(app)
     return app
+
+
+app = create_app()

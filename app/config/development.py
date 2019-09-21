@@ -2,7 +2,8 @@ import datetime
 from .base import *  # noqa
 
 
-ORIGINS = '*'
+CORS_ORIGINS = '*'
+CORS_AUTOMATIC_OPTIONS = True
 DEBUG = False
 
 JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(999999)

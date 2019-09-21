@@ -1,4 +1,4 @@
-FROM python:3.7.4-alpine
+FROM python:3.7.3-alpine3.10
 LABEL maintainer="sjquant (seonujang92@gmail.com)"
 
 RUN apk add --no-cache bash && apk --no-cache add tzdata && \
@@ -7,8 +7,11 @@ RUN apk add --no-cache bash && apk --no-cache add tzdata && \
         apk add --no-cache libpq postgresql-dev && \
         apk add --no-cache  build-base
 
-COPY ./requirements.txt /usr/src/app/requirements.txt
-RUN pip install -r /usr/src/app/requirements.txt
+# 컨테이너 재생성시 바이너리 파일이 없어지는 문제 수정
+ENV PYTHONHASHSEED=random \
+  PYTHONUNBUFFERED=0
 
-COPY . /usr/src/app
-WORKDIR /usr/src/app
+RUN pip install --upgrade pip
+COPY ./scripts /app/scripts
+WORKDIR /app
+RUN chmod +x scripts/*.sh
