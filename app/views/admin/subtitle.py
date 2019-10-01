@@ -15,7 +15,7 @@ from app.db_models import Line, Content, ContentXGenre, Category, Genre, Transla
 blueprint = Blueprint("admin_subtitle_blueprint")
 
 
-@blueprint.route("/convert_subtitle", methods=["POST"])
+@blueprint.route("/convert-subtitle", methods=["POST"])
 async def convert_single_file(request):
     """
     Convert Single File
@@ -46,7 +46,7 @@ async def convert_single_file(request):
     )
 
 
-@blueprint.route("/combine_convert", methods=["POST"])
+@blueprint.route("/combine-convert", methods=["POST"])
 async def combine_to_single_file(request):
     """
     Convert Single File
@@ -88,11 +88,11 @@ async def combine_to_single_file(request):
     )
 
 
-@blueprint.route("/upload_content", methods=["POST"])
+@blueprint.route("/upload-content", methods=["POST"])
 @expect_body(
     title=(str, ...),
     year=(str, ...),
-    reference=str,
+    reference=(str, ""),
     category_id=(int, ...),
     genre_ids=(List[int], ...),
 )
@@ -123,7 +123,7 @@ async def upload_content(request):
     return JsonResponse(content.to_dict(), status=201)
 
 
-@blueprint.route("/upload_eng_subtitle/<content_id:int>", methods=["POST"])
+@blueprint.route("/upload-eng-subtitle/<content_id:int>", methods=["POST"])
 async def upload_eng_subtitle(request, content_id):
     content = await Content.get(content_id)
     if content is None:
@@ -141,7 +141,7 @@ async def upload_eng_subtitle(request, content_id):
     return JsonResponse({"message": "eng subtitle uploaded..."}, status=201)
 
 
-@blueprint.route("/upload_kor_subtitle/<content_id:int>", methods=["POST"])
+@blueprint.route("/upload-kor-subtitle/<content_id:int>", methods=["POST"])
 async def update_kor_subtitle(request, content_id):
     lines = await Line.query.where(content_id == content_id).order_by("id").gino.all()
 
