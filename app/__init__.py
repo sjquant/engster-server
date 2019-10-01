@@ -35,6 +35,3 @@ def create_app():
 
     views.init_app(app)
     return app
-
-
-app = create_app()

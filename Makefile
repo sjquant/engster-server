@@ -1,5 +1,5 @@
 build:
-	docker-compose -f docker-compose.dev.yml build
+	docker-compose -f docker-compose.dev.yml build && docker rmi $$(docker images -f "dangling=true" -q) -f
 	
 dev-init:
 	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/sh -c \

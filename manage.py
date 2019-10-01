@@ -5,7 +5,7 @@ import asyncio
 from alembic.config import Config
 import click
 
-from app import get_config
+from app import get_config, create_app
 
 
 def coroutine(f):
@@ -117,6 +117,7 @@ async def init():
 
     config = get_config()
     from sanic.log import logger
+
     logger.info(config.__dict__)
     await db.set_bind(config.DB_URL)
 
@@ -131,6 +132,12 @@ async def init():
 
     # Insert Genres
     await Genre.insert().gino.all(*genres)
+
+
+@cli.command(help="runserver")
+def runserver():
+    app = create_app()
+    app.run(host="0.0.0.0", port=8000, debug=True)
 
 
 if __name__ == "__main__":
