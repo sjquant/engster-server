@@ -35,6 +35,10 @@ class LineList(ListAPIView):
         raise ServerError("Not Allowed Method", 405)
 
 
+class ContentDetail(DetailAPIView):
+    model = Content
+
+
 class CategoryDetail(DetailAPIView):
     model = Category
 
@@ -50,7 +54,8 @@ class TranslationDetail(DetailAPIView):
 blueprint.add_route(ContentList.as_view(), "/contents")
 blueprint.add_route(CategoryList.as_view(), "/categories")
 blueprint.add_route(GenreList.as_view(), "/genres")
-blueprint.add_route(LineList.as_view(), "/lines")
+blueprint.add_route(LineList.as_view(), "/lines"),
+blueprint.add_route(ContentDetail.as_view(), "/contents/<id:int>"),
 blueprint.add_route(CategoryDetail.as_view(), "/categories/<id:int>")
 blueprint.add_route(GenreDetail.as_view(), "/genres/<id:int>")
 blueprint.add_route(TranslationDetail.as_view(), "/translations/<id:int>")

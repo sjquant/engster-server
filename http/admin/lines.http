@@ -6,12 +6,12 @@ Content-Type: application/json
 GET http://localhost:8000/admin/contents
 Content-Type: application/json
 
-### Category List
-GET http://localhost:8000/admin/categories
+### DELETE Content
+DELETE http://localhost:8000/admin/contents/2
 Content-Type: application/json
 
-### genre List
-GET http://localhost:8000/admin/genres
+### Category List
+GET http://localhost:8000/admin/categories
 Content-Type: application/json
 
 ### Post Category
