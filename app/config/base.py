@@ -9,4 +9,4 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_URL = f"postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-CSV_DOWNLOAD_DIR = os.getenv("CSV_DOWNLOAD_DIR", os.path.join(BASE_DIR, "data/csv"))
+CSV_DOWNLOAD_PATH = os.getenv("CSV_DOWNLOAD_PATH", os.path.join(BASE_DIR, "data/csv"))
