@@ -16,5 +16,8 @@ async def calc_max_page(page_size: int, condition: BinaryExpression) -> Tuple[in
         max_page: maximum page
         count: total count
     """
-    count = await db.select([db.func.count()]).where(condition).gino.scalar()
+    try:
+        count = await db.select([db.func.count()]).where(condition).gino.scalar()
+    except AttributeError:
+        return 0, 0
     return math.ceil(count / page_size), count

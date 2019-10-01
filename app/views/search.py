@@ -220,7 +220,11 @@ async def search_korean(request, page: int, keyword: str, token: Token):
     page_size = 10
 
     max_page, count = await calc_max_page(
-        page_size, Translation.translation.ilike("%" + keyword + "%")
+        page_size,
+        condition=db.and_(
+            Translation.translation.ilike("%" + keyword + "%"),
+            Translation.is_accepted is True,
+        ),
     )
     offset = page_size * (page - 1)
 
@@ -234,7 +238,12 @@ async def search_korean(request, page: int, keyword: str, token: Token):
         await Translation.load(line=Line)
         .load(content=Content)
         .load(category=Category)
-        .where(Translation.translation.ilike("%" + keyword + "%"))
+        .where(
+            db.and_(
+                Translation.translation.ilike("%" + keyword + "%"),
+                Translation.is_accepted is True,
+            )
+        )
         .limit(page_size)
         .offset(offset)
         .gino.all()
