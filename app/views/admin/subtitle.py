@@ -160,7 +160,7 @@ async def update_kor_subtitle(request, content_id):
     df.loc[:, "content_id"] = content_id
     df.loc[:, "line_id"] = [each.id for each in lines]
     kor_line_list = [
-        dict(translation=each[0], line_id=each[1], content_id=each[2])
+        dict(translation=each[0], line_id=each[1], content_id=each[2], is_accepted=True)
         for each in df[["translation", "line_id", "content_id"]].values
     ]
 
