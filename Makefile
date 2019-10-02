@@ -1,4 +1,4 @@
-build:
+dev-build:
 	docker-compose -f docker-compose.dev.yml build && docker rmi $$(docker images -f "dangling=true" -q) -f
 	
 dev-init:

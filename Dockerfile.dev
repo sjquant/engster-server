@@ -9,7 +9,7 @@ RUN apk add --no-cache bash && apk --no-cache add tzdata && \
 
 # 컨테이너 재생성시 바이너리 파일이 없어지는 문제 수정
 ENV PYTHONHASHSEED=random \
-  PYTHONUNBUFFERED=0
+  PYTHONUNBUFFERED=1
 
 RUN pip install --upgrade pip
 COPY ./scripts /app/scripts
