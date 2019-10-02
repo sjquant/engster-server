@@ -1,0 +1,4 @@
+### Get Lines a user liked
+
+GET http://localhost:8000/my-page/a497ca03-613b-4c3a-baa2-356f75df2290/line-likes/english
+Content-Type: application/json
