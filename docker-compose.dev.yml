@@ -33,6 +33,20 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_INITDB_ARGS=--encoding=UTF-8
 
+  pgadmin:
+    image: dpage/pgadmin4:4.13
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@engster.co.kr
+      - PGADMIN_DEFAULT_PASSWORD=secret
+    volumes:
+      - pgvolume:/var/lib/pgadmin
+    ports:
+      - 5050:80
+    networks:
+      - db_network
+    depends_on:
+      - db
+      
 networks:
   db_network:
     driver: bridge
@@ -41,3 +55,4 @@ volumes:
   db_volume:
   packages:
   python-bin:
+  pgvolume:

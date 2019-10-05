@@ -5,6 +5,9 @@ dev-init:
 	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/sh -c \
 	"python manage.py migrate && python manage.py init"
 
+dev-log:
+	docker-compose -f docker-compose.dev.yml logs -f $(service)
+
 dev-up:
 	docker-compose -f docker-compose.dev.yml up --build
 
