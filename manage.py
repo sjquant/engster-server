@@ -116,9 +116,6 @@ async def init():
     from app.db_models import Genre
 
     config = get_config()
-    from sanic.log import logger
-
-    logger.info(config.__dict__)
     await db.set_bind(config.DB_URL)
 
     with open("data/categories.json") as f:

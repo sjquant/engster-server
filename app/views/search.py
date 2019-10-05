@@ -223,7 +223,7 @@ async def search_korean(request, page: int, keyword: str, token: Token):
         page_size,
         condition=db.and_(
             Translation.translation.ilike("%" + keyword + "%"),
-            Translation.is_accepted is True,
+            Translation.is_accepted.is_(True),
         ),
     )
     offset = page_size * (page - 1)
@@ -241,7 +241,7 @@ async def search_korean(request, page: int, keyword: str, token: Token):
         .where(
             db.and_(
                 Translation.translation.ilike("%" + keyword + "%"),
-                Translation.is_accepted is True,
+                Translation.is_accepted.is_(True),
             )
         )
         .limit(page_size)
@@ -252,7 +252,7 @@ async def search_korean(request, page: int, keyword: str, token: Token):
     content_ids = []
     translation_ids = []
     line_ids = []
-
+    
     for each in translations:
         content_ids.append(each.content.id)
         translation_ids.append(each.id)
