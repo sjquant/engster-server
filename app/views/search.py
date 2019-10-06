@@ -107,10 +107,9 @@ async def get_korean_like_count(translation_ids: List[int]) -> Dict[int, int]:
                 db.func.count(TranslationLike.translation_id),
             ]
         )
-        .where(TranslationLike.id.in_(translation_ids))
+        .where(TranslationLike.translation_id.in_(translation_ids))
         .group_by(TranslationLike.translation_id)
     )
-
     res = await query.gino.all()
     data = {each[0]: each[1] for each in res}
     return data
@@ -166,9 +165,14 @@ async def search_english(request, page: int, keyword: str, token: Token):
         )
 
     lines = (
-        await Line.load(content=Content)
-        .load(category=Category)
-        .query.where(Line.line.op("~*")(keyword + r"[\.?, ]"))
+        await Line.load(content=Content, category=Category)
+        .query.where(
+            db.and_(
+                Line.content_id == Content.id,
+                Content.category_id == Category.id,
+                Line.line.op("~*")(keyword + r"[\.?, ]"),
+            )
+        )
         .limit(page_size)
         .offset(offset)
         .gino.all()
@@ -235,13 +239,14 @@ async def search_korean(request, page: int, keyword: str, token: Token):
         )
 
     translations = (
-        await Translation.load(line=Line)
-        .load(content=Content)
-        .load(category=Category)
+        await Translation.load(line=Line, content=Content, category=Category)
         .where(
             db.and_(
+                Translation.line_id == Line.id,
                 Translation.translation.ilike("%" + keyword + "%"),
                 Translation.is_accepted.is_(True),
+                Line.content_id == Content.id,
+                Content.category_id == Category.id,
             )
         )
         .limit(page_size)
@@ -252,7 +257,7 @@ async def search_korean(request, page: int, keyword: str, token: Token):
     content_ids = []
     translation_ids = []
     line_ids = []
-    
+
     for each in translations:
         content_ids.append(each.content.id)
         translation_ids.append(each.id)
@@ -262,7 +267,7 @@ async def search_korean(request, page: int, keyword: str, token: Token):
     like_count = await get_korean_like_count(translation_ids)
     user_id = token.jwt_identity
     if user_id:
-        user_liked = await get_user_liked_english_lines(user_id, translation_ids)
+        user_liked = await get_user_liked_korean_lines(user_id, translation_ids)
     else:
         user_liked = []
     translation_count = await get_translation_count(line_ids)

@@ -34,7 +34,7 @@ class TranslationListView(APIView):
 
         translations = (
             await Translation.load(translator=User)
-            .query.where(Translation.line_id == line_id)
+            .query.where(db.and_(Translation.line_id == line_id))
             .limit(page_size)
             .offset(offset)
             .gino.all()
