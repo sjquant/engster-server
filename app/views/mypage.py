@@ -1,7 +1,8 @@
 from sanic.request import Request
 from sanic.blueprints import Blueprint
 
-from app.db_models import Line, LineLike, Content
+from app import db
+from app.db_models import Line, LineLike, TranslationLike, Translation, Content
 from app.utils.response import JsonResponse
 from app.utils.validators import expect_query
 from app.utils import calc_max_page
@@ -34,6 +35,48 @@ async def get_english_likes(request: Request, user_id: str, page: int):
     data = [
         {
             **each.to_dict(),
+            "liked_at": each.like.created_at,
+            "content": each.content.to_dict(show=["id", "title"]),
+        }
+        for each in await query.gino.all()
+    ]
+
+    return JsonResponse(
+        {"max_page": max_page, "page": page, "count": count, "lines": data}, status=200
+    )
+
+
+@blueprint.route("/<user_id:uuid>/line-likes/korean", methods=["GET"])
+@expect_query(page=(int, 1))
+async def get_korean_likes(request: Request, user_id: str, page: int):
+
+    page_size = 10
+    max_page, count = await calc_max_page(page_size, TranslationLike.user_id == user_id)
+    offset = page_size * (page - 1)
+
+    if page > max_page:
+        return JsonResponse(
+            {"max_page": 0, "count": 0, "page": 0, "lines": []}, status=200
+        )
+
+    query = (
+        Translation.load(like=TranslationLike, line=Line, content=Content)
+        .query.where(
+            db.and_(
+                Translation.id == TranslationLike.translation_id,
+                Translation.line_id == Line.id,
+                Line.content_id == Content.id,
+            )
+        )
+        .limit(page_size)
+        .offset(offset)
+        .order_by(TranslationLike.created_at.desc())
+    )
+
+    data = [
+        {
+            **each.to_dict(show=["id", "translation", "line_id"]),
+            "line": each.line.line,
             "liked_at": each.like.created_at,
             "content": each.content.to_dict(show=["id", "title"]),
         }
