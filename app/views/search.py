@@ -196,11 +196,11 @@ async def search_english(request, page: int, keyword: str, token: Token):
     lines = [
         {
             **line.to_dict(["id", "line"]),
-            **{"like_count": like_count.get(line.id, 0)},
-            **{"translation_count": translation_count.get(line.id, 0)},
-            **{"content": line.content.to_dict(["id", "title", "year"])},
-            **{"category": line.category.to_dict()},
-            **{"genres": genres[f"content_{line.content.id}"]},
+            "like_count": like_count.get(line.id, 0),
+            "translation_count": translation_count.get(line.id, 0),
+            "content": line.content.to_dict(["id", "title", "year"]),
+            "category": line.category.to_dict(),
+            "genres": genres[f"content_{line.content.id}"],
         }
         for line in lines
     ]
@@ -275,12 +275,12 @@ async def search_korean(request, page: int, keyword: str, token: Token):
     translations = [
         {
             **each.to_dict(show=["id", "translation"]),
-            **{"line": each.line.to_dict(show=["id", "line"])},
-            **{"like_count": like_count.get(each.id, 0)},
-            **{"translation_count": translation_count.get(each.id, 0)},
-            **{"content": each.content.to_dict(show=["id", "title", "year"])},
-            **{"category": each.category.to_dict()},
-            **{"genres": genres[f"content_{each.content.id}"]},
+            "line": each.line.to_dict(show=["id", "line"]),
+            "like_count": like_count.get(each.id, 0),
+            "translation_count": translation_count.get(each.id, 0),
+            "content": each.content.to_dict(show=["id", "title", "year"]),
+            "category": each.category.to_dict(),
+            "genres": genres[f"content_{each.content.id}"],
         }
         for each in translations
     ]
@@ -321,7 +321,7 @@ async def search_context(request, content_id: int, line_id: int):
     lines = [
         {
             **line.to_dict(["id", "line"]),
-            **{"translation": translations[f"line_{line.id}"]},
+            "translation": translations[f"line_{line.id}"],
         }
         for line in lines
     ]
