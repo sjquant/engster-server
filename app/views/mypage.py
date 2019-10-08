@@ -7,6 +7,7 @@ from app.utils.response import JsonResponse
 from app.utils.validators import expect_query
 from app.utils import calc_max_page
 
+from .search import get_translation_count
 
 blueprint = Blueprint("mypage_blueprint", url_prefix="/my-page")
 
@@ -81,6 +82,58 @@ async def get_korean_likes(request: Request, user_id: str, page: int):
             "content": each.content.to_dict(show=["id", "title"]),
         }
         for each in await query.gino.all()
+    ]
+
+    return JsonResponse(
+        {"max_page": max_page, "page": page, "count": count, "lines": data}, status=200
+    )
+
+
+@blueprint.route("/<user_id:uuid>/translations", methods=["GET"])
+@expect_query(page=(int, 1))
+async def get_translations(request: Request, user_id: str, page: int):
+    #
+    page_size = 10
+    max_page, count = await calc_max_page(
+        page_size, Translation.translator_id == user_id
+    )
+    offset = page_size * (page - 1)
+    #
+    if page > max_page:
+        return JsonResponse(
+            {"max_page": 0, "count": 0, "page": 0, "lines": []}, status=200
+        )
+
+    query = (
+        Translation.load(line=Line, content=Content)
+        .query.where(
+            db.and_(
+                Translation.line_id == Line.id,
+                Line.content_id == Content.id,
+                Translation.translator_id == user_id,
+            )
+        )
+        .limit(page_size)
+        .offset(offset)
+        .order_by(Translation.created_at.desc())
+    )
+
+    translations = await query.gino.all()
+
+    translation_ids = []
+    for each in translations:
+        translation_ids.append(each.id)
+
+    like_count = await get_translation_count(translation_ids)
+
+    data = [
+        {
+            **each.to_dict(show=["id", "translation", "line_id"]),
+            "line": each.line.line,
+            "like_count": like_count.get(each.id, 0),
+            "content": each.content.to_dict(show=["id", "title"]),
+        }
+        for each in translations
     ]
 
     return JsonResponse(

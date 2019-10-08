@@ -1,7 +1,14 @@
+## Variables
+@userid = 7f825548-3c7d-4f0d-8ab7-9c4682443080
+
 ### Get Lines a user liked
-GET http://localhost:8000/my-page/2b92615d-3024-4688-8afc-b6f40ade3df4/line-likes/english?page=1
+GET http://localhost:8000/my-page/{{userid}}/line-likes/english?page=1
 Content-Type: application/json
 
 ### Get Translations a user liked
-GET http://localhost:8000/my-page/2b92615d-3024-4688-8afc-b6f40ade3df4/line-likes/korean?page=2
+GET http://localhost:8000/my-page/{{userid}}/line-likes/korean?page=2
+Content-Type: application/json
+
+### Get Translations a user created
+GET http://localhost:8000/my-page/{{userid}}/translations?page=1
 Content-Type: application/json
