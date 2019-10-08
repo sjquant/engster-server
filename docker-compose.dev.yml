@@ -25,6 +25,8 @@ services:
       - secrets/.env.development
     volumes:
       - db_volume:/var/lib/postgresql/data
+    ports:
+      - 5123:5432
     networks:
       - db_network
     environment:
