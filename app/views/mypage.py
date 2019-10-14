@@ -37,7 +37,7 @@ async def get_english_likes(request: Request, user_id: str, page: int):
         {
             **each.to_dict(),
             "liked_at": each.like.created_at,
-            "content": each.content.to_dict(show=["id", "title"]),
+            "content": each.content.to_dict(show=["id", "title", "year"]),
         }
         for each in await query.gino.all()
     ]
@@ -79,7 +79,7 @@ async def get_korean_likes(request: Request, user_id: str, page: int):
             **each.to_dict(show=["id", "translation", "line_id"]),
             "line": each.line.line,
             "liked_at": each.like.created_at,
-            "content": each.content.to_dict(show=["id", "title"]),
+            "content": each.content.to_dict(show=["id", "title", "year"]),
         }
         for each in await query.gino.all()
     ]
@@ -131,7 +131,7 @@ async def get_translations(request: Request, user_id: str, page: int):
             **each.to_dict(show=["id", "translation", "line_id"]),
             "line": each.line.line,
             "like_count": like_count.get(each.id, 0),
-            "content": each.content.to_dict(show=["id", "title"]),
+            "content": each.content.to_dict(show=["id", "title", "year"]),
         }
         for each in translations
     ]
