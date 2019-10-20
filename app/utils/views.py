@@ -1,6 +1,5 @@
 from typing import Optional
 
-from sanic.response import json
 from sanic.exceptions import ServerError
 from sanic.views import HTTPMethodView
 
@@ -47,11 +46,11 @@ class APIView(HTTPMethodView):
 
 
 class ListAPIView(APIView, ListModelMixin, CreateModelMixin):
-    async def get(self, request, *args, **kwargs) -> json:
+    async def get(self, request, *args, **kwargs):
         resp = await self.list(request, *args, **kwargs)
         return resp
 
-    async def post(self, request, *args, **kwargs) -> json:
+    async def post(self, request, *args, **kwargs):
         resp = await self.create(request, *args, **kwargs)
         return resp
 
