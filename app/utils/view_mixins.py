@@ -44,23 +44,35 @@ class RetrieveModelMixin:
     """Retrieve a model instance"""
 
     async def retrieve(self, request, *args, **kwargs):
+        return_obj = kwargs.pop("return_obj", False)
         instance = await self.get_object(*args, **kwargs)
-        return JsonResponse(instance.to_dict(), status=200)
+        if return_obj:
+            return instance
+        else:
+            return JsonResponse(instance.to_dict(), status=200)
 
 
 class UpdateModelMixin:
     """Update a model instance"""
 
     async def update(self, request, *args, **kwargs):
+        return_obj = kwargs.pop("return_obj", False)
         instance = await self.get_object(*args, **kwargs)
         await instance.update(**request.json).apply()
-        return JsonResponse(instance.to_dict(), status=202)
+        if return_obj:
+            return instance
+        else:
+            return JsonResponse(instance.to_dict(), status=202)
 
 
 class DestroyModelMixin:
     """Destroy a model instance"""
 
     async def destroy(self, request, *args, **kwargs):
+        return_obj = kwargs.pop("return_obj", False)
         instance = await self.get_object(*args, **kwargs)
         await instance.delete()
-        return JsonResponse(status=204)
+        if return_obj:
+            return instance
+        else:
+            return JsonResponse(status=204)
