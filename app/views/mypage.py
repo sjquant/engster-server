@@ -2,14 +2,28 @@ from sanic.request import Request
 from sanic.blueprints import Blueprint
 
 from app import db
-from app.db_models import Line, LineLike, TranslationLike, Translation, Content
+from app.db_models import Line, LineLike, TranslationLike, Translation, Content, User
 from app.utils.response import JsonResponse
 from app.utils.validators import expect_query
 from app.utils import calc_max_page
 
-from .search import get_translation_count
-
 blueprint = Blueprint("mypage_blueprint", url_prefix="/my-page")
+
+
+@blueprint.route("/<user_id:uuid>/activity-summary", methods=["GET"])
+async def get_user_activitiy_summary(request: Request, user_id: str):
+    query = (
+        db.select([User.id, db.func.count(Translation.id)])
+        .select_from(User.join(Translation))
+        .where(User.id == user_id)
+        .group_by(User.id)
+    )
+    resp = await query.gino.first()
+    if resp is None:
+        data = None
+    else:
+        data = {"user_id": resp[0], "translation_count": resp[1]}
+    return JsonResponse(data, status=200)
 
 
 @blueprint.route("/<user_id:uuid>/line-likes/english", methods=["GET"])
@@ -124,13 +138,10 @@ async def get_translations(request: Request, user_id: str, page: int):
     for each in translations:
         translation_ids.append(each.id)
 
-    like_count = await get_translation_count(translation_ids)
-
     data = [
         {
             **each.to_dict(show=["id", "translation", "line_id"]),
             "line": each.line.line,
-            "like_count": like_count.get(each.id, 0),
             "content": each.content.to_dict(show=["id", "title", "year"]),
         }
         for each in translations
