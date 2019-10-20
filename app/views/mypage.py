@@ -1,13 +1,37 @@
 from sanic.request import Request
 from sanic.blueprints import Blueprint
+from sanic.exceptions import ServerError
 
 from app import db
 from app.db_models import Line, LineLike, TranslationLike, Translation, Content, User
 from app.utils.response import JsonResponse
-from app.utils.validators import expect_query
+from app.utils.validators import expect_query, expect_body
+from app.utils.views import DetailAPIView
 from app.utils import calc_max_page
 
 blueprint = Blueprint("mypage_blueprint", url_prefix="/my-page")
+
+
+class UserProfileView(DetailAPIView):
+    model = User
+
+    async def get(self, request, user_id: str):
+        user = await super().get(request, id=user_id, return_obj=True)
+        return JsonResponse(
+            user.to_dict(show=["id", "email", "nickname", "photo", "is_admin"]),
+            status=200,
+        )
+
+    @expect_body(nickname=(str, None), photo=(str, None))
+    async def put(self, request: Request, user_id: str):
+        user = await super().put(request, id=user_id, return_obj=True)
+        return JsonResponse(
+            user.to_dict(show=["id", "email", "nickname", "photo", "is_admin"]),
+            status=202,
+        )
+
+    async def delete(self):
+        raise ServerError(status_code=405)
 
 
 @blueprint.route("/<user_id:uuid>/activity-summary", methods=["GET"])
@@ -150,3 +174,6 @@ async def get_translations(request: Request, user_id: str, page: int):
     return JsonResponse(
         {"max_page": max_page, "page": page, "count": count, "lines": data}, status=200
     )
+
+
+blueprint.add_route(UserProfileView.as_view(), "/<user_id:uuid>/profile")
