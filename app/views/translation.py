@@ -2,7 +2,7 @@ from typing import Optional
 from sanic.request import Request
 from sanic.blueprints import Blueprint
 from sanic_jwt_extended.tokens import Token
-from sanic_jwt_extended import jwt_required
+from sanic_jwt_extended import jwt_required, jwt_optional
 from sanic.exceptions import ServerError
 
 from app.db_models import User, Translation
@@ -10,14 +10,16 @@ from app.utils import calc_max_page
 from app.utils.response import JsonResponse
 from app.utils.views import APIView, DetailAPIView
 from app.utils.validators import expect_query, expect_body
+from app.utils.loader import get_korean_like_count, get_user_liked_korean_lines
 from app import db
 
 blueprint = Blueprint("translation_blueprint", url_prefix="/translations")
 
 
 class TranslationListView(APIView):
+    @jwt_optional
     @expect_query(page=(int, 1), line_id=(int, ...))
-    async def get(self, request: Request, page: int, line_id: int):
+    async def get(self, request: Request, page: int, line_id: int, token: Token):
         page_size = request.app.config.get("COMMENT_PAGE_SIZE", 10)
 
         if not line_id:
@@ -29,7 +31,7 @@ class TranslationListView(APIView):
 
         if page > max_page:
             return JsonResponse(
-                {"max_page": 0, "page": 0, "count": 0, "lines": []}, status=200
+                {"max_page": 0, "page": 0, "count": 0, "translations": []}, status=200
             )
 
         translations = (
@@ -39,14 +41,40 @@ class TranslationListView(APIView):
             .offset(offset)
             .gino.all()
         )
+        translation_ids = []
+        for each in translations:
+            translation_ids.append(each.id)
 
-        resp = []
+        like_count = await get_korean_like_count(translation_ids)
+        user_id = token.jwt_identity
+        if user_id:
+            user_liked = await get_user_liked_korean_lines(user_id, translation_ids)
+        else:
+            user_liked = []
+
+        temp_resp = []
+
         for each in translations:
             try:
                 translator = each.translator.nickname
             except AttributeError:
                 translator = "Anonymous"
-            resp.append({**each.to_dict(), "translator": translator})
+            temp_resp.append(
+                {
+                    **each.to_dict(),
+                    "translator": translator,
+                    "like_count": like_count.get(each.id, 0),
+                    "user_liked": each.id in user_liked,
+                }
+            )
+
+        resp = {
+            "max_page": max_page,
+            "page": page,
+            "count": count,
+            "translations": temp_resp,
+        }
+
         return JsonResponse(resp)
 
     @jwt_required
