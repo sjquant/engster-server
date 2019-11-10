@@ -130,7 +130,6 @@ async def get_korean_likes(request: Request, user_id: str, page: int):
 @blueprint.route("/<user_id:uuid>/translations", methods=["GET"])
 @expect_query(page=(int, 1))
 async def get_translations(request: Request, user_id: str, page: int):
-    #
     page_size = 10
     max_page, count = await calc_max_page(
         page_size, Translation.translator_id == user_id

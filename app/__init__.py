@@ -27,7 +27,7 @@ def create_app():
     app = Sanic()
     init_config(app)
 
-    CORS(app)
+    CORS(app, automatic_options=True)
     db.init_app(app)
 
     JWTManager(app)
@@ -35,3 +35,4 @@ def create_app():
 
     views.init_app(app)
     return app
+
