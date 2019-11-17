@@ -20,3 +20,27 @@ Content-Type: application/json
 POST http://localhost:8000/auth/refresh-token
 Content-Type: application/json
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjQ1MDYwNjMsIm5iZiI6MTU2NDUwNjA2MywianRpIjoiZDg2NTVjNDQtNTNlMi00M2Y4LWE0YzUtNDRmN2JjZDY5N2Y5IiwiZXhwIjoxNTY3MDk4MDYzLCJpZGVudGl0eSI6IjI2MWNmYjE4LTFlOWQtNDk0YS04ZDcyLTI5ZTY5OTNlMmMxYSIsInR5cGUiOiJyZWZyZXNoIn0.W94K_6AsJyC_yjFBEvx_ZCbAl3RG9tQh8LGk4g3L5uY
+
+### Get user profile
+GET http://localhost:8000/auth/profile
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzM5OTM4NTAsIm5iZiI6MTU3Mzk5Mzg1MCwianRpIjoiMzJjYTE3ZjgtODlmZC00YWJkLWExN2ItMzJlY2E3MmFhY2E3IiwiZXhwIjo4Nzk3MzkwNzQ1MCwiaWRlbnRpdHkiOiIyYjkyNjE1ZC0zMDI0LTQ2ODgtOGFmYy1iNmY0MGFkZTNkZjQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.zFuzlxJhmPwWMhyuuxZpG6YpX3_XaQFL43NeMsjPf-U
+
+### update user profile
+PUT http://localhost:8000/auth/profile
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzM5OTM4NTAsIm5iZiI6MTU3Mzk5Mzg1MCwianRpIjoiMzJjYTE3ZjgtODlmZC00YWJkLWExN2ItMzJlY2E3MmFhY2E3IiwiZXhwIjo4Nzk3MzkwNzQ1MCwiaWRlbnRpdHkiOiIyYjkyNjE1ZC0zMDI0LTQ2ODgtOGFmYy1iNmY0MGFkZTNkZjQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.zFuzlxJhmPwWMhyuuxZpG6YpX3_XaQFL43NeMsjPf-U
+
+{
+    "email": "seonu97@gmail.com"
+}
+
+### reset user password
+PUT http://localhost:8000/auth/reset-password
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzM5OTM4NTAsIm5iZiI6MTU3Mzk5Mzg1MCwianRpIjoiMzJjYTE3ZjgtODlmZC00YWJkLWExN2ItMzJlY2E3MmFhY2E3IiwiZXhwIjo4Nzk3MzkwNzQ1MCwiaWRlbnRpdHkiOiIyYjkyNjE1ZC0zMDI0LTQ2ODgtOGFmYy1iNmY0MGFkZTNkZjQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.zFuzlxJhmPwWMhyuuxZpG6YpX3_XaQFL43NeMsjPf-U
+
+{
+    "original_password": "1234!",
+    "new_password": "12345!"
+}

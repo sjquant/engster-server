@@ -1,20 +1,6 @@
 ## Variables
 @userid = 2b92615d-3024-4688-8afc-b6f40ade3df4
 
-### Get user profile
-GET http://localhost:8000/my-page/{{userid}}/profile
-Content-Type: application/json
-
-
-### update user profile
-PUT http://localhost:8000/my-page/{{userid}}/profile
-Content-Type: application/json
-
-{
-    "nickname": "SJQuant"
-}
-
-
 ### Get user activities
 GET http://localhost:8000/my-page/{{userid}}/activity-summary
 Content-Type: application/json

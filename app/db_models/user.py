@@ -12,6 +12,7 @@ from app.utils.models import TimeStampedModel
 
 class User(TimeStampedModel):
     """ User Model for storing user related details """
+
     __tablename__ = "user"
 
     id = db.Column(UUID, primary_key=True)
@@ -33,17 +34,19 @@ class User(TimeStampedModel):
         allowed_prefix_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         allowed_suffix_chars = "abcdefghizklmnopqrstuvwxyz0123456789!@#$%^&*="
 
-        prefix = ''.join(secrets.choice(allowed_prefix_chars)
-                         for i in range(4))
-        suffix = ''.join(secrets.choice(allowed_suffix_chars)
-                         for i in range(random.randint(1, 6)))
-        return prefix+suffix
+        prefix = "".join(secrets.choice(allowed_prefix_chars) for i in range(4))
+        suffix = "".join(
+            secrets.choice(allowed_suffix_chars) for i in range(random.randint(1, 6))
+        )
+        return prefix + suffix
 
-    async def create_user(self,
-                          email: str,
-                          password: str,
-                          nickname: Optional[str] = None,
-                          is_admin: bool = False):
+    async def create_user(
+        self,
+        email: str,
+        password: str,
+        nickname: Optional[str] = None,
+        is_admin: bool = False,
+    ):
         self.id = uuid.uuid4()
         self.email = email
         self.nickname = nickname or self.generate_random_nickname()

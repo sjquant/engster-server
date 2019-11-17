@@ -58,7 +58,8 @@ class UpdateModelMixin:
     async def update(self, request, *args, **kwargs):
         return_obj = kwargs.pop("return_obj", False)
         instance = await self.get_object(*args, **kwargs)
-        await instance.update(**request.json).apply()
+        data = {key: value for key, value in request.json.items() if value is not None}
+        await instance.update(**data).apply()
         if return_obj:
             return instance
         else:
