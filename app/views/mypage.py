@@ -22,7 +22,7 @@ async def get_user_activitiy_summary(request: Request, user_id: str):
     if resp is None:
         data = {"user_id": user_id, "translation_count": 0}
     else:
-        data = {"user_id": user_id, "translation_count": resp[1]}
+        data = {"user_id": user_id, "translation_count": resp[0]}
     return JsonResponse(data, status=200)
 
 
