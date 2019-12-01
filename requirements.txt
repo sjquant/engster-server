@@ -11,3 +11,4 @@ alembic==1.0.9
 pydantic==0.31
 gunicorn==19.9.0
 uvicorn==0.8.6
+pillow==6.2.1
