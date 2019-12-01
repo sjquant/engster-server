@@ -1,11 +1,9 @@
-FROM python:3.7.3-alpine3.10
+FROM python:3.7.3-slim
 LABEL maintainer="sjquant (seonujang92@gmail.com)"
-
-RUN apk add --no-cache bash && apk --no-cache add tzdata && \
-        cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
-        echo "Asia/Seoul" > /etc/timezone && \
-        apk add --no-cache libpq postgresql-dev && \
-        apk add --no-cache  build-base
+RUN apt-get update -y && apt-get install wget build-essential git vim -y
+# timezone
+RUN cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
+  echo "Asia/Seoul" > /etc/timezone
 
 # 컨테이너 재생성시 바이너리 파일이 없어지는 문제 수정
 ENV PYTHONHASHSEED=random \

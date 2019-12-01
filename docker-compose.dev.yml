@@ -12,8 +12,8 @@ services:
       - secrets/.env.development
     volumes:
       - ./:/app/
-      - packages:/usr/local/lib/python3.7/site-packages/
-      - python-bin:/usr/local/bin
+      - engster-packages:/usr/local/lib/python3.7/site-packages/
+      - engster-bin:/usr/local/bin
     networks:
       - db_network
     depends_on:
@@ -41,5 +41,5 @@ networks:
 
 volumes:
   db_volume:
-  packages:
-  python-bin:
+  engster-packages:
+  engster-bin:
