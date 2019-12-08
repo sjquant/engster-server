@@ -89,3 +89,9 @@ def expect_body_with_model(model: BaseModel):
         return wrapper
 
     return actual_expect_body
+
+
+def validate_file_size(file_body, file_size=1e7):
+    if len(file_body) < 1e7:
+        return True
+    return False

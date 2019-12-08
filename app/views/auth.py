@@ -120,18 +120,14 @@ class UserProfileView(DetailAPIView):
     async def get(self, request, token: Token):
         user_id = token.jwt_identity
         user = await super().get(request, id=user_id, return_obj=True)
-        return JsonResponse(
-            user.to_dict(show=["id", "email", "nickname", "photo"]), status=200
-        )
+        return JsonResponse(UserModel.from_orm(user), status=200)
 
     @jwt_required
     @expect_body(email=(str, None), nickname=(str, None), photo=(str, None))
     async def put(self, request: Request, token: Token):
         user_id = token.jwt_identity
         user = await super().put(request, id=user_id, return_obj=True)
-        return JsonResponse(
-            user.to_dict(show=["id", "email", "nickname", "photo"]), status=202
-        )
+        return JsonResponse(UserModel.from_orm(user), status=202)
 
     async def delete(self):
         raise ServerError(status_code=405)

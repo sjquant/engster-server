@@ -1,5 +1,7 @@
 from uuid import UUID
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel, SecretStr, validator
+
+from app import get_config
 
 
 class UserModel(BaseModel):
@@ -12,6 +14,11 @@ class UserModel(BaseModel):
 
     class Config:
         orm_mode = True
+
+    @validator("photo", pre=True, always=True)
+    def get_photo(cls, v, *, values, **kwargs):
+        config = get_config()
+        return f"{config.MEDIA_URL}/{v}"
 
 
 class AuthModel(BaseModel):

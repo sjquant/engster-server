@@ -3,6 +3,7 @@
 from enum import Enum
 from types import GeneratorType
 from typing import Any, List, Set, Optional
+from uuid import UUID
 
 from pydantic import BaseModel
 from pydantic.json import ENCODERS_BY_TYPE
@@ -36,6 +37,8 @@ def jsonable_encoder(
             custom_encoder=encoder,
             sqlalchemy_safe=sqlalchemy_safe,
         )
+    if isinstance(obj, UUID):
+        return str(obj)
     if isinstance(obj, Enum):
         return obj.value
     if isinstance(obj, (str, int, float, type(None))):

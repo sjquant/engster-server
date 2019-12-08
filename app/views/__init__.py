@@ -8,6 +8,7 @@ from .upload import blueprint as upload_bp
 
 
 def init_app(app):
+    app.static("/media", "./media")
     app.blueprint(auth_bp)
     app.blueprint(search_bp)
     app.blueprint(like_bp)
