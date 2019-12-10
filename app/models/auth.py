@@ -7,7 +7,7 @@ from app import get_config
 class UserModel(BaseModel):
     id: UUID = ...
     email: str = ...
-    nickname: str = None
+    nickname: str = ""
     password_hash = SecretStr
     photo: str = None
     is_admin: bool = False
