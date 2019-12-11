@@ -21,5 +21,5 @@ async def upload_photo(request: Request):
     extension = photo.type.split("/")[-1]
     path = f"media/photos/{str(uuid.uuid4())}.{extension}"
     image = Image.open(BytesIO(photo.body))
-    image.save("./" + path, extension)
+    image.save(path, extension)
     return JsonResponse({"path": f"{path}"}, status=201)
