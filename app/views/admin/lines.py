@@ -2,8 +2,8 @@ from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
 
 from app.db_models import Content, Category, Genre, Line, Translation
-from app.utils.views import ListAPIView, DetailAPIView
-from app.utils.validators import expect_query
+from app.libs.views import ListAPIView, DetailAPIView
+from app.decorators import expect_query
 
 
 blueprint = Blueprint("admin_lines_blueprint")

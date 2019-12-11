@@ -1,13 +1,20 @@
-# jsonable_encoder is copy-and-paste version of fastapi
-# (https://github.com/tiangolo/fastapi/tree/master/fastapi)
+from typing import Tuple
+import math
 from enum import Enum
 from types import GeneratorType
 from typing import Any, List, Set, Optional
 from uuid import UUID
 
+from sqlalchemy.sql.elements import BinaryExpression
 from pydantic import BaseModel
 from pydantic.json import ENCODERS_BY_TYPE
 from sanic.response import json
+
+from app import db
+
+
+# jsonable_encoder is copy-and-paste version of fastapi
+# (https://github.com/tiangolo/fastapi/tree/master/fastapi)
 
 
 def jsonable_encoder(
@@ -131,3 +138,28 @@ def JsonResponse(
         status=status,
         content_type=content_type,
     )
+
+
+async def calc_max_page(page_size: int, condition: BinaryExpression) -> Tuple[int, int]:
+    """
+    Calculate Max Page
+
+    Args:
+        page_size: page size
+        condition: gino conditional expression used in where
+
+    Returns:
+        max_page: maximum page
+        count: total count
+    """
+    try:
+        count = await db.select([db.func.count()]).where(condition).gino.scalar()
+    except AttributeError:
+        return 0, 0
+    return math.ceil(count / page_size), count
+
+
+def validate_file_size(file_body, file_size=1e7):
+    if len(file_body) < 1e7:
+        return True
+    return False

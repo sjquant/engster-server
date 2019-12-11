@@ -6,8 +6,8 @@ import random
 from sqlalchemy.dialects.postgresql import UUID
 
 from app import db
-from app.core.hasher import PBKDF2PasswordHasher
-from app.utils.models import TimeStampedModel
+from app.libs.hasher import PBKDF2PasswordHasher
+from .base_models import TimeStampedModel
 
 
 class User(TimeStampedModel):

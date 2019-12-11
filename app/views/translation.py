@@ -7,10 +7,10 @@ from sanic.exceptions import ServerError
 
 from app.db_models import User, Translation
 from app.utils import calc_max_page
-from app.utils.response import JsonResponse
-from app.utils.views import APIView, DetailAPIView
-from app.utils.validators import expect_query, expect_body
-from app.utils.loader import get_korean_like_count, get_user_liked_korean_lines
+from app.utils import JsonResponse
+from app.libs.views import APIView, DetailAPIView
+from app.decorators import expect_query, expect_body
+from app.loaders import get_korean_like_count, get_user_liked_korean_lines
 from app import db
 
 blueprint = Blueprint("translation_blueprint", url_prefix="/translations")

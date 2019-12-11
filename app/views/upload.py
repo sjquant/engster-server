@@ -6,8 +6,7 @@ from sanic.blueprints import Blueprint
 from sanic.exceptions import ServerError
 from PIL import Image
 
-from app.utils.response import JsonResponse
-from app.utils.validators import validate_file_size
+from app.utils import JsonResponse, validate_file_size
 
 blueprint = Blueprint("upload_blueprint", url_prefix="/upload")
 
@@ -22,5 +21,5 @@ async def upload_photo(request: Request):
     extension = photo.type.split("/")[-1]
     path = f"media/photos/{str(uuid.uuid4())}.{extension}"
     image = Image.open(BytesIO(photo.body))
-    image.save(path, extension)
-    return JsonResponse({"path": f"{path}"})
+    image.save("./" + path, extension)
+    return JsonResponse({"path": f"{path}"}, status=201)

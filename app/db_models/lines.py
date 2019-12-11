@@ -1,7 +1,7 @@
 from sqlalchemy.dialects.postgresql import UUID
 
 from app import db
-from app.utils.models import BaseModel, TimeStampedModel
+from .base_models import BaseModel, TimeStampedModel
 
 
 class Content(BaseModel):

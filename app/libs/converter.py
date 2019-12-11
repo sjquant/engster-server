@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import pandas as pd
 
-from app.utils.exceptions import (
+from app.exceptions import (
     UnsupportedExtensionError,
     InvalidDataFrameError
 )

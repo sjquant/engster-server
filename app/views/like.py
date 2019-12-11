@@ -6,8 +6,8 @@ from sanic_jwt_extended import jwt_required
 
 from app import db
 from app.db_models import LineLike, TranslationLike
-from app.utils.views import APIView
-from app.utils.response import JsonResponse
+from app.libs.views import APIView
+from app.utils import JsonResponse
 
 blueprint = Blueprint("like_blueprint", url_prefix="/like")
 

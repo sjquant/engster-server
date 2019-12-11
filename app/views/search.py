@@ -10,9 +10,9 @@ from app import db
 from app.db_models import Line, Translation, Content, Genre, Category, ContentXGenre
 
 from app.utils import calc_max_page
-from app.utils.response import JsonResponse
-from app.utils.validators import expect_query
-from app.utils.loader import (
+from app.utils import JsonResponse
+from app.decorators import expect_query
+from app.loaders import (
     get_korean_like_count,
     get_english_like_count,
     get_user_liked_english_lines,

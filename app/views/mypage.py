@@ -3,8 +3,8 @@ from sanic.blueprints import Blueprint
 
 from app import db
 from app.db_models import Line, LineLike, TranslationLike, Translation, Content, User
-from app.utils.response import JsonResponse
-from app.utils.validators import expect_query
+from app.utils import JsonResponse
+from app.decorators import expect_query
 from app.utils import calc_max_page
 
 blueprint = Blueprint("mypage_blueprint", url_prefix="/my-page")

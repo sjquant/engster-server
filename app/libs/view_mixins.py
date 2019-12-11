@@ -5,7 +5,7 @@ I refered to django-rest-framework mixins
 from typing import Tuple
 
 
-from app.utils.response import JsonResponse
+from app.utils import JsonResponse
 
 
 class CreateModelMixin:

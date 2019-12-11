@@ -11,10 +11,10 @@ from sanic_jwt_extended import (
 from sanic_jwt_extended.tokens import Token
 
 from app.db_models import User
-from app.utils.response import JsonResponse
-from app.utils.validators import expect_body
+from app.utils import JsonResponse
+from app.decorators import expect_body
 from app.models import AuthModel, UserModel
-from app.utils.views import DetailAPIView
+from app.libs.views import DetailAPIView
 
 blueprint = Blueprint("auth_blueprint", url_prefix="/auth")
 
