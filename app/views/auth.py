@@ -15,6 +15,7 @@ from app.utils import JsonResponse
 from app.decorators import expect_body
 from app.models import AuthModel, UserModel
 from app.libs.views import DetailAPIView
+from app.vendors.sanic_oauth import GoogleClient
 
 blueprint = Blueprint("auth_blueprint", url_prefix="/auth")
 
@@ -36,6 +37,7 @@ async def register(request: Request):
 
     return JsonResponse(
         AuthModel(
+            sign_type="sign-up",
             access_token=access_token,
             refresh_token=refresh_token,
             user=UserModel.from_orm(user),
@@ -62,6 +64,39 @@ async def obtain_token(request: Request):
 
     return JsonResponse(
         AuthModel(
+            sign_type="sign-in",
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user=UserModel.from_orm(user),
+        ),
+        status=201,
+    )
+
+
+@blueprint.route("/obtain-token/<provider:string>", methods=["POST"])
+async def oauth_obtain_token(request: Request, provider: str):
+    app = request.app
+    client = GoogleClient(
+        request.app.async_session,
+        client_id=app.config["GOOGLE_CLIENT_ID"],
+        client_secret=app.config["GOOGLE_CLIENT_SECRET"],
+    )
+    await client.get_access_token(
+        request.json.get("code"), redirect_uri=request.json.get("redirectUri")
+    )
+    user_info, _ = await client.user_info()
+    user = await User.query.where(User.email == user_info.email).gino.first()
+    if user is None:
+        user = await User().create_user(email=user_info.email, photo=user_info.picture)
+        sign_type = "sign-up"
+    else:
+        sign_type = "sign-in"
+    access_token = await create_access_token(app=request.app, identity=str(user.id))
+    refresh_token = await create_refresh_token(app=request.app, identity=str(user.id))
+
+    return JsonResponse(
+        AuthModel(
+            sign_type=sign_type,
             access_token=access_token,
             refresh_token=refresh_token,
             user=UserModel.from_orm(user),
@@ -105,6 +140,7 @@ async def refresh_token(request, token: Token):
     user = await User.query.where(User.id == token.jwt_identity).gino.first()
     return JsonResponse(
         AuthModel(
+            sign_type="sign-in",
             access_token=access_token,
             refresh_token=refresh_token,
             user=UserModel.from_orm(user),

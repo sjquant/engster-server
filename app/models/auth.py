@@ -18,10 +18,14 @@ class UserModel(BaseModel):
     @validator("photo", pre=True, always=True)
     def get_photo(cls, v, *, values, **kwargs):
         config = get_config()
-        return f"{config.MEDIA_URL}/{v}"
+        if v.startswith("http"):
+            return v
+        else:
+            return f"{config.MEDIA_URL}/{v}"
 
 
 class AuthModel(BaseModel):
+    sign_type: str
     access_token: str
     refresh_token: str
     user: UserModel
