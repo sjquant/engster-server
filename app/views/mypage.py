@@ -33,15 +33,13 @@ async def get_english_likes(request: Request, user_id: str, page: int):
     page_size = 10
     max_page, count = await calc_max_page(page_size, LineLike.user_id == user_id)
     offset = page_size * (page - 1)
-
     if page > max_page:
         return JsonResponse(
             {"max_page": 0, "count": 0, "page": 0, "lines": []}, status=200
         )
-
     query = (
         Line.load(content=Content, like=LineLike)
-        .query.where(Line.id == LineLike.line_id)
+        .query.where(db.and_(Line.id == LineLike.line_id, LineLike.user_id == user_id))
         .limit(page_size)
         .offset(offset)
         .order_by(LineLike.created_at.desc())
@@ -80,6 +78,7 @@ async def get_korean_likes(request: Request, user_id: str, page: int):
             db.and_(
                 Translation.id == TranslationLike.translation_id,
                 Translation.line_id == Line.id,
+                TranslationLike.user_id == user_id,
                 Line.content_id == Content.id,
             )
         )
