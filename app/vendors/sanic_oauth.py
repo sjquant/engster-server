@@ -433,7 +433,6 @@ class OAuth2Client(Client):  # pylint: disable=abstract-method
         response = await self.request("POST", self.access_token_url, data=payload)
         if "json" in response.headers.get("CONTENT-TYPE"):
             data = await response.json()
-
         else:
             data = await response.text()
             data = dict(parse_qsl(data))
@@ -518,6 +517,44 @@ class FacebookClient(OAuth2Client):
             picture="http://graph.facebook.com/{0}/picture?type=large".format(id_),
             link=data.get("link"),
             locale=data.get("locale"),
+            gender=data.get("gender"),
+            city=city,
+            country=country,
+        )
+
+
+class NaverClient(OAuth2Client):
+
+    """Support Naver.
+    * Dashboard: https://developers.naver.com/apps/#/list
+    * Docs: https://developers.naver.com/docs/login/devguide/
+    * API reference: https://developers.naver.com/docs/login/api/
+    * API explorer: https://developers.naver.com/apps/#/myapps/Qtt_R1H0qs8IBUvGsx1g/playground
+    """
+
+    access_token_url = "https://nid.naver.com/oauth2.0/token"
+    authorize_url = "https://nid.naver.com/oauth2.0/authorize"
+    base_url = "https://nid.naver.com/oauth2.0"
+    name = "naver"
+    user_info_url = "https://openapi.naver.com/v1/nid/me"
+
+    @staticmethod
+    def user_parse(data):
+        """Parse information from provider."""
+        data = data.get("response")
+        id_ = data.get("id")
+        location = data.get("location", {}).get("name")
+        city, country = "", ""
+        if location:
+            split_location = location.split(", ")
+            city = split_location[0].strip()
+            if len(split_location) > 1:
+                country = split_location[1].strip()
+        return UserInfo(
+            id=id_,
+            email=data.get("email"),
+            username=data.get("name"),
+            picture=data.get("profile_image"),
             gender=data.get("gender"),
             city=city,
             country=country,

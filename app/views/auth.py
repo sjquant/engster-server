@@ -15,7 +15,7 @@ from app.utils import JsonResponse
 from app.decorators import expect_body
 from app.models import AuthModel, UserModel
 from app.libs.views import DetailAPIView
-from app.vendors.sanic_oauth import GoogleClient
+from app.vendors.sanic_oauth import GoogleClient, FacebookClient, NaverClient
 
 blueprint = Blueprint("auth_blueprint", url_prefix="/auth")
 
@@ -73,14 +73,35 @@ async def obtain_token(request: Request):
     )
 
 
+def get_client(request, provider: str):
+    app = request.app
+    if provider == "google":
+        client = GoogleClient(
+            request.app.async_session,
+            client_id=app.config["GOOGLE_CLIENT_ID"],
+            client_secret=app.config["GOOGLE_CLIENT_SECRET"],
+        )
+    elif provider == "facebook":
+        client = FacebookClient(
+            request.app.async_session,
+            client_id=app.config["FB_CLIENT_ID"],
+            client_secret=app.config["FB_CLIENT_SECRET"],
+        )
+    elif provider == "naver":
+        client = NaverClient(
+            request.app.async_session,
+            client_id=app.config["NAVER_CLIENT_ID"],
+            client_secret=app.config["NAVER_CLIENT_SECRET"],
+        )
+    else:
+        raise ServerError("Unknown Provider", status_code=400)
+    return client
+
+
 @blueprint.route("/obtain-token/<provider:string>", methods=["POST"])
 async def oauth_obtain_token(request: Request, provider: str):
-    app = request.app
-    client = GoogleClient(
-        request.app.async_session,
-        client_id=app.config["GOOGLE_CLIENT_ID"],
-        client_secret=app.config["GOOGLE_CLIENT_SECRET"],
-    )
+    print(request.json)
+    client = get_client(request, provider)
     await client.get_access_token(
         request.json.get("code"), redirect_uri=request.json.get("redirectUri")
     )
