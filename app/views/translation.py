@@ -58,7 +58,7 @@ class TranslationListView(APIView):
             try:
                 translator = each.translator.nickname
             except AttributeError:
-                translator = "Anonymous"
+                translator = "자막"
             temp_resp.append(
                 {
                     **each.to_dict(),
