@@ -1,6 +1,7 @@
 import os
 import importlib
 
+import aiohttp
 from sanic import Sanic
 from gino.ext.sanic import Gino
 from sanic_jwt_extended import JWTManager
@@ -20,12 +21,23 @@ def init_config(app):
     app.config.from_object(get_config())
 
 
+def init_oauth(app):
+    @app.listener("after_server_start")
+    async def init_aiohttp_session(sanic_app, _loop) -> None:
+        sanic_app.async_session = aiohttp.ClientSession()
+
+    @app.listener("before_server_stop")
+    async def close_aiohttp_session(sanic_app, _loop) -> None:
+        await sanic_app.async_session.close()
+
+
 def create_app():
     """
     Create Sanic Application
     """
     app = Sanic()
     init_config(app)
+    init_oauth(app)
 
     CORS(app, automatic_options=True)
     db.init_app(app)

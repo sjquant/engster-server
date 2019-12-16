@@ -7,6 +7,11 @@ import hmac
 import secrets
 import base64
 
+# This will never be a valid encoded hash
+UNUSABLE_PASSWORD_PREFIX = "!"
+# number of random chars to add after UNUSABLE_PASSWORD_PREFIX
+UNUSABLE_PASSWORD_SUFFIX_LENGTH = 40
+
 
 def force_bytes(s, encoding="utf-8"):
     if isinstance(s, bytes):
@@ -15,9 +20,9 @@ def force_bytes(s, encoding="utf-8"):
         return str(s).encode(encoding)
 
 
-def get_random_salt(
+def get_random_string(
     length=12,
-    allowed_chars="abcdefghijklmnopqrstuvwxyz" "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    allowed_chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
 ):
 
     return "".join(secrets.choice(allowed_chars) for i in range(length))
@@ -52,7 +57,7 @@ class PBKDF2PasswordHasher:
 
     @property
     def salt(self):
-        return get_random_salt()
+        return get_random_string()
 
     def encode(self, password, salt, iterations=None):
         assert password is not None
@@ -69,4 +74,8 @@ class PBKDF2PasswordHasher:
         return constant_time_compare(encoded, encoded_2)
 
     def create_password(self, password):
+        if password is None:
+            return UNUSABLE_PASSWORD_PREFIX + get_random_string(
+                UNUSABLE_PASSWORD_SUFFIX_LENGTH
+            )
         return self.encode(password, self.salt)

@@ -4,6 +4,7 @@ import secrets
 import random
 
 from sqlalchemy.dialects.postgresql import UUID
+from sanic.exceptions import ServerError
 
 from app import db
 from app.libs.hasher import PBKDF2PasswordHasher
@@ -43,14 +44,16 @@ class User(TimeStampedModel):
     async def create_user(
         self,
         email: str,
-        password: str,
+        password: Optional[str] = None,
         nickname: Optional[str] = None,
+        photo: Optional[str] = None,
         is_admin: bool = False,
     ):
         self.id = uuid.uuid4()
         self.email = email
         self.nickname = nickname or self.generate_random_nickname()
         self.set_password(password)
+        self.photo = photo
         self.is_admin = is_admin
         user = await self.create()
         return user
@@ -60,4 +63,7 @@ class User(TimeStampedModel):
 
     def check_password(self, password: str) -> bool:
         """ check password """
-        return self.hasher.verify_password(password, self.password_hash)
+        try:
+            return self.hasher.verify_password(password, self.password_hash)
+        except ValueError:
+            raise ServerError("cannot interpret password.", status_code=422)
