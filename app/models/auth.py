@@ -25,7 +25,7 @@ class UserModel(BaseModel):
 
 
 class AuthModel(BaseModel):
-    sign_type: str
+    is_new: bool
     access_token: str
     refresh_token: str
     user: UserModel

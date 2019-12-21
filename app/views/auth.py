@@ -37,7 +37,7 @@ async def register(request: Request):
 
     return JsonResponse(
         AuthModel(
-            sign_type="sign-up",
+            is_new=True,
             access_token=access_token,
             refresh_token=refresh_token,
             user=UserModel.from_orm(user),
@@ -64,7 +64,7 @@ async def obtain_token(request: Request):
 
     return JsonResponse(
         AuthModel(
-            sign_type="sign-in",
+            is_new=False,
             access_token=access_token,
             refresh_token=refresh_token,
             user=UserModel.from_orm(user),
@@ -109,15 +109,15 @@ async def oauth_obtain_token(request: Request, provider: str):
     user = await User.query.where(User.email == user_info.email).gino.first()
     if user is None:
         user = await User().create_user(email=user_info.email, photo=user_info.picture)
-        sign_type = "sign-up"
+        is_new = True
     else:
-        sign_type = "sign-in"
+        is_new = False
     access_token = await create_access_token(app=request.app, identity=str(user.id))
     refresh_token = await create_refresh_token(app=request.app, identity=str(user.id))
 
     return JsonResponse(
         AuthModel(
-            sign_type=sign_type,
+            is_new=is_new,
             access_token=access_token,
             refresh_token=refresh_token,
             user=UserModel.from_orm(user),
@@ -161,7 +161,7 @@ async def refresh_token(request, token: Token):
     user = await User.query.where(User.id == token.jwt_identity).gino.first()
     return JsonResponse(
         AuthModel(
-            sign_type="sign-in",
+            is_new=False,
             access_token=access_token,
             refresh_token=refresh_token,
             user=UserModel.from_orm(user),
