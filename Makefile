@@ -1,14 +1,18 @@
-dev-build:
-	docker-compose -f docker-compose.dev.yml build && docker rmi $$(docker images -f "dangling=true" -q) -f
-	
-dev-migrations:
+migrations:
 	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/sh -c \
 	"python manage.py makemigrations"
+	
+dev-build:
+	docker-compose -f docker-compose.dev.yml build && docker rmi $$(docker images -f "dangling=true" -q) -f
 
 dev-migrate:
 	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/sh -c \
 	"python manage.py migrate"
 
+dev-downgrade:
+	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/sh -c \
+	"python manage.py downgrade"
+	
 dev-init:
 	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/sh -c \
 	"python manage.py migrate && python manage.py init"
