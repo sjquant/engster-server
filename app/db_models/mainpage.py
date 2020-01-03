@@ -13,7 +13,8 @@ class MainContent(BaseModel):
     description = db.Column(db.String(255), nullable=False)
     photo = db.Column(db.String(255), nullable=False)
     issued_at = db.Column(db.Date, server_default=db.func.now())
-    data = db.Column(JSONB)
+    is_issued = db.Column(db.Boolean, server_default="f", default=False)
+    lines = db.Column(JSONB)
 
     def __repr__(self):
         return "<TodayKorean {}>".format(self.title)
