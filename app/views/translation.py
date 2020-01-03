@@ -52,14 +52,13 @@ class TranslationListView(APIView):
         else:
             user_liked = []
 
-        temp_resp = []
-
+        temp_translations = []
         for each in translations:
             try:
                 translator = each.translator.nickname
             except AttributeError:
                 translator = "자막"
-            temp_resp.append(
+            temp_translations.append(
                 {
                     **each.to_dict(),
                     "translator": translator,
@@ -72,7 +71,7 @@ class TranslationListView(APIView):
             "max_page": max_page,
             "page": page,
             "count": count,
-            "translations": temp_resp,
+            "translations": temp_translations,
         }
 
         return JsonResponse(resp)
