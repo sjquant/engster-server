@@ -21,7 +21,7 @@ class LikeEnglish(APIView):
 
     @jwt_required
     async def post(self, request: Request, line_id: int, token: Token):
-        user_id = token.jwt_identity
+        user_id = token.identity
         like = LineLike(line_id=line_id, user_id=user_id)
         try:
             await like.create()
@@ -31,7 +31,7 @@ class LikeEnglish(APIView):
 
     @jwt_required
     async def delete(self, request: Request, line_id: int, token: Token):
-        user_id = token.jwt_identity
+        user_id = token.identity
         await LineLike.delete.where(
             db.and_(LineLike.line_id == line_id, LineLike.user_id == user_id)
         ).gino.status()
@@ -49,7 +49,7 @@ class LikeKorean(APIView):
 
     @jwt_required
     async def post(self, request: Request, translation_id: int, token: Token):
-        user_id = token.jwt_identity
+        user_id = token.identity
         like = TranslationLike(translation_id=translation_id, user_id=user_id)
         try:
             await like.create()
@@ -59,7 +59,7 @@ class LikeKorean(APIView):
 
     @jwt_required
     async def delete(self, request: Request, translation_id: int, token: Token):
-        user_id = token.jwt_identity
+        user_id = token.identity
         await TranslationLike.delete.where(
             db.and_(
                 TranslationLike.translation_id == translation_id,

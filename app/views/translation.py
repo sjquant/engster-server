@@ -46,7 +46,7 @@ class TranslationListView(APIView):
             translation_ids.append(each.id)
 
         like_count = await get_korean_like_count(translation_ids)
-        user_id = token.jwt_identity
+        user_id = token.identity
         if user_id:
             user_liked = await get_user_liked_korean_lines(user_id, translation_ids)
         else:
@@ -79,7 +79,7 @@ class TranslationListView(APIView):
     @jwt_required
     @expect_body(line_id=(int, ...), translation=(str, ...))
     async def post(self, request: Request, token: Token):
-        user_id = token.jwt_identity
+        user_id = token.identity
         translation = await Translation(**request.json, translator_id=user_id).create()
         nickname = await User.select("nickname").where(User.id == user_id).gino.scalar()
         return JsonResponse(
@@ -91,7 +91,7 @@ class TranslationDetailView(DetailAPIView):
     async def get_object(self, translation_id: int, token: Optional[Token] = None):
 
         if token:
-            user_id = token.jwt_identity
+            user_id = token.identity
             translation = await Translation.query.where(
                 db.and_(
                     Translation.id == translation_id,

@@ -1,7 +1,7 @@
 from uuid import UUID
 from pydantic import BaseModel, SecretStr, validator
 
-from app import get_config
+from app import config
 
 
 class UserModel(BaseModel):
@@ -17,8 +17,7 @@ class UserModel(BaseModel):
 
     @validator("photo", pre=True, always=True)
     def get_photo(cls, v, *, values, **kwargs):
-        config = get_config()
-        if v.startswith("http"):
+        if not v or v.startswith("http"):
             return v
         else:
             return f"{config.MEDIA_URL}/{v}"

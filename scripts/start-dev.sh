@@ -1,4 +1,4 @@
 #!/bin/sh
-pip install -r /app/requirements.txt
+poetry install
 python manage.py migrate
 python manage.py runserver

@@ -5,7 +5,7 @@ import asyncio
 from alembic.config import Config
 import click
 
-from app import get_config, create_app
+from app import config, create_app
 
 
 def coroutine(f):
@@ -60,7 +60,6 @@ def makemigrations(m):
     """
     from alembic.command import revision
 
-    config = get_config()
     alembic_ini_path = "./alembic.ini"
     alembic_cfg = Config(alembic_ini_path)
     alembic_cfg.set_main_option("db_url", config.DB_URL)
@@ -78,8 +77,6 @@ def migrate():
     """
     from alembic.command import upgrade
 
-    config = get_config()
-
     alembic_ini_path = "./alembic.ini"
     alembic_cfg = Config(alembic_ini_path)
     alembic_cfg.set_main_option("db_url", config.DB_URL)
@@ -94,8 +91,6 @@ def downgrade(revision):
     Apply migrations
     """
     from alembic.command import downgrade
-
-    config = get_config()
 
     alembic_ini_path = "./alembic.ini"
     alembic_cfg = Config(alembic_ini_path)
@@ -115,7 +110,6 @@ async def init():
     from app.db_models import Category
     from app.db_models import Genre
 
-    config = get_config()
     await db.set_bind(config.DB_URL)
 
     with open("data/categories.json") as f:

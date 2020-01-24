@@ -3,14 +3,13 @@ from sanic import Blueprint
 from sanic.request import Request
 from sanic.exceptions import ServerError
 from sanic_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
-    jwt_refresh_token_required,
+    refresh_jwt_required,
     jwt_required,
 )
 from sanic_jwt_extended.tokens import Token
 
 from app.db_models import User
+from app import JWT
 from app.utils import JsonResponse
 from app.decorators import expect_body
 from app.models import AuthModel, UserModel
@@ -32,8 +31,8 @@ async def register(request: Request):
     except asyncpg.exceptions.UniqueViolationError:
         raise ServerError("Already Registered", status_code=400)
 
-    access_token = await create_access_token(app=request.app, identity=str(user.id))
-    refresh_token = await create_refresh_token(app=request.app, identity=str(user.id))
+    access_token = JWT.create_access_token(identity=str(user.id))
+    refresh_token = JWT.create_refresh_token(identity=str(user.id))
 
     return JsonResponse(
         AuthModel(
@@ -59,8 +58,8 @@ async def obtain_token(request: Request):
     if not user.check_password(password):
         raise ServerError("Password is wrong.", status_code=400)
 
-    access_token = await create_access_token(app=request.app, identity=str(user.id))
-    refresh_token = await create_refresh_token(app=request.app, identity=str(user.id))
+    access_token = JWT.create_access_token(identity=str(user.id))
+    refresh_token = JWT.create_refresh_token(identity=str(user.id))
 
     return JsonResponse(
         AuthModel(
@@ -112,8 +111,8 @@ async def oauth_obtain_token(request: Request, provider: str):
         is_new = True
     else:
         is_new = False
-    access_token = await create_access_token(app=request.app, identity=str(user.id))
-    refresh_token = await create_refresh_token(app=request.app, identity=str(user.id))
+    access_token = JWT.create_access_token(identity=str(user.id))
+    refresh_token = JWT.create_refresh_token(identity=str(user.id))
 
     return JsonResponse(
         AuthModel(
@@ -132,7 +131,7 @@ async def oauth_obtain_token(request: Request, provider: str):
 async def reset_password(request: Request, token: Token):
     original_password = request.json.get("original_password")
     new_password = request.json.get("new_password")
-    user_id = token.jwt_identity
+    user_id = token.identity
 
     user = await User.query.where(User.id == user_id).gino.first()
 
@@ -148,17 +147,12 @@ async def reset_password(request: Request, token: Token):
 
 
 @blueprint.route("/refresh-token", methods=["POST"])
-@jwt_refresh_token_required
+@refresh_jwt_required
 async def refresh_token(request, token: Token):
     """ refresh access token """
-    access_token = await create_access_token(
-        app=request.app, identity=token.jwt_identity
-    )
-    refresh_token = await create_refresh_token(
-        app=request.app, identity=token.jwt_identity
-    )
-
-    user = await User.query.where(User.id == token.jwt_identity).gino.first()
+    access_token = JWT.create_access_token(identity=token.identity)
+    refresh_token = JWT.create_refresh_token(identity=token.identity)
+    user = await User.query.where(User.id == token.identity).gino.first()
     return JsonResponse(
         AuthModel(
             is_new=False,
@@ -175,14 +169,14 @@ class UserProfileView(DetailAPIView):
 
     @jwt_required
     async def get(self, request, token: Token):
-        user_id = token.jwt_identity
+        user_id = token.identity
         user = await super().get(request, id=user_id, return_obj=True)
         return JsonResponse(UserModel.from_orm(user), status=200)
 
     @jwt_required
     @expect_body(email=(str, None), nickname=(str, None), photo=(str, None))
     async def put(self, request: Request, token: Token):
-        user_id = token.jwt_identity
+        user_id = token.identity
         user = await super().put(request, id=user_id, return_obj=True)
         return JsonResponse(UserModel.from_orm(user), status=202)
 

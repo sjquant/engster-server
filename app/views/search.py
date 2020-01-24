@@ -134,7 +134,7 @@ async def search_english(request, page: int, keyword: str, token: Token):
 
     genres = await get_genres_for_content(content_ids)
     like_count = await get_english_like_count(line_ids)
-    user_id = token.jwt_identity
+    user_id = token.identity
     if user_id:
         user_liked = await get_user_liked_english_lines(user_id, line_ids)
     else:
@@ -213,7 +213,7 @@ async def search_korean(request, page: int, keyword: str, token: Token):
 
     genres = await get_genres_for_content(content_ids)
     like_count = await get_korean_like_count(translation_ids)
-    user_id = token.jwt_identity
+    user_id = token.identity
     if user_id:
         user_liked = await get_user_liked_korean_lines(user_id, translation_ids)
     else:
