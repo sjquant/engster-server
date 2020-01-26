@@ -12,7 +12,7 @@ from app.db_models import Line, Translation, Content, Genre, Category, ContentXG
 from app.utils import calc_max_page
 from app.utils import JsonResponse
 from app.decorators import expect_query
-from app.loaders import (
+from app.db_access.line import (
     get_korean_like_count,
     get_english_like_count,
     get_user_liked_english_lines,

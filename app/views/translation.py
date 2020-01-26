@@ -10,7 +10,7 @@ from app.utils import calc_max_page
 from app.utils import JsonResponse
 from app.libs.views import APIView, DetailAPIView
 from app.decorators import expect_query, expect_body
-from app.loaders import get_korean_like_count, get_user_liked_korean_lines
+from app.db_access.line import get_korean_like_count, get_user_liked_korean_lines
 from app import db
 
 blueprint = Blueprint("translation_blueprint", url_prefix="/translations")

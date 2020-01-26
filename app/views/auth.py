@@ -8,8 +8,9 @@ from sanic_jwt_extended import (
 )
 from sanic_jwt_extended.tokens import Token
 
-from app.db_models import User
 from app import JWT
+from app.db_models import User
+from app.db_access.user import get_user_by_email, get_user_by_id
 from app.utils import JsonResponse
 from app.decorators import expect_body
 from app.models import AuthModel, UserModel
@@ -50,7 +51,7 @@ async def obtain_token(request: Request):
     email = request.json.get("email", None)
     password = request.json.get("password", None)
 
-    user = await User.query.where(User.email == email).gino.first()
+    user = await get_user_by_email(email)
 
     if user is None:
         raise ServerError("User not found.", status_code=404)
@@ -99,13 +100,12 @@ def get_client(request, provider: str):
 
 @blueprint.route("/obtain-token/<provider:string>", methods=["POST"])
 async def oauth_obtain_token(request: Request, provider: str):
-    print(request.json)
     client = get_client(request, provider)
     await client.get_access_token(
         request.json.get("code"), redirect_uri=request.json.get("redirectUri")
     )
     user_info, _ = await client.user_info()
-    user = await User.query.where(User.email == user_info.email).gino.first()
+    user = await get_user_by_email(user_info.email)
     if user is None:
         user = await User().create_user(email=user_info.email, photo=user_info.picture)
         is_new = True
@@ -133,7 +133,7 @@ async def reset_password(request: Request, token: Token):
     new_password = request.json.get("new_password")
     user_id = token.identity
 
-    user = await User.query.where(User.id == user_id).gino.first()
+    user = await get_user_by_id(user_id)
 
     if user is None:
         raise ServerError("User not found.", status_code=404)
@@ -152,7 +152,9 @@ async def refresh_token(request, token: Token):
     """ refresh access token """
     access_token = JWT.create_access_token(identity=token.identity)
     refresh_token = JWT.create_refresh_token(identity=token.identity)
-    user = await User.query.where(User.id == token.identity).gino.first()
+    user_id = token.identity
+
+    user = await get_user_by_id(user_id)
     return JsonResponse(
         AuthModel(
             is_new=False,
