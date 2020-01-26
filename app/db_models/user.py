@@ -11,7 +11,7 @@ from app.libs.hasher import PBKDF2PasswordHasher
 from .base_models import TimeStampedModel
 
 
-def generate_random_characters(self, prefix_length=4, suffix_length=6):
+def generate_random_characters(prefix_length=4, suffix_length=6):
     """ generate random nickname when user didn't enter nickname """
     allowed_prefix_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     allowed_suffix_chars = "abcdefghizklmnopqrstuvwxyz0123456789!@#$%^&*="
