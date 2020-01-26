@@ -11,6 +11,19 @@ from app.libs.hasher import PBKDF2PasswordHasher
 from .base_models import TimeStampedModel
 
 
+def generate_random_characters(self, prefix_length=4, suffix_length=6):
+    """ generate random nickname when user didn't enter nickname """
+    allowed_prefix_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    allowed_suffix_chars = "abcdefghizklmnopqrstuvwxyz0123456789!@#$%^&*="
+
+    prefix = "".join(secrets.choice(allowed_prefix_chars)
+                     for i in range(prefix_length))
+    suffix = "".join(
+        secrets.choice(allowed_suffix_chars) for i in range(suffix_length)
+    )
+    return prefix + suffix
+
+
 class User(TimeStampedModel):
     """ User Model for storing user related details """
 
@@ -30,17 +43,6 @@ class User(TimeStampedModel):
     def __repr__(self):
         return "<User {}>".format(self.email)
 
-    def generate_random_nickname(self):
-        """ generate random nickname when user didn't enter nickname """
-        allowed_prefix_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        allowed_suffix_chars = "abcdefghizklmnopqrstuvwxyz0123456789!@#$%^&*="
-
-        prefix = "".join(secrets.choice(allowed_prefix_chars) for i in range(4))
-        suffix = "".join(
-            secrets.choice(allowed_suffix_chars) for i in range(random.randint(1, 6))
-        )
-        return prefix + suffix
-
     async def create_user(
         self,
         email: str,
@@ -51,7 +53,9 @@ class User(TimeStampedModel):
     ):
         self.id = uuid.uuid4()
         self.email = email
-        self.nickname = nickname or self.generate_random_nickname()
+        self.nickname = nickname or generate_random_characters(
+            prefix_length=4,
+            suffix_length=random.randint(1, 6))
         self.set_password(password)
         self.photo = photo
         self.is_admin = is_admin
