@@ -10,7 +10,7 @@ from sanic_jwt_extended.tokens import Token
 
 from app import JWT
 from app.db_models import User
-from app.db_access.user import get_user_by_email, get_user_by_id
+from app.db_access.user import get_user_by_email, get_user_by_id, create_user
 from app.utils import JsonResponse
 from app.decorators import expect_body
 from app.models import AuthModel, UserModel
@@ -28,7 +28,7 @@ async def register(request: Request):
     """ register user """
 
     try:
-        user = await User().create_user(**request.json)
+        user = await create_user(**request.json)
     except asyncpg.exceptions.UniqueViolationError:
         raise ServerError("Already Registered", status_code=400)
 
@@ -107,7 +107,7 @@ async def oauth_obtain_token(request: Request, provider: str):
     user_info, _ = await client.user_info()
     user = await get_user_by_email(user_info.email)
     if user is None:
-        user = await User().create_user(email=user_info.email, photo=user_info.picture)
+        user = await create_user(email=user_info.email, photo=user_info.picture)
         is_new = True
     else:
         is_new = False
