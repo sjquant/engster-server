@@ -7,16 +7,18 @@ from sanic_jwt_extended.tokens import Token
 from pydantic import constr
 
 from app import db
-from app.db_models import Line, Translation, Content, Genre, Category, ContentXGenre
+from app.db_models import Line, Translation, Content
 
 from app.utils import calc_max_page
 from app.utils import JsonResponse
 from app.decorators import expect_query
 from app.db_access.line import (
-    get_korean_like_count,
-    get_english_like_count,
-    get_user_liked_english_lines,
-    get_user_liked_korean_lines,
+    get_like_count_per_korean_line,
+    get_like_count_per_english_line,
+    search_english_lines,
+    search_korean_lines,
+    get_translation_count_per_line,
+    get_genres_per_content,
 )
 
 
@@ -61,184 +63,88 @@ async def get_most_liked_translations(line_ids: List[int]) -> Dict[str, Dict[str
     return data
 
 
-async def get_genres_for_content(content_ids: List[int]) -> Dict[str, Dict[str, Any]]:
-    """
-    get genres of each content
-    """
-
-    query = (
-        db.select([Genre.id, Genre.genre, ContentXGenre.content_id])
-        .select_from(Genre.join(ContentXGenre))
-        .where(ContentXGenre.content_id.in_(content_ids))
-    )
-
-    res = await query.gino.all()
-
-    data: dict = {}
-    for each in res:
-        content = data.setdefault(f"content_{each[2]}", [])
-        content.append({"id": each[0], "genre": each[1]})
-
-    return data
-
-
-async def get_translation_count(line_ids: List[int]) -> Dict[int, int]:
-    query = (
-        db.select([Translation.line_id, db.func.count(Translation.line_id)])
-        .where(Translation.line_id.in_(line_ids))
-        .group_by(Translation.line_id)
-    )
-    res = await query.gino.all()
-    data = {each[0]: each[1] for each in res}
-    return data
-
-
 @blueprint.route("/english", methods=["GET"])
-@jwt_optional
-@expect_query(page=(int, 1), keyword=(constr(min_length=2), ...))
-async def search_english(request, page: int, keyword: str, token: Token):
-    """ search english """
-
-    page_size = 10
-
+@expect_query(page=(int, 1), per_page=(int, 10), keyword=(constr(min_length=2), ...))
+async def search_english(request, page: int, per_page: int, keyword: str):
+    """search english"""
     max_page, count = await calc_max_page(
-        page_size, Line.line.op("~*")(keyword + r"[\.?, ]")
+        per_page, Line.line.op("~*")(keyword + r"[\.?, ]")
     )
-    offset = page_size * (page - 1)
-
     if page > max_page:
         return JsonResponse(
             {"max_page": 0, "count": 0, "page": 0, "lines": [], "user_liked": []},
             status=200,
         )
-
-    lines = (
-        await Line.load(content=Content, category=Category)
-        .query.where(
-            db.and_(
-                Line.content_id == Content.id,
-                Content.category_id == Category.id,
-                Line.line.op("~*")(keyword + r"[\.?, ]"),
-            )
-        )
-        .limit(page_size)
-        .offset(offset)
-        .gino.all()
-    )
-
+    offset = per_page * (page - 1)
+    lines = await search_english_lines(keyword, per_page, offset)
     content_ids = []
     line_ids = []
     for each in lines:
-        content_ids.append(each.content.id)
-        line_ids.append(each.id)
-
-    genres = await get_genres_for_content(content_ids)
-    like_count = await get_english_like_count(line_ids)
-    user_id = token.identity
-    if user_id:
-        user_liked = await get_user_liked_english_lines(user_id, line_ids)
-    else:
-        user_liked = []
-    translation_count = await get_translation_count(line_ids)
-
+        content_ids.append(each["content_id"])
+        line_ids.append(each["id"])
+    like_count = await get_like_count_per_english_line(line_ids)
+    translation_count = await get_translation_count_per_line(line_ids)
+    genres = await get_genres_per_content(content_ids)
     lines = [
         {
-            **line.to_dict(["id", "line"]),
-            "like_count": like_count.get(line.id, 0),
-            "translation_count": translation_count.get(line.id, 0),
-            "content": line.content.to_dict(["id", "title", "year"]),
-            "category": line.category.to_dict(),
-            "genres": genres[f"content_{line.content.id}"],
+            **line,
+            "genres": genres[line["content_id"]],
+            "like_count": like_count.get(line["id"], 0),
+            "translation_count": translation_count.get(line["id"], 0),
         }
         for line in lines
     ]
-
     resp = {
         "max_page": max_page,
         "page": page,
         "count": count,
-        "lines": lines,
-        "user_liked": user_liked,
+        "data": lines,
     }
     return JsonResponse(resp, status=200)
 
 
 @blueprint.route("/korean", methods=["GET"])
-@jwt_optional
-@expect_query(page=(int, 1), keyword=(constr(min_length=2), ...))
-async def search_korean(request, page: int, keyword: str, token: Token):
-    """ search korean """
-
-    page_size = 10
-
+@expect_query(page=(int, 1), per_page=(int, 10), keyword=(constr(min_length=2), ...))
+async def search_korean(request, page: int, per_page: int, keyword: str):
+    """search korean(translations)"""
     max_page, count = await calc_max_page(
-        page_size,
+        per_page,
         condition=db.and_(
             Translation.translation.ilike("%" + keyword + "%"),
             Translation.is_accepted.is_(True),
         ),
     )
-    offset = page_size * (page - 1)
-
+    offset = per_page * (page - 1)
     if page > max_page:
         return JsonResponse(
-            {"max_page": 0, "page": 0, "count": 0, "lines": [], "user_liked": []},
-            status=200,
+            {"max_page": 0, "page": 0, "count": 0, "lines": []}, status=200,
         )
-
-    translations = (
-        await Translation.load(line=Line, content=Content, category=Category)
-        .where(
-            db.and_(
-                Translation.line_id == Line.id,
-                Translation.translation.ilike("%" + keyword + "%"),
-                Translation.is_accepted.is_(True),
-                Line.content_id == Content.id,
-                Content.category_id == Category.id,
-            )
-        )
-        .limit(page_size)
-        .offset(offset)
-        .gino.all()
-    )
-
+    translations = await search_korean_lines(keyword, per_page, offset)
     content_ids = []
     translation_ids = []
     line_ids = []
-
     for each in translations:
-        content_ids.append(each.content.id)
-        translation_ids.append(each.id)
-        line_ids.append(each.line_id)
+        content_ids.append(each["content_id"])
+        translation_ids.append(each["id"])
+        line_ids.append(each["line_id"])
 
-    genres = await get_genres_for_content(content_ids)
-    like_count = await get_korean_like_count(translation_ids)
-    user_id = token.identity
-    if user_id:
-        user_liked = await get_user_liked_korean_lines(user_id, translation_ids)
-    else:
-        user_liked = []
-    translation_count = await get_translation_count(line_ids)
-
+    genres = await get_genres_per_content(content_ids)
+    like_count = await get_like_count_per_korean_line(translation_ids)
+    translation_count = await get_translation_count_per_line(line_ids)
     translations = [
         {
-            **each.to_dict(show=["id", "translation"]),
-            "line": each.line.to_dict(show=["id", "line"]),
-            "like_count": like_count.get(each.id, 0),
-            "translation_count": translation_count.get(each.id, 0),
-            "content": each.content.to_dict(show=["id", "title", "year"]),
-            "category": each.category.to_dict(),
-            "genres": genres[f"content_{each.content.id}"],
+            **each,
+            "like_count": like_count.get(each["id"], 0),
+            "translation_count": translation_count.get(each["id"], 0),
+            "genres": genres[each["content_id"]],
         }
         for each in translations
     ]
-
     resp = {
         "max_page": max_page,
         "page": page,
         "count": count,
-        "lines": translations,
-        "user_liked": user_liked,
+        "data": translations,
     }
 
     return JsonResponse(resp)
