@@ -9,6 +9,7 @@ MEDIA_URL = os.getenv("MEDIA_URL")
 
 # Cors
 CORS_ORIGINS = os.getenv("CORS", "*").split(",")
+CORS_AUTOMATIC_OPTIONS = True
 
 # DB
 DB_PORT = "5432"

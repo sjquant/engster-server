@@ -37,7 +37,7 @@ def create_app():
     init_oauth(app)
     init_jwt(app)
 
-    CORS(app, automatic_options=True)
+    CORS(app)
     db.init_app(app)
     from app import views
 
