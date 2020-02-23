@@ -1,5 +1,5 @@
-db-init:
-	python manage.py migrate && python manage.py init
+init-db:
+	/bin/bash scripts/init-db.sh
 
 make-migrations:
 	python manage.py makemigrations
