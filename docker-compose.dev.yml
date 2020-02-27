@@ -1,6 +1,5 @@
-version: '3'
+version: "3"
 services:
-
   engster_server:
     build:
       context: .
@@ -11,11 +10,11 @@ services:
     env_file:
       - secrets/.env.development
     volumes:
-      - ./:/app/
-      - engster-packages:/usr/local/lib/python3.8/site-packages/
-      - engster-bin:/usr/local/bin
+      - .:/workspace
+      - python-packages:/usr/local/lib/python3.8/site-packages/
+      - python-bin:/usr/local/bin
     networks:
-      - db_network
+      - db-network
     depends_on:
       - db
 
@@ -24,22 +23,22 @@ services:
     env_file:
       - secrets/.env.development
     volumes:
-      - db_volume:/var/lib/postgresql/data
+      - db-volume:/var/lib/postgresql/data
     ports:
       - 5123:5432
     networks:
-      - db_network
+      - db-network
     environment:
       - POSTGRES_DB=engster
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
       - POSTGRES_INITDB_ARGS=--encoding=UTF-8
-      
+
 networks:
-  db_network:
+  db-network:
     driver: bridge
 
 volumes:
-  db_volume:
-  engster-packages:
-  engster-bin:
+  db-volume:
+  python-packages:
+  python-bin:
