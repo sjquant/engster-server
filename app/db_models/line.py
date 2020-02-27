@@ -98,9 +98,6 @@ class Translation(TimeStampedModel):
     translation = db.Column(db.Text, nullable=False)
     line_id = db.Column(db.Integer, db.ForeignKey("line.id"), nullable=False)
     translator_id = db.Column(UUID, db.ForeignKey("user.id"))
-    is_accepted = db.Column(
-        db.Boolean, server_default="f", default=False, nullable=False
-    )
 
     _idx = db.Index("translation_idx_translation", "translation")
 

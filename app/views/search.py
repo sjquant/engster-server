@@ -2,8 +2,6 @@ from typing import List, Dict, Any
 
 from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
-from sanic_jwt_extended import jwt_optional
-from sanic_jwt_extended.tokens import Token
 from pydantic import constr
 
 from app import db
@@ -108,11 +106,7 @@ async def search_english(request, page: int, per_page: int, keyword: str):
 async def search_korean(request, page: int, per_page: int, keyword: str):
     """search korean(translations)"""
     max_page, count = await calc_max_page(
-        per_page,
-        condition=db.and_(
-            Translation.translation.ilike("%" + keyword + "%"),
-            Translation.is_accepted.is_(True),
-        ),
+        per_page, condition=Translation.translation.ilike("%" + keyword + "%")
     )
     offset = per_page * (page - 1)
     if page > max_page:

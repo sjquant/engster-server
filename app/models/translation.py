@@ -9,6 +9,5 @@ class TranslationModel(BaseModel):
     translation: str
     line_id: int
     translator_id: UUID
-    is_accepted: bool
     created_at: datetime
     updated_at: datetime
