@@ -1,6 +1,3 @@
-import os
-import importlib
-
 import aiohttp
 from sanic import Sanic
 from gino.ext.sanic import Gino

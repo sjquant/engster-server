@@ -1,6 +1,5 @@
 import os
 import datetime
-import json
 
 ENV = os.getenv("ENV")
 DEBUG = False if ENV == "production" else True
@@ -22,7 +21,7 @@ DB_URL = f"postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
 # JWT
 JWT = {
     "secret_key": os.getenv("JWT_SECRET_KEY", "secret_key"),
-    "access_expires": datetime.timedelta(int(os.getenv("JWT_ACCESS_EXPIRES", "10080")))
+    "access_expires": datetime.timedelta(int(os.getenv("JWT_ACCESS_EXPIRES", "10080"))),
 }
 
 # Social Auth
@@ -33,5 +32,4 @@ FB_CLIENT_SECRET = os.getenv("FB_CLIENT_SECRET")
 NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
 NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
 
-CSV_DOWNLOAD_PATH = os.getenv(
-    "CSV_DOWNLOAD_PATH", os.path.join(BASE_DIR, "data/csv"))
+CSV_DOWNLOAD_PATH = os.getenv("CSV_DOWNLOAD_PATH", os.path.join(BASE_DIR, "data/csv"))

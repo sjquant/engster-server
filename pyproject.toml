@@ -8,7 +8,6 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.8"
 sanic-jwt-extended = "1.0-dev.9"
-sanic = "^19.12.2"
 gunicorn = "^20.0.4"
 uvicorn = "^0.11.2"
 pillow = "^7.0.0"
@@ -19,7 +18,8 @@ click = "^7.0"
 alembic = "^1.3.3"
 pydantic = "^1.3"
 aiohttp = "^3.6.2"
-sanic-cors = "^0.10.0"
+sanic-cors = "^0.10.0.post3"
+sanic = "19.12.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7.9"
