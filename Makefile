@@ -20,6 +20,6 @@ dev-up:
 dev-down:
 	docker-compose -f docker-compose.dev.yml down $(args)
 dev-migrations:
-	docker-compose -f docker-compose.dev.yml run --rm app /bin/bash -c "python manage.py makemigrations"
+	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/bash -c "python manage.py makemigrations"
 dev-migrate:
-	docker-compose -f docker-compose.dev.yml run --rm app /bin/bash -c "python manage.py migrate"
+	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/bash -c "python manage.py migrate"
