@@ -1,7 +1,69 @@
 from sqlalchemy.dialects.postgresql import UUID
+from sanic.exceptions import ServerError
 
 from app import db
-from .base_models import BaseModel, TimeStampedModel
+from app.libs.hasher import PBKDF2PasswordHasher
+
+from typing import List, Optional
+from app import db
+
+
+class BaseModel(db.Model):
+    def to_dict(self, show: Optional[List[str]] = None):
+        """
+        Transform model into dict
+
+        params
+        ----------
+        show: columns to transform into dict
+        """
+
+        if show is None:
+            return {
+                each.name: getattr(self, each.name)
+                for each in self.__table__.columns}
+
+        else:
+            return {each: getattr(self, each) for each in show}
+
+
+class TimeStampedModel(BaseModel):
+
+    created_at = db.Column(
+        db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(
+        db.DateTime, server_default=db.func.now(),
+        server_onupdate=db.func.now())
+
+
+class User(TimeStampedModel):
+    """ User Model for storing user related details """
+
+    __tablename__ = "user"
+
+    id = db.Column(UUID, primary_key=True)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    nickname = db.Column(db.String(10), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    photo = db.Column(db.String(255))
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.hasher = PBKDF2PasswordHasher()
+
+    def __repr__(self):
+        return "<User {}>".format(self.email)
+
+    def set_password(self, password: str):
+        self.password_hash = self.hasher.create_password(password)
+
+    def check_password(self, password: str) -> bool:
+        """ check password """
+        try:
+            return self.hasher.verify_password(password, self.password_hash)
+        except ValueError:
+            raise ServerError("cannot interpret password.", status_code=422)
 
 
 class Content(BaseModel):
@@ -25,7 +87,8 @@ class Category(BaseModel):
 
     __tablename__ = "category"
 
-    id = db.Column(db.Integer, db.Sequence("category_id_seq"), primary_key=True)
+    id = db.Column(db.Integer, db.Sequence(
+        "category_id_seq"), primary_key=True)
     category = db.Column(db.String(50), nullable=False, unique=True)
 
     def __repr__(self):
@@ -65,7 +128,8 @@ class Line(BaseModel):
     id = db.Column(db.Integer, db.Sequence("line_id_seq"), primary_key=True)
     line = db.Column(db.Text, nullable=False)
     time = db.Column(db.Time)
-    content_id = db.Column(db.Integer, db.ForeignKey("content.id"), nullable=False)
+    content_id = db.Column(db.Integer, db.ForeignKey(
+        "content.id"), nullable=False)
 
     _idx = db.Index("line_idx_line", "line")
 
@@ -80,11 +144,13 @@ class LineLike(TimeStampedModel):
 
     __tablename__ = "line_like"
 
-    id = db.Column("id", db.Integer, db.Sequence("line_like_id_seq"), primary_key=True)
+    id = db.Column("id", db.Integer, db.Sequence(
+        "line_like_id_seq"), primary_key=True)
     user_id = db.Column(UUID, db.ForeignKey("user.id"))
     line_id = db.Column(db.Integer, db.ForeignKey("line.id"))
 
-    _unique = db.UniqueConstraint("user_id", "line_id", name="line_like_unique")
+    _unique = db.UniqueConstraint(
+        "user_id", "line_id", name="line_like_unique")
 
     def __repr__(self):
         return "<Line Like {}>".format(self.id)
@@ -94,7 +160,8 @@ class Translation(TimeStampedModel):
 
     __tablename__ = "translation"
 
-    id = db.Column(db.Integer, db.Sequence("translation_id_seq"), primary_key=True)
+    id = db.Column(db.Integer, db.Sequence(
+        "translation_id_seq"), primary_key=True)
     translation = db.Column(db.Text, nullable=False)
     line_id = db.Column(db.Integer, db.ForeignKey("line.id"), nullable=False)
     translator_id = db.Column(UUID, db.ForeignKey("user.id"))

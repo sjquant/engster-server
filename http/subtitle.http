@@ -1,0 +1,147 @@
+### Content List
+GET http://localhost:8000/subtitle/contents
+Content-Type: application/json
+
+### DELETE Content
+DELETE http://localhost:8000/subtitle/contents/2
+Content-Type: application/json
+
+### Line List
+GET http://localhost:8000/subtitle/contents/1/lines
+Content-Type: application/json
+
+### Category List
+GET http://localhost:8000/subtitle/categories
+Content-Type: application/json
+
+### Post Category
+POST http://localhost:8000/subtitle/categories
+Content-Type: application/json
+
+{
+    "category": "youtube"
+}
+
+### Post genre
+POST http://localhost:8000/subtitle/genres
+Content-Type: application/json
+
+{
+    "genre": "crime"
+}
+
+### Get Individual Category
+GET http://localhost:8000/subtitle/categories/1
+Content-Type: application/json
+
+### Change Individual Category
+PUT http://localhost:8000/subtitle/categories/3
+Content-Type: application/json
+
+{
+    "category":"tv drama"
+}
+
+### Delete Individual Category
+DELETE http://localhost:8000/subtitle/categories/7
+Content-Type: application/json
+
+### Get Individual genre
+GET http://localhost:8000/subtitle/genres/2
+Content-Type: application/json
+
+### Change Individual genre
+PUT http://localhost:8000/subtitle/genres/10
+Content-Type: application/json
+
+{
+    "genre":"science fiction"
+}
+
+### Delete Individual genre
+DELETE http://localhost:8000/subtitle/genres/2
+Content-Type: application/json
+
+### Get Specific translation
+GET http://localhost:8000/subtitle/translations/1423
+
+### Change specific translation
+PUT http://localhost:8000/subtitle/translations/1423
+
+{
+    "translation": "민호야 힘내!"
+}
+
+### Delete specific translation
+DELETE http://localhost:8000/subtitle/translations/2181
+
+### Search By English
+GET http://localhost:8000/subtitle/search/english?keyword=minho
+Content-Type: application/json
+
+### Search By Korean
+GET http://localhost:8000/subtitle/search/korean?keyword=위험
+Content-Type: application/json
+
+
+### GET Likes for a Line
+GET http://localhost:8000/subtitle/like/english/1
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiL
+
+### Like English Line
+POST http://localhost:8000/subtitle/like/english/1
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzAyNzQ0ODEsIm5iZiI6MTU3MDI3NDQ4MSwianRpIjoiYTkyZWUwMjYtNWMxOC00ZTU4LWJlNGUtMDFmMTdlYmJlNTVhIiwiZXhwIjo4Nzk3MDE4ODA4MSwiaWRlbnRpdHkiOiI0NDg2OGYyNC1mNmMxLTQ3YzYtYjFhMS0xYzBjNmQwNjRhNWQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.Lq0ZYg4jvgblT4Dt28kYxTJDFO5lkh3hrN0s05DjMXs
+
+### Cancel the like of English Line
+DELETE http://localhost:8000/subtitle/like/english/1
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzAyNzQ0ODEsIm5iZiI6MTU3MDI3NDQ4MSwianRpIjoiYTkyZWUwMjYtNWMxOC00ZTU4LWJlNGUtMDFmMTdlYmJlNTVhIiwiZXhwIjo4Nzk3MDE4ODA4MSwiaWRlbnRpdHkiOiI0NDg2OGYyNC1mNmMxLTQ3YzYtYjFhMS0xYzBjNmQwNjRhNWQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.Lq0ZYg4jvgblT4Dt28kYxTJDFO5lkh3hrN0s05DjMXs
+
+### GET Likes for a Korean Line
+GET http://localhost:8000/subtitle/like/korean/1
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiL
+
+### Like Korean Line
+POST http://localhost:8000/subtitle/like/korean/1
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzAyNzQ0ODEsIm5iZiI6MTU3MDI3NDQ4MSwianRpIjoiYTkyZWUwMjYtNWMxOC00ZTU4LWJlNGUtMDFmMTdlYmJlNTVhIiwiZXhwIjo4Nzk3MDE4ODA4MSwiaWRlbnRpdHkiOiI0NDg2OGYyNC1mNmMxLTQ3YzYtYjFhMS0xYzBjNmQwNjRhNWQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.Lq0ZYg4jvgblT4Dt28kYxTJDFO5lkh3hrN0s05DjMXs
+
+### Cancel the like of Korean Line
+DELETE http://localhost:8000/subtitle/like/korean/1
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzAyNzQ0ODEsIm5iZiI6MTU3MDI3NDQ4MSwianRpIjoiYTkyZWUwMjYtNWMxOC00ZTU4LWJlNGUtMDFmMTdlYmJlNTVhIiwiZXhwIjo4Nzk3MDE4ODA4MSwiaWRlbnRpdHkiOiI0NDg2OGYyNC1mNmMxLTQ3YzYtYjFhMS0xYzBjNmQwNjRhNWQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.Lq0ZYg4jvgblT4Dt28kYxTJDFO5lkh3hrN0s05DjMXs
+
+### Get Trnaslations for line
+GET http://localhost:8000/subtitle/translations?line_id=1213
+Content-Type: application/json
+
+### Post Translation
+POST http://localhost:8000/subtitle/translations
+Content-Type: application.json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjE4MzI0ODksIm5iZiI6MTU2MTgzMjQ4OSwianRpIjoiMDkzNDA2OGYtZGIwYy00NWU0LTkwODktNGNjZjNjOGNjNzE4IiwiZXhwIjo4Nzk2MTc0NjA4OSwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.UmGQCAHy6fW-j5mII7WBBfPZZhFJfSkYolfzdMrEuZM
+
+{
+    "line_id": 1213,
+    "translation": "가운데 있는 녀석 보이지? 민호야."
+}
+
+### Get Translation Detail
+GET http://localhost:8000/subtitle/translations/2196
+Content-Type: application.json
+
+### Put Translation Detail
+PUT http://localhost:8000/subtitle/translations/2196
+Content-Type: application.json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjE4MzI0ODksIm5iZiI6MTU2MTgzMjQ4OSwianRpIjoiMDkzNDA2OGYtZGIwYy00NWU0LTkwODktNGNjZjNjOGNjNzE4IiwiZXhwIjo4Nzk2MTc0NjA4OSwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.UmGQCAHy6fW-j5mII7WBBfPZZhFJfSkYolfzdMrEuZM
+
+{
+    "translation": "가운데 있는 애가 민호야."
+}
+
+### Delete Translation Detail
+DELETE http://localhost:8000/subtitle/translations/2196
+Content-Type: application.json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjE4MzI0ODksIm5iZiI6MTU2MTgzMjQ4OSwianRpIjoiMDkzNDA2OGYtZGIwYy00NWU0LTkwODktNGNjZjNjOGNjNzE4IiwiZXhwIjo4Nzk2MTc0NjA4OSwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.UmGQCAHy6fW-j5mII7WBBfPZZhFJfSkYolfzdMrEuZM

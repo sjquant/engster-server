@@ -1,4 +1,6 @@
 from uuid import UUID
+from datetime import datetime
+
 from pydantic import BaseModel, SecretStr, validator
 
 from app import config
@@ -28,3 +30,12 @@ class AuthModel(BaseModel):
     access_token: str
     refresh_token: str
     user: UserModel
+
+
+class TranslationModel(BaseModel):
+    id: int
+    translation: str
+    line_id: int
+    translator_id: UUID
+    created_at: datetime
+    updated_at: datetime
