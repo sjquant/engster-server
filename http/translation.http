@@ -1,5 +1,5 @@
 ### Get Trnaslations for line
-GET http://localhost:8001/translations?line_id=1213
+GET http://localhost:8000/translations?line_id=1213
 Content-Type: application/json
 
 ### Post Translation
