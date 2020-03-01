@@ -1,3 +1,6 @@
+### Variables
+@token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImNsYXNzIjoiYWNjZXNzIn0.eyJzdWIiOiIwOWUxOGRkYi1jYjNiLTQwMGMtOWU4Mi02MjdiOGIyMDUwMjUiLCJuYmYiOjE1ODMwNzM4NTEsImp0aSI6ImVjNzczY2RiYmRhYTRiMzY4MTIzY2I2OWQ4ZWQxNDI5IiwiaWF0IjoxNTgzMDczODUxLCJleHAiOjI0NTM5ODU4NTF9.z_ziYIrSv0n7wam-DS4uQZNNd5Kb9MT5ILFZVCmj4YU
+
 ### Content List
 GET http://localhost:8000/subtitle/contents
 Content-Type: application/json
@@ -87,61 +90,61 @@ Content-Type: application/json
 ### GET Likes for a Line
 GET http://localhost:8000/subtitle/like/english/1
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiL
+Authorization: Bearer {{token}}
 
 ### Like English Line
 POST http://localhost:8000/subtitle/like/english/1
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzAyNzQ0ODEsIm5iZiI6MTU3MDI3NDQ4MSwianRpIjoiYTkyZWUwMjYtNWMxOC00ZTU4LWJlNGUtMDFmMTdlYmJlNTVhIiwiZXhwIjo4Nzk3MDE4ODA4MSwiaWRlbnRpdHkiOiI0NDg2OGYyNC1mNmMxLTQ3YzYtYjFhMS0xYzBjNmQwNjRhNWQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.Lq0ZYg4jvgblT4Dt28kYxTJDFO5lkh3hrN0s05DjMXs
+Authorization: Bearer {{token}}
 
 ### Cancel the like of English Line
 DELETE http://localhost:8000/subtitle/like/english/1
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzAyNzQ0ODEsIm5iZiI6MTU3MDI3NDQ4MSwianRpIjoiYTkyZWUwMjYtNWMxOC00ZTU4LWJlNGUtMDFmMTdlYmJlNTVhIiwiZXhwIjo4Nzk3MDE4ODA4MSwiaWRlbnRpdHkiOiI0NDg2OGYyNC1mNmMxLTQ3YzYtYjFhMS0xYzBjNmQwNjRhNWQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.Lq0ZYg4jvgblT4Dt28kYxTJDFO5lkh3hrN0s05DjMXs
+Authorization: Bearer {{token}}
 
 ### GET Likes for a Korean Line
 GET http://localhost:8000/subtitle/like/korean/1
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiL
+Authorization: Bearer {{token}}
 
 ### Like Korean Line
 POST http://localhost:8000/subtitle/like/korean/1
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzAyNzQ0ODEsIm5iZiI6MTU3MDI3NDQ4MSwianRpIjoiYTkyZWUwMjYtNWMxOC00ZTU4LWJlNGUtMDFmMTdlYmJlNTVhIiwiZXhwIjo4Nzk3MDE4ODA4MSwiaWRlbnRpdHkiOiI0NDg2OGYyNC1mNmMxLTQ3YzYtYjFhMS0xYzBjNmQwNjRhNWQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.Lq0ZYg4jvgblT4Dt28kYxTJDFO5lkh3hrN0s05DjMXs
+Authorization: Bearer {{token}}
 
 ### Cancel the like of Korean Line
 DELETE http://localhost:8000/subtitle/like/korean/1
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzAyNzQ0ODEsIm5iZiI6MTU3MDI3NDQ4MSwianRpIjoiYTkyZWUwMjYtNWMxOC00ZTU4LWJlNGUtMDFmMTdlYmJlNTVhIiwiZXhwIjo4Nzk3MDE4ODA4MSwiaWRlbnRpdHkiOiI0NDg2OGYyNC1mNmMxLTQ3YzYtYjFhMS0xYzBjNmQwNjRhNWQiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.Lq0ZYg4jvgblT4Dt28kYxTJDFO5lkh3hrN0s05DjMXs
+Authorization: Bearer {{token}}
 
 ### Get Trnaslations for line
-GET http://localhost:8000/subtitle/translations?line_id=1213
+GET http://localhost:8000/subtitle/translations?line_id=800
 Content-Type: application/json
 
 ### Post Translation
 POST http://localhost:8000/subtitle/translations
 Content-Type: application.json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjE4MzI0ODksIm5iZiI6MTU2MTgzMjQ4OSwianRpIjoiMDkzNDA2OGYtZGIwYy00NWU0LTkwODktNGNjZjNjOGNjNzE4IiwiZXhwIjo4Nzk2MTc0NjA4OSwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.UmGQCAHy6fW-j5mII7WBBfPZZhFJfSkYolfzdMrEuZM
+Authorization: Bearer {{token}}
 
 {
-    "line_id": 1213,
-    "translation": "가운데 있는 녀석 보이지? 민호야."
+    "line_id": 800,
+    "translation": "무슨 일?"
 }
 
 ### Get Translation Detail
-GET http://localhost:8000/subtitle/translations/2196
+GET http://localhost:8000/subtitle/translations/1088
 Content-Type: application.json
 
-### Put Translation Detail
-PUT http://localhost:8000/subtitle/translations/2196
+### Update Translation Detail
+PUT http://localhost:8000/subtitle/translations/1088
 Content-Type: application.json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjE4MzI0ODksIm5iZiI6MTU2MTgzMjQ4OSwianRpIjoiMDkzNDA2OGYtZGIwYy00NWU0LTkwODktNGNjZjNjOGNjNzE4IiwiZXhwIjo4Nzk2MTc0NjA4OSwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.UmGQCAHy6fW-j5mII7WBBfPZZhFJfSkYolfzdMrEuZM
+Authorization: Bearer {{token}}
 
 {
-    "translation": "가운데 있는 애가 민호야."
+    "translation": "무슨일인데?"
 }
 
 ### Delete Translation Detail
-DELETE http://localhost:8000/subtitle/translations/2196
+DELETE http://localhost:8000/subtitle/translations/1088
 Content-Type: application.json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjE4MzI0ODksIm5iZiI6MTU2MTgzMjQ4OSwianRpIjoiMDkzNDA2OGYtZGIwYy00NWU0LTkwODktNGNjZjNjOGNjNzE4IiwiZXhwIjo4Nzk2MTc0NjA4OSwiaWRlbnRpdHkiOiIyNjFjZmIxOC0xZTlkLTQ5NGEtOGQ3Mi0yOWU2OTkzZTJjMWEiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.UmGQCAHy6fW-j5mII7WBBfPZZhFJfSkYolfzdMrEuZM
+Authorization: Bearer {{token}}

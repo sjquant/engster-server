@@ -9,8 +9,21 @@ from sanic_jwt_extended import jwt_required, jwt_optional
 from sanic_jwt_extended.tokens import Token
 
 from app import db
-from app.db_models import User, Line, Translation, Category, Genre, Content, LineLike, TranslationLike
+from app.db_models import (
+    User,
+    Line,
+    Translation,
+    Category,
+    Genre,
+    Content,
+    LineLike,
+    TranslationLike,
+)
 from app.libs.views import APIView, ListAPIView, DetailAPIView
+from app.libs.view_mixins import (
+    UpdateModelMixin,
+    DestroyModelMixin,
+)
 from app.utils import calc_max_page
 from app.utils import JsonResponse
 from app.decorators import expect_query, expect_body
@@ -22,6 +35,8 @@ from app.db_access.subtitle import (
     get_translation_count_per_line,
     get_genres_per_content,
     get_user_liked_korean_lines,
+    get_translations,
+    get_translation,
 )
 
 
@@ -71,7 +86,6 @@ class LineList(ListAPIView):
 
 
 class SearchEnglish(APIView):
-
     def _get_required_ids(self, lines: List[Dict[str, Any]]) -> Tuple[List[int]]:
         content_ids = []
         line_ids = []
@@ -90,17 +104,17 @@ class SearchEnglish(APIView):
         )
         if page > max_page:
             return JsonResponse(
-                {"max_page": 0, "count": 0, "page": 0,
-                    "lines": [], "user_liked": []},
+                {"max_page": 0, "count": 0, "page": 0, "lines": [], "user_liked": []},
                 status=200,
             )
         offset = per_page * (page - 1)
+
         lines = await search_english_lines(keyword, per_page, offset)
         content_ids, line_ids = self._get_required_ids(lines)
         like_count = await get_like_count_per_english_line(line_ids)
         translation_count = await get_translation_count_per_line(line_ids)
         genres = await get_genres_per_content(content_ids)
-        lines = [
+        data = [
             {
                 **line,
                 "genres": genres[line["content_id"]],
@@ -113,14 +127,13 @@ class SearchEnglish(APIView):
             "max_page": max_page,
             "page": page,
             "count": count,
-            "data": lines,
+            "data": data,
         }
         return JsonResponse(resp, status=200)
 
 
 class SearchKorean(APIView):
-
-    def _get_required_ids(translations: List[Dict[str, Any]]) -> Tuple[List[int]]:
+    def _get_required_ids(self, translations: List[Dict[str, Any]]) -> Tuple[List[int]]:
         content_ids = []
         translation_ids = []
         line_ids = []
@@ -136,22 +149,20 @@ class SearchKorean(APIView):
     async def get(self, request, page: int, per_page: int, keyword: str):
         """search korean(translations)"""
         max_page, count = await calc_max_page(
-            per_page, condition=Translation.translation.ilike(
-                "%" + keyword + "%")
+            per_page, condition=Translation.translation.ilike("%" + keyword + "%")
         )
         offset = per_page * (page - 1)
         if page > max_page:
             return JsonResponse(
                 {"max_page": 0, "page": 0, "count": 0, "lines": []}, status=200,
             )
-        translations = await search_korean_lines(keyword, per_page, offset)
 
-        content_ids, translation_ids, line_ids = self._get_required_ids(
-            tranlations)
+        translations = await search_korean_lines(keyword, per_page, offset)
+        content_ids, translation_ids, line_ids = self._get_required_ids(translations)
         genres = await get_genres_per_content(content_ids)
         like_count = await get_like_count_per_korean_line(translation_ids)
         translation_count = await get_translation_count_per_line(line_ids)
-        translations = [
+        data = [
             {
                 **each,
                 "like_count": like_count.get(each["id"], 0),
@@ -164,117 +175,89 @@ class SearchKorean(APIView):
             "max_page": max_page,
             "page": page,
             "count": count,
-            "data": translations,
+            "data": data,
         }
-
         return JsonResponse(resp)
 
 
 class TranslationListView(APIView):
     @jwt_optional
-    @expect_query(page=(int, 1), line_id=(int, ...))
-    async def get(self, request: Request, page: int, line_id: int, token: Token):
-        page_size = request.app.config.get("COMMENT_PAGE_SIZE", 10)
-
-        if not line_id:
-            raise ServerError("line_id is required.", status_code=422)
-
-        max_page, count = await calc_max_page(page_size, Translation.line_id == line_id)
-
-        offset = page_size * (page - 1)
-
+    @expect_query(page=(int, 1), per_page=(int, 10), line_id=(int, ...))
+    async def get(
+        self, request: Request, page: int, per_page: int, line_id: int, token: Token
+    ):
+        max_page, count = await calc_max_page(per_page, Translation.line_id == line_id)
+        offset = per_page * (page - 1)
         if page > max_page:
             return JsonResponse(
-                {"max_page": 0, "page": 0, "count": 0, "translations": []}, status=200
+                {"max_page": 0, "page": 0, "count": 0, "data": []}, status=200
             )
 
-        translations = (
-            await Translation.load(translator=User)
-            .query.where(db.and_(Translation.line_id == line_id))
-            .limit(page_size)
-            .offset(offset)
-            .gino.all()
-        )
-        translation_ids = []
-        for each in translations:
-            translation_ids.append(each.id)
-
+        translations = await get_translations(line_id, per_page, offset)
+        translation_ids = [each["id"] for each in translations]
         like_count = await get_like_count_per_korean_line(translation_ids)
         user_id = token.identity if token else None
-        if user_id:
-            user_liked = await get_user_liked_korean_lines(user_id, translation_ids)
-        else:
-            user_liked = []
+        user_liked = (
+            await get_user_liked_korean_lines(user_id, translation_ids)
+            if user_id
+            else []
+        )
 
-        temp_translations = []
-        for each in translations:
-            try:
-                translator = each.translator.nickname
-            except AttributeError:
-                translator = "자막"
-            temp_translations.append(
-                {
-                    **each.to_dict(),
-                    "translator": translator,
-                    "like_count": like_count.get(each.id, 0),
-                    "user_liked": each.id in user_liked,
-                }
-            )
-
+        data = [
+            {
+                **each,
+                "like_count": like_count.get(each["id"], 0),
+                "user_liked": each["id"] in user_liked,
+            }
+            for each in translations
+        ]
         resp = {
             "max_page": max_page,
             "page": page,
             "count": count,
-            "data": temp_translations,
+            "data": data,
         }
-
         return JsonResponse(resp)
 
     @jwt_required
     @expect_body(line_id=(int, ...), translation=(str, ...))
     async def post(self, request: Request, token: Token):
         user_id = token.identity
-        translation = await Translation(**request.json, translator_id=user_id).create()
+        translation = await Translation(**request.json, user_id=user_id).create()
         nickname = await User.select("nickname").where(User.id == user_id).gino.scalar()
         return JsonResponse(
-            {**translation.to_dict(), "translator": nickname}, status=201
+            {**translation.to_dict(), "user": {"id": user_id, "nickname": nickname}},
+            status=201,
         )
 
 
-class TranslationDetailView(DetailAPIView):
-    async def get_object(self, translation_id: int, token: Optional[Token] = None):
-
-        if token:
-            user_id = token.identity
-            translation = await Translation.query.where(
-                db.and_(
-                    Translation.id == translation_id,
-                    Translation.translator_id == user_id,
-                )
-            ).gino.first()
-
-        else:
-            translation = await Translation.query.where(
-                db.and_(Translation.id == translation_id)
-            ).gino.first()
-        if translation is None:
-            raise ServerError("no such translation", status_code=404)
-        return translation
+class TranslationDetailView(APIView, UpdateModelMixin, DestroyModelMixin):
+    async def get_object(self, translation_id):
+        return await get_translation(translation_id)
 
     @jwt_required
     async def put(self, request: Request, translation_id: int, token: Token):
-        return await super().put(request, translation_id=translation_id, token=token)
+        translation = await get_translation(translation_id)
+        user_id = token.identity
+        if user_id == translation.translatior_id:
+            resp = await self.update(request, translation_id)
+        else:
+            raise ServerError("permission denied", 403)
 
     @jwt_required
     async def delete(self, request: Request, translation_id: int, token: Token):
-        return await super().delete(request, translation_id=translation_id, token=token)
+        translation = await get_translation(translation_id)
+        user_id = token.identity
+        if user_id == translation.translatior_id:
+            resp = await self.destroy(request, translation_id)
+        else:
+            raise ServerError("permission denied", 403)
 
 
 class LikeEnglish(APIView):
     async def get(self, request: Request, line_id: int):
         likes = await LineLike.query.where(LineLike.line_id == line_id).gino.all()
         resp = [each.to_dict() for each in likes]
-
         return JsonResponse(resp, status=200)
 
     @jwt_required

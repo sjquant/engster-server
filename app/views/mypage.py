@@ -107,7 +107,7 @@ async def get_korean_likes(request: Request, user_id: str, page: int):
 async def get_translations(request: Request, user_id: str, page: int):
     page_size = 10
     max_page, count = await calc_max_page(
-        page_size, Translation.translator_id == user_id
+        page_size, Translation.user_id == user_id
     )
     offset = page_size * (page - 1)
     #
@@ -122,7 +122,7 @@ async def get_translations(request: Request, user_id: str, page: int):
             db.and_(
                 Translation.line_id == Line.id,
                 Line.content_id == Content.id,
-                Translation.translator_id == user_id,
+                Translation.user_id == user_id,
             )
         )
         .limit(page_size)
