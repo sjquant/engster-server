@@ -49,7 +49,7 @@ class TranslationListView(APIView):
             translation_ids.append(each.id)
 
         like_count = await get_like_count_per_korean_line(translation_ids)
-        user_id = token.identity
+        user_id = token.identity if token else None
         if user_id:
             user_liked = await get_user_liked_korean_lines(user_id, translation_ids)
         else:
@@ -74,7 +74,7 @@ class TranslationListView(APIView):
             "max_page": max_page,
             "page": page,
             "count": count,
-            "translations": temp_translations,
+            "data": temp_translations,
         }
 
         return JsonResponse(resp)
