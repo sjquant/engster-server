@@ -100,6 +100,41 @@ async def search_english_lines(keyword, limit=15, offset=0):
     return [dict(zip(columns, each)) for each in data]
 
 
+async def randomly_pick_english_lines(count=30):
+    total_count = await db.select([db.func.count(Line.id)]).gino.scalar()
+    percentage = count / total_count
+    query = (
+        db.select(
+            [
+                Line.id,
+                Line.line,
+                Content.id,
+                Content.title,
+                Content.year,
+                Category.id,
+                Category.category,
+            ]
+        )
+        .select_from(
+            Line.join(Content, Line.content_id == Content.id).join(
+                Category, Content.category_id == Category.id
+            )
+        )
+        .where(db.func.random() < percentage)
+    )
+    columns = (
+        "id",
+        "line",
+        "content_id",
+        "content_title",
+        "content_year",
+        "category_id",
+        "category_name",
+    )
+    data = await query.gino.all()
+    return [dict(zip(columns, each)) for each in data]
+
+
 async def search_korean_lines(keyword, limit=15, offset=0):
     """Search Korean with a keyword"""
     query = (

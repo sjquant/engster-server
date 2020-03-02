@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict, Any, Optional
+from typing import List, Tuple, Dict, Any
 
 import asyncpg
 from pydantic import constr
@@ -30,6 +30,7 @@ from app.decorators import expect_query, expect_body
 from app.db_access.subtitle import (
     get_like_count_per_korean_line,
     get_like_count_per_english_line,
+    randomly_pick_english_lines,
     search_english_lines,
     search_korean_lines,
     get_translation_count_per_line,
@@ -85,6 +86,45 @@ class LineList(ListAPIView):
         raise ServerError("Not Allowed Method", 405)
 
 
+class RandomEnglish(APIView):
+    """
+    This view is temporarily serving for main page. 
+    It will be replaced by a recommendation system or contents.
+    """
+
+    def _get_required_ids(self, lines: List[Dict[str, Any]]) -> Tuple[List[int]]:
+        content_ids = []
+        line_ids = []
+        for each in lines:
+            content_ids.append(each["content_id"])
+            line_ids.append(each["id"])
+        return content_ids, line_ids
+
+    @expect_query(count=(int, 30))
+    async def get(self, requeest: Request, count: int):
+        """
+        Queries:
+            count: approximated count to pick.
+                It does not ensure **exact count**.
+        """
+        lines = await randomly_pick_english_lines(count)
+        content_ids, line_ids = self._get_required_ids(lines)
+        like_count = await get_like_count_per_english_line(line_ids)
+        translation_count = await get_translation_count_per_line(line_ids)
+        genres = await get_genres_per_content(content_ids)
+        data = [
+            {
+                **line,
+                "genres": genres[line["content_id"]],
+                "like_count": like_count.get(line["id"], 0),
+                "translation_count": translation_count.get(line["id"], 0),
+            }
+            for line in lines
+        ]
+        resp = data
+        return JsonResponse(resp, status=200)
+
+
 class SearchEnglish(APIView):
     def _get_required_ids(self, lines: List[Dict[str, Any]]) -> Tuple[List[int]]:
         content_ids = []
@@ -108,7 +148,6 @@ class SearchEnglish(APIView):
                 status=200,
             )
         offset = per_page * (page - 1)
-
         lines = await search_english_lines(keyword, per_page, offset)
         content_ids, line_ids = self._get_required_ids(lines)
         like_count = await get_like_count_per_english_line(line_ids)
@@ -241,6 +280,7 @@ class TranslationDetailView(APIView, UpdateModelMixin, DestroyModelMixin):
         user_id = token.identity
         if user_id == translation.translatior_id:
             resp = await self.update(request, translation_id)
+            return resp
         else:
             raise ServerError("permission denied", 403)
 
@@ -250,6 +290,7 @@ class TranslationDetailView(APIView, UpdateModelMixin, DestroyModelMixin):
         user_id = token.identity
         if user_id == translation.translatior_id:
             resp = await self.destroy(request, translation_id)
+            return resp
         else:
             raise ServerError("permission denied", 403)
 
@@ -317,6 +358,7 @@ blueprint.add_route(ContentDetail.as_view(), "/contents/<id:int>"),
 blueprint.add_route(LineList.as_view(), "/contents/<content_id:int>/lines"),
 blueprint.add_route(CategoryDetail.as_view(), "/categories/<id:int>")
 blueprint.add_route(GenreDetail.as_view(), "/genres/<id:int>")
+blueprint.add_route(RandomEnglish.as_view(), "/random/english")
 blueprint.add_route(SearchEnglish.as_view(), "/search/english")
 blueprint.add_route(SearchKorean.as_view(), "/search/korean")
 blueprint.add_route(TranslationDetail.as_view(), "/translations/<id:int>")
