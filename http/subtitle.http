@@ -78,8 +78,8 @@ PUT http://localhost:8000/subtitle/translations/1423
 ### Delete specific translation
 DELETE http://localhost:8000/subtitle/translations/2181
 
-### Randomly pick English
-GET http://localhost:8000/subtitle/random/english?count=30
+### Randomly pick subtitles
+GET http://localhost:8000/subtitle/random/subtitles?count=30
 Content-Type: application/json
 
 ### Search By English

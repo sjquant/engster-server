@@ -30,7 +30,7 @@ from app.decorators import expect_query, expect_body
 from app.db_access.subtitle import (
     get_like_count_per_korean_line,
     get_like_count_per_english_line,
-    randomly_pick_english_lines,
+    randomly_pick_subtitles,
     search_english_lines,
     search_korean_lines,
     get_translation_count_per_line,
@@ -86,7 +86,7 @@ class LineList(ListAPIView):
         raise ServerError("Not Allowed Method", 405)
 
 
-class RandomEnglish(APIView):
+class RandomSubtitles(APIView):
     """
     This view is temporarily serving for main page. 
     It will be replaced by a recommendation system or contents.
@@ -107,7 +107,7 @@ class RandomEnglish(APIView):
             count: approximated count to pick.
                 It does not ensure **exact count**.
         """
-        lines = await randomly_pick_english_lines(count)
+        lines = await randomly_pick_subtitles(count)
         content_ids, line_ids = self._get_required_ids(lines)
         like_count = await get_like_count_per_english_line(line_ids)
         translation_count = await get_translation_count_per_line(line_ids)
@@ -358,7 +358,7 @@ blueprint.add_route(ContentDetail.as_view(), "/contents/<id:int>"),
 blueprint.add_route(LineList.as_view(), "/contents/<content_id:int>/lines"),
 blueprint.add_route(CategoryDetail.as_view(), "/categories/<id:int>")
 blueprint.add_route(GenreDetail.as_view(), "/genres/<id:int>")
-blueprint.add_route(RandomEnglish.as_view(), "/random/english")
+blueprint.add_route(RandomSubtitles.as_view(), "/random/subtitles")
 blueprint.add_route(SearchEnglish.as_view(), "/search/english")
 blueprint.add_route(SearchKorean.as_view(), "/search/korean")
 blueprint.add_route(TranslationDetail.as_view(), "/translations/<id:int>")

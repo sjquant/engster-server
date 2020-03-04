@@ -100,14 +100,16 @@ async def search_english_lines(keyword, limit=15, offset=0):
     return [dict(zip(columns, each)) for each in data]
 
 
-async def randomly_pick_english_lines(count=30):
+async def randomly_pick_subtitles(count=30):
     total_count = await db.select([db.func.count(Line.id)]).gino.scalar()
     percentage = count / total_count
     query = (
         db.select(
             [
-                Line.id,
+                db.func.distinct(Line.id),
                 Line.line,
+                Translation.id,
+                Translation.translation,
                 Content.id,
                 Content.title,
                 Content.year,
@@ -116,15 +118,17 @@ async def randomly_pick_english_lines(count=30):
             ]
         )
         .select_from(
-            Line.join(Content, Line.content_id == Content.id).join(
-                Category, Content.category_id == Category.id
-            )
+            Line.join(Content, Line.content_id == Content.id)
+            .join(Translation, Line.id == Translation.line_id)
+            .join(Category, Content.category_id == Category.id)
         )
         .where(db.func.random() < percentage)
     )
     columns = (
         "id",
         "line",
+        "translation_id",
+        "translation",
         "content_id",
         "content_title",
         "content_year",
