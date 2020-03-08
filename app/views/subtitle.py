@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Optional
 
 import asyncpg
 from pydantic import constr
@@ -35,6 +35,7 @@ from app.db_access.subtitle import (
     search_korean_lines,
     get_translation_count_per_line,
     get_genres_per_content,
+    get_user_liked_english_lines,
     get_user_liked_korean_lines,
     get_translations,
     get_translation,
@@ -104,8 +105,9 @@ class RandomSubtitles(APIView):
             line_ids.append(each["id"])
         return content_ids, line_ids
 
+    @jwt_optional
     @expect_query(count=(int, 30))
-    async def get(self, requeest: Request, count: int):
+    async def get(self, requeest: Request, count: int, token: Optional[Token]):
         """
         Queries:
             count: approximated count to pick.
@@ -116,12 +118,17 @@ class RandomSubtitles(APIView):
         like_count = await get_like_count_per_english_line(line_ids)
         translation_count = await get_translation_count_per_line(line_ids)
         genres = await get_genres_per_content(content_ids)
+        user_id = token.identity if token else None
+        user_liked = (
+            await get_user_liked_english_lines(user_id, line_ids) if user_id else []
+        )
         data = [
             {
                 **line,
                 "genres": genres[line["content_id"]],
                 "like_count": like_count.get(line["id"], 0),
                 "translation_count": translation_count.get(line["id"], 0),
+                "user_liked": line["id"] in user_liked,
             }
             for line in lines
         ]
@@ -138,10 +145,13 @@ class SearchEnglish(APIView):
             line_ids.append(each["id"])
         return content_ids, line_ids
 
+    @jwt_optional
     @expect_query(
         page=(int, 1), per_page=(int, 10), keyword=(constr(min_length=2), ...)
     )
-    async def get(self, request, page: int, per_page: int, keyword: str):
+    async def get(
+        self, request, page: int, per_page: int, keyword: str, token: Optional[Token]
+    ):
         """search english"""
         max_page, count = await calc_max_page(per_page, Line.line.op("~*")(keyword))
         if page > max_page:
@@ -155,12 +165,17 @@ class SearchEnglish(APIView):
         like_count = await get_like_count_per_english_line(line_ids)
         translation_count = await get_translation_count_per_line(line_ids)
         genres = await get_genres_per_content(content_ids)
+        user_id = token.identity if token else None
+        user_liked = (
+            await get_user_liked_english_lines(user_id, line_ids) if user_id else []
+        )
         data = [
             {
                 **line,
                 "genres": genres[line["content_id"]],
                 "like_count": like_count.get(line["id"], 0),
                 "translation_count": translation_count.get(line["id"], 0),
+                "user_liked": line["id"] in user_liked,
             }
             for line in lines
         ]
@@ -184,10 +199,13 @@ class SearchKorean(APIView):
             line_ids.append(each["line_id"])
         return content_ids, translation_ids, line_ids
 
+    @jwt_optional
     @expect_query(
         page=(int, 1), per_page=(int, 10), keyword=(constr(min_length=2), ...)
     )
-    async def get(self, request, page: int, per_page: int, keyword: str):
+    async def get(
+        self, request, page: int, per_page: int, keyword: str, token: Optional[Token]
+    ):
         """search korean(translations)"""
         max_page, count = await calc_max_page(
             per_page, condition=Translation.translation.op("~*")(keyword)
@@ -203,12 +221,19 @@ class SearchKorean(APIView):
         genres = await get_genres_per_content(content_ids)
         like_count = await get_like_count_per_korean_line(translation_ids)
         translation_count = await get_translation_count_per_line(line_ids)
+        user_id = token.identity if token else None
+        user_liked = (
+            await get_user_liked_korean_lines(user_id, translation_ids)
+            if user_id
+            else []
+        )
         data = [
             {
                 **each,
                 "like_count": like_count.get(each["id"], 0),
                 "translation_count": translation_count.get(each["id"], 0),
                 "genres": genres[each["content_id"]],
+                "user_liked": each["id"] in user_liked,
             }
             for each in translations
         ]
@@ -225,7 +250,12 @@ class TranslationListView(APIView):
     @jwt_optional
     @expect_query(page=(int, 1), per_page=(int, 10), line_id=(int, ...))
     async def get(
-        self, request: Request, page: int, per_page: int, line_id: int, token: Token
+        self,
+        request: Request,
+        page: int,
+        per_page: int,
+        line_id: int,
+        token: Optional[Token],
     ):
         max_page, count = await calc_max_page(per_page, Translation.line_id == line_id)
         offset = per_page * (page - 1)
