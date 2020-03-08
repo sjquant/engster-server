@@ -143,9 +143,7 @@ class SearchEnglish(APIView):
     )
     async def get(self, request, page: int, per_page: int, keyword: str):
         """search english"""
-        max_page, count = await calc_max_page(
-            per_page, Line.line.op("~*")(keyword + r"[\.?, ]")
-        )
+        max_page, count = await calc_max_page(per_page, Line.line.op("~*")(keyword))
         if page > max_page:
             return JsonResponse(
                 {"max_page": 0, "count": 0, "page": 0, "lines": [], "user_liked": []},
@@ -192,7 +190,7 @@ class SearchKorean(APIView):
     async def get(self, request, page: int, per_page: int, keyword: str):
         """search korean(translations)"""
         max_page, count = await calc_max_page(
-            per_page, condition=Translation.translation.ilike("%" + keyword + "%")
+            per_page, condition=Translation.translation.op("~*")(keyword)
         )
         offset = per_page * (page - 1)
         if page > max_page:

@@ -78,7 +78,7 @@ async def search_english_lines(keyword, limit=15, offset=0):
                 Category.category,
             ]
         )
-        .where(Line.line.op("~*")(keyword + r"[\.?, ]"),)
+        .where(Line.line.op("~*")(keyword),)
         .select_from(
             Line.join(Content, Line.content_id == Content.id).join(
                 Category, Content.category_id == Category.id
@@ -155,7 +155,7 @@ async def search_korean_lines(keyword, limit=15, offset=0):
                 Category.category,
             ]
         )
-        .where(db.and_(Translation.translation.op("~*")(keyword + r"[\.?, ]"),))
+        .where(db.and_(Translation.translation.op("~*")(keyword)))
         .select_from(
             Translation.join(Line, Translation.line_id == Line.id)
             .join(Content, Line.content_id == Content.id)
@@ -215,7 +215,7 @@ async def get_translations(
         .offset(offset)
     )
     data = await query.gino.all()
-
+    print(data)
     translations = []
     for each in data:
         try:
@@ -223,6 +223,7 @@ async def get_translations(
         except AttributeError:
             user = {"id": None, "nickname": "자막"}
         translations.append({**each.to_dict(hide=["user_id"]), "user": user})
+    print(translations)
     return translations
 
 
