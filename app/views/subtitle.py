@@ -38,6 +38,10 @@ from app.db_access.subtitle import (
     get_user_liked_korean_lines,
     get_translations,
     get_translation,
+    create_english_like,
+    delete_english_like,
+    create_korean_like,
+    delete_korean_like,
 )
 
 
@@ -296,17 +300,11 @@ class TranslationDetailView(APIView, UpdateModelMixin, DestroyModelMixin):
 
 
 class LikeEnglish(APIView):
-    async def get(self, request: Request, line_id: int):
-        likes = await LineLike.query.where(LineLike.line_id == line_id).gino.all()
-        resp = [each.to_dict() for each in likes]
-        return JsonResponse(resp, status=200)
-
     @jwt_required
     async def post(self, request: Request, line_id: int, token: Token):
         user_id = token.identity
-        like = LineLike(line_id=line_id, user_id=user_id)
         try:
-            await like.create()
+            await create_english_like(line_id, user_id)
         except asyncpg.exceptions.UniqueViolationError:
             return JsonResponse({"message": "already liked"}, status=400)
         return JsonResponse({"message": "liked"}, status=201)
@@ -314,27 +312,16 @@ class LikeEnglish(APIView):
     @jwt_required
     async def delete(self, request: Request, line_id: int, token: Token):
         user_id = token.identity
-        await LineLike.delete.where(
-            db.and_(LineLike.line_id == line_id, LineLike.user_id == user_id)
-        ).gino.status()
+        await delete_english_like(line_id, user_id)
         return JsonResponse({"message": "deleted like"}, status=204)
 
 
 class LikeKorean(APIView):
-    async def get(self, request: Request, translation_id: int):
-        likes = await TranslationLike.query.where(
-            TranslationLike.translation_id == translation_id
-        ).gino.all()
-        resp = [each.to_dict() for each in likes]
-
-        return JsonResponse(resp, status=200)
-
     @jwt_required
     async def post(self, request: Request, translation_id: int, token: Token):
         user_id = token.identity
-        like = TranslationLike(translation_id=translation_id, user_id=user_id)
         try:
-            await like.create()
+            await create_korean_like(translation_id, user_id)
         except asyncpg.exceptions.UniqueViolationError:
             return JsonResponse({"message": "already liked"}, status=400)
         return JsonResponse({"message": "liked"}, status=201)
@@ -342,12 +329,7 @@ class LikeKorean(APIView):
     @jwt_required
     async def delete(self, request: Request, translation_id: int, token: Token):
         user_id = token.identity
-        await TranslationLike.delete.where(
-            db.and_(
-                TranslationLike.translation_id == translation_id,
-                TranslationLike.user_id == user_id,
-            )
-        ).gino.status()
+        await delete_korean_like(translation_id, user_id)
         return JsonResponse({"message": "deleted like"}, status=204)
 
 
@@ -366,5 +348,5 @@ blueprint.add_route(TranslationListView.as_view(), "/translations")
 blueprint.add_route(
     TranslationDetailView.as_view(), "/translations/<translation_id:int>"
 )
-blueprint.add_route(LikeEnglish.as_view(), "likes/english/<line_id:int>")
-blueprint.add_route(LikeKorean.as_view(), "likes/korean/<translation_id:int>")
+blueprint.add_route(LikeEnglish.as_view(), "/likes/english/<line_id:int>")
+blueprint.add_route(LikeKorean.as_view(), "/likes/korean/<translation_id:int>")

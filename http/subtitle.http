@@ -90,34 +90,23 @@ Content-Type: application/json
 GET http://localhost:8000/subtitle/search/korean?keyword=위험
 Content-Type: application/json
 
-
-### GET Likes for a Line
-GET http://localhost:8000/subtitle/like/english/1
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
 ### Like English Line
-POST http://localhost:8000/subtitle/like/english/1
+POST http://localhost:8000/subtitle/likes/english/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
-### Cancel the like of English Line
-DELETE http://localhost:8000/subtitle/like/english/1
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-### GET Likes for a Korean Line
-GET http://localhost:8000/subtitle/like/korean/1
+### Unlike English Line
+DELETE http://localhost:8000/subtitle/likes/english/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### Like Korean Line
-POST http://localhost:8000/subtitle/like/korean/1
+POST http://localhost:8000/subtitle/likes/korean/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### Cancel the like of Korean Line
-DELETE http://localhost:8000/subtitle/like/korean/1
+DELETE http://localhost:8000/subtitle/likes/korean/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

@@ -230,3 +230,31 @@ async def get_translation(translation_id: int) -> Translation:
     query = Translation.query.where(db.and_(Translation.id == translation_id))
     translation = query.gino.first()
     return translation
+
+
+async def create_english_like(line_id: int, user_id: UUID) -> LineLike:
+    like = LineLike(line_id=line_id, user_id=user_id)
+    await like.create()
+    return like
+
+
+async def delete_english_like(line_id: int, user_id: UUID) -> None:
+    await LineLike.delete.where(
+        db.and_(LineLike.line_id == line_id, LineLike.user_id == user_id)
+    ).gino.status()
+
+
+async def create_korean_like(translation_id: int, user_id: UUID) -> LineLike:
+    like = TranslationLike(translation_id=translation_id, user_id=user_id)
+    await like.create()
+    return like
+
+
+async def delete_korean_like(translation_id: int, user_id: UUID) -> None:
+    await TranslationLike.delete.where(
+        db.and_(
+            TranslationLike.translation_id == translation_id,
+            TranslationLike.user_id == user_id,
+        )
+    ).gino.status()
+
