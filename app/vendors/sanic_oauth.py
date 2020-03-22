@@ -559,4 +559,3 @@ class NaverClient(OAuth2Client):
             city=city,
             country=country,
         )
-

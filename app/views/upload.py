@@ -134,8 +134,7 @@ async def upload_eng_subtitle(request, content_id):
     input_file = request.files.get("input_file")
     df = pd.read_csv(BytesIO(input_file.body), encoding="cp949", header=0)
     df.loc[:, "content_id"] = content_id
-    df.time = df.time.apply(
-        lambda x: datetime.datetime.strptime(x, "%H:%M:%S").time())
+    df.time = df.time.apply(lambda x: datetime.datetime.strptime(x, "%H:%M:%S").time())
     eng_line_list = [
         dict(time=each[0], line=each[1], content_id=each[2])
         for each in df[["time", "line", "content_id"]].values

@@ -153,4 +153,3 @@ async def fetch_user_translations(
     )
     data = await query.gino.all()
     return [dict(zip(columns, each)) for each in data]
-
