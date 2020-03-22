@@ -64,7 +64,7 @@ async def get_user_liked_korean_lines(
     return [each[0] for each in data]
 
 
-async def search_english_lines(keyword, limit=15, offset=0):
+async def search_english_lines(keyword: str, limit: int = 15, offset: int = 0):
     """Search English with a keyword"""
     query = (
         db.select(
@@ -139,7 +139,7 @@ async def randomly_pick_subtitles(count=30):
     return [dict(zip(columns, each)) for each in data]
 
 
-async def search_korean_lines(keyword, limit=15, offset=0):
+async def search_korean_lines(keyword: str, limit: int = 15, offset: int = 0):
     """Search Korean with a keyword"""
     query = (
         db.select(
@@ -215,7 +215,6 @@ async def get_translations(
         .offset(offset)
     )
     data = await query.gino.all()
-    print(data)
     translations = []
     for each in data:
         try:
