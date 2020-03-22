@@ -5,7 +5,6 @@ from sanic.exceptions import ServerError
 
 from app import db
 from app.libs.hasher import PBKDF2PasswordHasher
-from app.models import UserModel
 
 
 class BaseModel(db.Model):
@@ -69,12 +68,9 @@ class User(TimeStampedModel):
         except ValueError:
             raise ServerError("cannot interpret password.", status_code=422)
 
-    def to_dict(self, show=None):
-        serialized = UserModel.from_orm(self).to_dict()
-        if show is None:
-            return serialized
-        else:
-            return {key: value for key, value in serialized.items() if key in show}
+    def to_dict(self, **kwargs):
+        kwargs["hide"] = ["password_hash"]
+        return super().to_dict(**kwargs)
 
 
 class Content(BaseModel):

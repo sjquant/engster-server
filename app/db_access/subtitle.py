@@ -209,7 +209,7 @@ async def get_translations(
     line_id: int, limit: int = 15, offset: int = 0
 ) -> List[Dict[str, Any]]:
     query = (
-        Translation.load(user=User)
+        Translation.load(user=User.on(Translation.user_id == User.id))
         .query.where(db.and_(Translation.line_id == line_id))
         .limit(limit)
         .offset(offset)
@@ -222,7 +222,6 @@ async def get_translations(
         except AttributeError:
             user = {"id": None, "nickname": "자막"}
         translations.append({**each.to_dict(hide=["user_id"]), "user": user})
-    print(translations)
     return translations
 
 
@@ -257,4 +256,3 @@ async def delete_korean_like(translation_id: int, user_id: UUID) -> None:
             TranslationLike.user_id == user_id,
         )
     ).gino.status()
-
