@@ -110,7 +110,7 @@ DELETE http://localhost:8000/subtitle/likes/korean/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
-### Get Trnaslations for line
+### Get Translations for line
 GET http://localhost:8000/subtitle/translations?line_id=800
 Content-Type: application/json
 
