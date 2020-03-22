@@ -1,16 +1,16 @@
 ## Variables
-@userid = 2b92615d-3024-4688-8afc-b6f40ade3df4
+@userid = 09e18ddb-cb3b-400c-9e82-627b8b205025
 
 ### Get user activities
 GET http://localhost:8000/my-page/{{userid}}/activity-summary
 Content-Type: application/json
 
 ### Get Lines a user liked
-GET http://localhost:8000/my-page/{{userid}}/line-likes/english?page=1
+GET http://localhost:8000/my-page/{{userid}}/liked-english-lines?page=1
 Content-Type: application/json
 
 ### Get Translations a user liked
-GET http://localhost:8000/my-page/{{userid}}/line-likes/korean?page=2
+GET http://localhost:8000/my-page/{{userid}}/liked-korean-lines?page=2
 Content-Type: application/json
 
 ### Get Translations a user created

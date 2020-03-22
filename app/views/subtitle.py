@@ -122,7 +122,7 @@ class RandomSubtitles(APIView):
         user_liked = (
             await get_user_liked_english_lines(user_id, line_ids) if user_id else []
         )
-        data = [
+        resp = [
             {
                 **line,
                 "genres": genres[line["content_id"]],
@@ -132,7 +132,6 @@ class RandomSubtitles(APIView):
             }
             for line in lines
         ]
-        resp = data
         return JsonResponse(resp, status=200)
 
 
@@ -156,7 +155,7 @@ class SearchEnglish(APIView):
         max_page, count = await calc_max_page(per_page, Line.line.op("~*")(keyword))
         if page > max_page:
             return JsonResponse(
-                {"max_page": 0, "count": 0, "page": 0, "lines": [], "user_liked": []},
+                {"max_page": 0, "count": 0, "page": 0, "data": [], "user_liked": []},
                 status=200,
             )
         offset = per_page * (page - 1)
@@ -213,7 +212,7 @@ class SearchKorean(APIView):
         offset = per_page * (page - 1)
         if page > max_page:
             return JsonResponse(
-                {"max_page": 0, "page": 0, "count": 0, "lines": []}, status=200,
+                {"max_page": 0, "page": 0, "count": 0, "data": []}, status=200,
             )
 
         translations = await search_korean_lines(keyword, per_page, offset)
