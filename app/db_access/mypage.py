@@ -88,10 +88,10 @@ async def fetch_user_liked_korean_lines(
         .where(TranslationLike.user_id == user_id)
         .select_from(
             Translation.join(Line, Translation.line_id == Line.id)
-            .join(Content, Line.content_id, Content.id)
+            .join(Content, Line.content_id == Content.id)
             .join(Category, Content.category_id == Category.id)
             .join(TranslationLike, Translation.id == TranslationLike.translation_id)
-        )
+        ) 
         .limit(limit)
         .offset(offset)
         .order_by(TranslationLike.created_at.desc())
