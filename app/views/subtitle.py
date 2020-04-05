@@ -155,7 +155,7 @@ class SearchEnglish(APIView):
         max_page, count = await calc_max_page(per_page, Line.line.op("~*")(keyword))
         if page > max_page:
             return JsonResponse(
-                {"max_page": 0, "count": 0, "page": 0, "data": [], "user_liked": []},
+                {"max_page": 0, "count": 0, "page": 0, "data": []},
                 status=200,
             )
         offset = per_page * (page - 1)
