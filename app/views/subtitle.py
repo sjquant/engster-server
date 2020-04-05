@@ -122,7 +122,7 @@ class RandomSubtitles(APIView):
         user_liked = (
             await get_user_liked_english_lines(user_id, line_ids) if user_id else []
         )
-        resp = [
+        data = [
             {
                 **line,
                 "genres": genres[line["content_id"]],
@@ -132,6 +132,12 @@ class RandomSubtitles(APIView):
             }
             for line in lines
         ]
+        resp = {
+            "max_page": 1,
+            "page": 1,
+            "count": len(data),
+            "data": data,
+        }
         return JsonResponse(resp, status=200)
 
 
