@@ -6,7 +6,7 @@ RUN cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
   echo "Asia/Seoul" > /etc/timezone
 ENV PYTHONHASHSEED=random \
   PYTHONUNBUFFERED=1
-RUN pip install --upgrade pip && pip install poetry
+RUN pip install --upgrade pip && pip install poetry==1.0.5
 RUN poetry config virtualenvs.create false
 COPY ./scripts /workspace/scripts
 WORKDIR /workspace
