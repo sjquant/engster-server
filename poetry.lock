@@ -547,7 +547,7 @@ description = "Extended JWT integration with Sanic"
 name = "sanic-jwt-extended"
 optional = false
 python-versions = ">=3.6,<4.0"
-version = "1.0.dev9"
+version = "1.0.dev12"
 
 [package.dependencies]
 PyJWT = ">=1.6.4,<2.0.0"
@@ -672,7 +672,7 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [metadata]
-content-hash = "d5064554439c0793e105f095634e2d72cc66572795785352bcae97504b1d9dca"
+content-hash = "2de08aca28fb4a2ad8e9343a8143a8bf336042655d450fd4d6234f6cdfc9e0cf"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -1117,8 +1117,8 @@ sanic-cors = [
     {file = "Sanic_Cors-0.10.0.post3-py2.py3-none-any.whl", hash = "sha256:b919d65643de810ed1ed15657b8bc75c310fa1ac8eb491d59deaa9404756b745"},
 ]
 sanic-jwt-extended = [
-    {file = "Sanic-JWT-Extended-1.0.dev9.tar.gz", hash = "sha256:dde7be8d3be6e23457db114f6a454d2c65b984350118f00e7e68e9244d492db0"},
-    {file = "Sanic_JWT_Extended-1.0.dev9-py3-none-any.whl", hash = "sha256:fe0ab6a5ba5b8f03a055fda4da35f5203ad209173c239dede2ed31f808243fd2"},
+    {file = "Sanic-JWT-Extended-1.0.dev12.tar.gz", hash = "sha256:023d00d9b682f8540f16c0c9625ffdd00111f4ebfd4f1992486c393e8aaf899f"},
+    {file = "Sanic_JWT_Extended-1.0.dev12-py3-none-any.whl", hash = "sha256:37ba38a6b35e9a374c2f103effc855417223dfb70b6e204ea70609cd307c1698"},
 ]
 sanic-plugins-framework = [
     {file = "Sanic-Plugins-Framework-0.9.2.tar.gz", hash = "sha256:e63439f238f9e070649ee5c174d952b2fbc7e845259a3839e109b4bb2fbbb163"},
