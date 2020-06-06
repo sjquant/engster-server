@@ -20,7 +20,10 @@ DB_URL = f"postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
 
 # JWT
 JWT = {
+    "namespace": "https://engster.co.kr",
+    "private_claim_prefix": "engster_private",
     "secret_key": os.getenv("JWT_SECRET_KEY", "secret_key"),
+    "token_location": ("cookies"),
     "access_expires": datetime.timedelta(int(os.getenv("JWT_ACCESS_EXPIRES", "10080"))),
 }
 

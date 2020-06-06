@@ -11,7 +11,10 @@ db = Gino()
 
 def init_jwt(app):
     with JWT.initialize(app) as manager:
+        manager.config.public_claim_namespace = config.JWT["namespace"]
+        manager.config.private_claim_prefix = config.JWT["private_claim_prefix"]
         manager.config.secret_key = config.JWT["secret_key"]
+        manager.config.token_location = config.JWT["token_location"]
         manager.config.access_token_expires = config.JWT["access_expires"]
 
 
