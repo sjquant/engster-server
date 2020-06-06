@@ -25,3 +25,6 @@ dev-migrations:
 	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/bash -c "python manage.py makemigrations"
 dev-migrate:
 	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/bash -c "python manage.py migrate"
+
+clean:
+	rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info ./out ./*/out ./.mypy_cache ./*/.mypy_cache */.pytest_cache .pytest_cache
