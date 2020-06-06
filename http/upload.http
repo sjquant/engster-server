@@ -73,7 +73,7 @@ Content-Type: text/csv
 
 
 ### Upload Kor Subtitle
-POST http://localhost:8000/admin/upload/kor-subtitle/1
+POST http://localhost:8000/upload/kor-subtitle/1
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
