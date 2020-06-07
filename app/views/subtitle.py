@@ -8,7 +8,6 @@ from sanic.blueprints import Blueprint
 from sanic_jwt_extended import jwt_required, jwt_optional
 from sanic_jwt_extended.tokens import Token
 
-from app import db
 from app.db_models import (
     User,
     Line,
@@ -16,8 +15,6 @@ from app.db_models import (
     Category,
     Genre,
     Content,
-    LineLike,
-    TranslationLike,
 )
 from app.libs.views import APIView, ListAPIView, DetailAPIView
 from app.libs.view_mixins import (
@@ -93,7 +90,7 @@ class LineList(ListAPIView):
 
 class RandomSubtitles(APIView):
     """
-    This view is temporarily serving for main page. 
+    This view is temporarily serving for main page.
     It will be replaced by a recommendation system or contents.
     """
 
@@ -161,8 +158,7 @@ class SearchEnglish(APIView):
         max_page, count = await calc_max_page(per_page, Line.line.op("~*")(keyword))
         if page > max_page:
             return JsonResponse(
-                {"max_page": 0, "count": 0, "page": 0, "data": []},
-                status=200,
+                {"max_page": 0, "count": 0, "page": 0, "data": []}, status=200,
             )
         offset = per_page * (page - 1)
         lines = await search_english_lines(keyword, per_page, offset)
