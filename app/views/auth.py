@@ -11,9 +11,9 @@ from sanic_jwt_extended.tokens import Token
 from app import JWT
 from app.db_models import User
 from app.db_access.user import get_user_by_email, get_user_by_id, create_user
-from app.utils import JsonResponse
+from app.utils import JsonResponse, set_access_cookies, set_refresh_cookies
 from app.decorators import expect_body
-from app.models import AuthModel, UserModel
+from app.models import UserModel
 from app.libs.views import DetailAPIView
 from app.vendors.sanic_oauth import GoogleClient, FacebookClient, NaverClient
 
@@ -34,16 +34,10 @@ async def register(request: Request):
 
     access_token = JWT.create_access_token(identity=str(user.id))
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
-
-    return JsonResponse(
-        AuthModel(
-            is_new=True,
-            access_token=access_token,
-            refresh_token=refresh_token,
-            user=UserModel.from_orm(user),
-        ),
-        status=201,
-    )
+    resp = JsonResponse({"new": True, "user": UserModel.from_orm(user)}, status=201,)
+    set_access_cookies(resp, access_token)
+    set_refresh_cookies(resp, refresh_token)
+    return resp
 
 
 @blueprint.route("/obtain-token", methods=["POST"])
@@ -61,16 +55,10 @@ async def obtain_token(request: Request):
 
     access_token = JWT.create_access_token(identity=str(user.id))
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
-
-    return JsonResponse(
-        AuthModel(
-            is_new=False,
-            access_token=access_token,
-            refresh_token=refresh_token,
-            user=UserModel.from_orm(user),
-        ),
-        status=201,
-    )
+    resp = JsonResponse({"new": False, "user": UserModel.from_orm(user)}, status=201)
+    set_access_cookies(resp, access_token)
+    set_refresh_cookies(resp, refresh_token)
+    return resp
 
 
 def get_client(request, provider: str):
@@ -113,16 +101,10 @@ async def oauth_obtain_token(request: Request, provider: str):
         is_new = False
     access_token = JWT.create_access_token(identity=str(user.id))
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
-
-    return JsonResponse(
-        AuthModel(
-            is_new=is_new,
-            access_token=access_token,
-            refresh_token=refresh_token,
-            user=UserModel.from_orm(user),
-        ),
-        status=201,
-    )
+    resp = JsonResponse({"new": is_new, "user": UserModel.from_orm(user)}, status=201)
+    set_access_cookies(resp, access_token)
+    set_refresh_cookies(resp, refresh_token)
+    return resp
 
 
 @blueprint.route("/reset-password", methods=["PUT"])
@@ -153,17 +135,11 @@ async def refresh_token(request, token: Token):
     access_token = JWT.create_access_token(identity=token.identity)
     refresh_token = JWT.create_refresh_token(identity=token.identity)
     user_id = token.identity
-
     user = await get_user_by_id(user_id)
-    return JsonResponse(
-        AuthModel(
-            is_new=False,
-            access_token=access_token,
-            refresh_token=refresh_token,
-            user=UserModel.from_orm(user),
-        ),
-        status=201,
-    )
+    resp = JsonResponse({"new": False, "user": UserModel.from_orm(user)}, status=201)
+    set_access_cookies(resp, access_token)
+    set_refresh_cookies(resp, refresh_token)
+    return resp
 
 
 class UserProfileView(DetailAPIView):

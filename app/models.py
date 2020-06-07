@@ -25,13 +25,6 @@ class UserModel(BaseModel):
             return f"{config.MEDIA_URL}/{v}"
 
 
-class AuthModel(BaseModel):
-    is_new: bool
-    access_token: str
-    refresh_token: str
-    user: UserModel
-
-
 class TranslationModel(BaseModel):
     id: int
     translation: str

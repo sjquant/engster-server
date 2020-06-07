@@ -9,6 +9,7 @@ MEDIA_URL = os.getenv("MEDIA_URL")
 # Cors
 CORS_ORIGINS = os.getenv("CORS", "*").split(",")
 CORS_AUTOMATIC_OPTIONS = True
+CORS_SUPPORTS_CREDENTIALS = True
 
 # DB
 DB_PORT = "5432"
@@ -23,8 +24,14 @@ JWT = {
     "namespace": "https://engster.co.kr",
     "private_claim_prefix": "engster_private",
     "secret_key": os.getenv("JWT_SECRET_KEY", "secret_key"),
-    "token_location": ("cookies"),
+    "token_location": ("cookies",),
     "access_expires": datetime.timedelta(int(os.getenv("JWT_ACCESS_EXPIRES", "10080"))),
+    "csrf_protect": True,
+    "jwt_csrf_header": "X-CSRF-Token",
+    "refresh_jwt_csrf_header": "X-CSRF-Refresh-Token",
+    "cookie_secure": True
+    if os.getenv("JWT_COOKIE_SECURE", "False") == "True"
+    else False,
 }
 
 # Social Auth

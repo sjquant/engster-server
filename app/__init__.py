@@ -1,8 +1,8 @@
 import aiohttp
 from sanic import Sanic
 from gino.ext.sanic import Gino
-from sanic_jwt_extended import JWT
 from sanic_cors import CORS
+from sanic_jwt_extended.jwt_manager import JWT
 
 from app import config
 
@@ -10,12 +10,19 @@ db = Gino()
 
 
 def init_jwt(app):
+    from app.utils import encode_jwt
+
+    JWT._encode_jwt = classmethod(encode_jwt)
     with JWT.initialize(app) as manager:
         manager.config.public_claim_namespace = config.JWT["namespace"]
         manager.config.private_claim_prefix = config.JWT["private_claim_prefix"]
         manager.config.secret_key = config.JWT["secret_key"]
         manager.config.token_location = config.JWT["token_location"]
         manager.config.access_token_expires = config.JWT["access_expires"]
+        manager.config.cookie_secure = config.JWT["cookie_secure"]
+        manager.config.jwt_csrf_header = config.JWT["jwt_csrf_header"]
+        manager.config.refresh_jwt_csrf_header = config.JWT["refresh_jwt_csrf_header"]
+        manager.config.csrf_protect = config.JWT["csrf_protect"]
 
 
 def init_oauth(app):
