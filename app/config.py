@@ -28,10 +28,9 @@ JWT = {
     "access_expires": datetime.timedelta(int(os.getenv("JWT_ACCESS_EXPIRES", "10080"))),
     "csrf_protect": True,
     "jwt_csrf_header": "X-CSRF-Token",
-    "refresh_jwt_csrf_header": "X-CSRF-Refresh-Token",
-    "cookie_secure": True
-    if os.getenv("JWT_COOKIE_SECURE", "False") == "True"
-    else False,
+    "refresh_jwt_csrf_header": "X-RCSRF-Token",
+    "cookie_secure": True if ENV == "production" else False,
+    "cookie_domain": os.getenv("JWT_COOKIE_DOMAIN", None),
 }
 
 # Social Auth

@@ -214,41 +214,39 @@ def encode_jwt(cls, token_type, payload, expires_delta):
 def set_access_cookies(response, encoded_access_token, max_age=None):
     """
     Set the access JWT in the cookie
-    TODO: add domain cookie 
     """
     access_cookie_key = JWT.config.jwt_cookie
     response.cookies[access_cookie_key] = encoded_access_token
     access_cookie = response.cookies[access_cookie_key]
     access_cookie["max-age"] = max_age or 31540000  # 1 year
-    access_cookie["secure"] = JWT.config.cookie_secure
     access_cookie["httponly"] = True
     access_cookie["path"] = "/"
-    access_cookie["samesite"] = True
+    if JWT.config.cookie_domain:
+        access_cookie["domain"] = JWT.config.cookie_domain
 
     if JWT.config.csrf_protect:
         access_cookie_csrf_key = JWT.config.jwt_csrf_header
         response.cookies[access_cookie_csrf_key] = get_csrf_token(encoded_access_token)
         access_csrf_cookie = response.cookies[access_cookie_csrf_key]
         access_csrf_cookie["max-age"] = max_age or 31540000
-        access_csrf_cookie["secure"] = JWT.config.cookie_secure
         access_csrf_cookie["httponly"] = False
         access_csrf_cookie["path"] = "/"
-        access_csrf_cookie["samesite"] = True
+        if JWT.config.cookie_domain:
+            access_csrf_cookie["domain"] = JWT.config.cookie_domain
 
 
 def set_refresh_cookies(response, encoded_refresh_token, max_age=None):
     """
     Set the refresh JWT in the cookie
-    TODO: add domain cookie 
     """
     refresh_cookie_key = JWT.config.refresh_jwt_cookie
     response.cookies[refresh_cookie_key] = encoded_refresh_token
     refresh_cookie = response.cookies[refresh_cookie_key]
     refresh_cookie["max-age"] = max_age or 31540000  # 1 year
-    refresh_cookie["secure"] = JWT.config.cookie_secure
     refresh_cookie["httponly"] = True
     refresh_cookie["path"] = "/"
-    refresh_cookie["samesite"] = True
+    if JWT.config.cookie_domain:
+        refresh_cookie["domain"] = JWT.config.cookie_domain
 
     if JWT.config.csrf_protect:
         refresh_cookie_csrf_key = JWT.config.refresh_jwt_csrf_header
@@ -257,7 +255,7 @@ def set_refresh_cookies(response, encoded_refresh_token, max_age=None):
         )
         refresh_csrf_cookie = response.cookies[refresh_cookie_csrf_key]
         refresh_csrf_cookie["max-age"] = max_age or 31540000
-        refresh_csrf_cookie["secure"] = JWT.config.cookie_secure
         refresh_csrf_cookie["httponly"] = False
         refresh_csrf_cookie["path"] = "/"
-        refresh_csrf_cookie["samesite"] = True
+        if JWT.config.cookie_domain:
+            refresh_csrf_cookie["domain"] = JWT.config.cookie_domain
