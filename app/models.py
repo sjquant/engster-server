@@ -4,6 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel, SecretStr, validator
 
 from app import config
+from app.utils import get_photo_url
 
 
 class UserModel(BaseModel):
@@ -19,10 +20,7 @@ class UserModel(BaseModel):
 
     @validator("photo", pre=True, always=True)
     def get_photo(cls, v, *, values, **kwargs):
-        if not v or v.startswith("http"):
-            return v
-        else:
-            return f"{config.MEDIA_URL}/{v}"
+        return get_photo_url(v, media_url=config.MEDIA_URL)
 
 
 class TranslationModel(BaseModel):
