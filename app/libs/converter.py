@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import pandas as pd
 
-from app.exceptions import UnsupportedExtensionError, InvalidDataFrameError
+from app.exceptions import UnsupportedExtension, InvalidDataFrame
 
 
 def trim_smi_text(text: str) -> str:
@@ -143,7 +143,7 @@ def read_lines(text: str, ext: str):
     elif ext == "srt":
         lines = get_srt_lines(text)
     else:
-        raise UnsupportedExtensionError
+        raise UnsupportedExtension
     return lines
 
 
@@ -164,7 +164,7 @@ def combine_eng_kor(df_a: pd.DataFrame, df_b: pd.DataFrame) -> pd.DataFrame:
     langs = set(lang_a + lang_b)
     # Check it has two languages ENG / KR
     if len(langs) < 2 or not ("ENG" in langs and "KR" in langs):
-        raise InvalidDataFrameError
+        raise InvalidDataFrame
     eng_df = df_a if lang_a[0] == "ENG" else df_b
     kor_df = df_a if lang_a[0] == "KR" else df_b
 
@@ -197,4 +197,4 @@ def df_to_csv(df: pd.DataFrame, path: str):
         df.to_csv(path, encoding="cp949")
         return df
     else:
-        raise InvalidDataFrameError
+        raise InvalidDataFrame

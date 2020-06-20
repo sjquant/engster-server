@@ -1,6 +1,7 @@
 from typing import List, Dict, Any, Tuple
 
 from sanic.request import Request
+from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
 from sanic_jwt_extended import jwt_optional
 from sanic_jwt_extended.tokens import Token
@@ -21,16 +22,20 @@ from app.db_access.subtitle import (
     get_user_liked_korean_lines,
 )
 from app.libs.views import APIView
-from app.utils import JsonResponse
+from app.utils import JsonResponse, calc_max_page
 from app.decorators import expect_query
-from app.utils import calc_max_page
+from app.exceptions import DataDoesNotExist
+
 
 blueprint = Blueprint("mypage_blueprint", url_prefix="/my-page")
 
 
 class UserActivitySummary(APIView):
     async def get(self, request: Request, user_id: str):
-        resp = await get_user_activitiy_summary(user_id)
+        try:
+            resp = await get_user_activitiy_summary(user_id)
+        except DataDoesNotExist as e:
+            raise ServerError(str(e), status_code=404)
         return JsonResponse(resp, status=200)
 
 

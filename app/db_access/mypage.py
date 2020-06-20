@@ -10,20 +10,28 @@ from app.db_models import (
     TranslationLike,
 )
 from app import db
+from app import config
+from app.exceptions import DataDoesNotExist
+from app.utils import get_photo_url
 
 
 async def get_user_activitiy_summary(user_id: UUID) -> Dict[str, Any]:
     query = (
-        db.select([db.func.count(Translation.id)])
-        .select_from(User.join(Translation))
+        db.select([User.nickname, User.photo, db.func.count(Translation.id)])
+        .select_from(User.outerjoin(Translation))
         .where(User.id == user_id)
         .group_by(User.id)
     )
     data = await query.gino.first()
-    if data is None:
-        data = {"user_id": user_id, "translation_count": 0}
+    if data:
+        data = {
+            "user_id": user_id,
+            "user_nickname": data[0],
+            "user_photo": get_photo_url(data[1], media_url=config.MEDIA_URL),
+            "translation_count": data[2],
+        }
     else:
-        data = {"user_id": user_id, "translation_count": data[0]}
+        raise DataDoesNotExist("User activity summary does not exist.")
     return data
 
 
@@ -91,7 +99,7 @@ async def fetch_user_liked_korean_lines(
             .join(Content, Line.content_id == Content.id)
             .join(Category, Content.category_id == Category.id)
             .join(TranslationLike, Translation.id == TranslationLike.translation_id)
-        ) 
+        )
         .limit(limit)
         .offset(offset)
         .order_by(TranslationLike.created_at.desc())

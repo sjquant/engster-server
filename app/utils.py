@@ -136,7 +136,7 @@ def JsonResponse(
     status: int = 200,
     headers: Optional[dict] = None,
     content_type: str = "application/json",
-    **kwargs
+    **kwargs,
 ):
     return json(
         jsonable_encoder(obj, **kwargs),
@@ -259,3 +259,10 @@ def set_refresh_cookies(response, encoded_refresh_token, max_age=None):
         refresh_csrf_cookie["path"] = "/"
         if JWT.config.cookie_domain:
             refresh_csrf_cookie["domain"] = JWT.config.cookie_domain
+
+
+def get_photo_url(path: str, *, media_url: str = "127.0.0.1"):
+    if not path or path.startswith("http"):
+        return path
+    else:
+        return f"{media_url}/{path}"
