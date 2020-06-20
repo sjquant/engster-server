@@ -1,15 +1,11 @@
-
 import pytest
 
 from app import create_app
-from app.utils.config import get_config
 
 
 @pytest.yield_fixture
 def app():
-    get_config('test')
-    from app import create_app
-    app = create_app('test')
+    app = create_app()
     yield app
 
 

@@ -3,7 +3,7 @@ POST http://localhost:8000/auth/register
 Content-Type: application/json
 
 {
-    "email": "usseasdfasdf@test.com",
+    "email": "user@test.com",
     "password": "abcdefg!!!"
 }
 
@@ -19,4 +19,28 @@ Content-Type: application/json
 ### Refresh Token
 POST http://localhost:8000/auth/refresh-token
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjQ1MDYwNjMsIm5iZiI6MTU2NDUwNjA2MywianRpIjoiZDg2NTVjNDQtNTNlMi00M2Y4LWE0YzUtNDRmN2JjZDY5N2Y5IiwiZXhwIjoxNTY3MDk4MDYzLCJpZGVudGl0eSI6IjI2MWNmYjE4LTFlOWQtNDk0YS04ZDcyLTI5ZTY5OTNlMmMxYSIsInR5cGUiOiJyZWZyZXNoIn0.W94K_6AsJyC_yjFBEvx_ZCbAl3RG9tQh8LGk4g3L5uY
+X-Refresh-Token: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImNsYXNzIjoicmVmcmVzaCJ9.eyJzdWIiOiI2NDcyNDcwOS1mNjRmLTQ3YWUtOWRlNS1lMjNjNTZkMTA1NzciLCJuYmYiOjE1Nzk4NzE1NzgsImp0aSI6IjFlYjFiZTVmYWVmZTQyYTE4MjUyYjZmMDg0Nzc3Nzg1IiwiaWF0IjoxNTc5ODcxNTc4LCJleHAiOjI0NTA3ODM1Nzh9.KV5horfIi8902fULvmCtc6L73UonJgyQE5DSSUB__ts
+
+### Get user profile
+GET http://localhost:8000/auth/profile
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImNsYXNzIjoiYWNjZXNzIn0.eyJzdWIiOiI2NDcyNDcwOS1mNjRmLTQ3YWUtOWRlNS1lMjNjNTZkMTA1NzciLCJuYmYiOjE1Nzk4NzE5NjYsImp0aSI6IjQyNDU5ZjFjZDVlMTQzMGY4NDAwNzFlODBhZWQ1OGJkIiwiaWF0IjoxNTc5ODcxOTY2LCJleHAiOjI0NTA3ODM5NjZ9.uqiE37s99z3Qs8BjN1FT_cx6M3vY7Pt6gMmFkpidqlc
+
+### update user profile
+PUT http://localhost:8000/auth/profile
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImNsYXNzIjoiYWNjZXNzIn0.eyJzdWIiOiI2NDcyNDcwOS1mNjRmLTQ3YWUtOWRlNS1lMjNjNTZkMTA1NzciLCJuYmYiOjE1Nzk4NzE5NjYsImp0aSI6IjQyNDU5ZjFjZDVlMTQzMGY4NDAwNzFlODBhZWQ1OGJkIiwiaWF0IjoxNTc5ODcxOTY2LCJleHAiOjI0NTA3ODM5NjZ9.uqiE37s99z3Qs8BjN1FT_cx6M3vY7Pt6gMmFkpidqlc
+
+{
+    "email": "seonu97@gmail.com"
+}
+
+### reset user password
+PUT http://localhost:8000/auth/reset-password
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImNsYXNzIjoiYWNjZXNzIn0.eyJzdWIiOiI2NDcyNDcwOS1mNjRmLTQ3YWUtOWRlNS1lMjNjNTZkMTA1NzciLCJuYmYiOjE1Nzk4NzE5NjYsImp0aSI6IjQyNDU5ZjFjZDVlMTQzMGY4NDAwNzFlODBhZWQ1OGJkIiwiaWF0IjoxNTc5ODcxOTY2LCJleHAiOjI0NTA3ODM5NjZ9.uqiE37s99z3Qs8BjN1FT_cx6M3vY7Pt6gMmFkpidqlc
+
+{
+    "original_password": "1234!",
+    "new_password": "12345!"
+}

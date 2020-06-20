@@ -1,0 +1,44 @@
+version: "3"
+services:
+  engster_server:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    command: /bin/sh -c "scripts/start-dev.sh"
+    ports:
+      - 8000:8000
+    env_file:
+      - secrets/.env.development
+    volumes:
+      - .:/workspace
+      - python-packages:/usr/local/lib/python3.8/site-packages/
+      - python-bin:/usr/local/bin
+    networks:
+      - db-network
+    depends_on:
+      - db
+
+  db:
+    image: postgres:10-alpine
+    env_file:
+      - secrets/.env.development
+    volumes:
+      - db-volume:/var/lib/postgresql/data
+    ports:
+      - 5123:5432
+    networks:
+      - db-network
+    environment:
+      - POSTGRES_DB=engster
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8
+
+networks:
+  db-network:
+    driver: bridge
+
+volumes:
+  db-volume:
+  python-packages:
+  python-bin:
