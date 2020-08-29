@@ -11,12 +11,10 @@ run-server:
 	/bin/bash scripts/start-dev.sh
 
 # Outside container
-dev-build:
-	docker-compose -f docker-compose.dev.yml build
 dev-shell:
 	docker-compose -f docker-compose.dev.yml run engster_server /bin/bash
 dev-up:
-	docker-compose -f docker-compose.dev.yml up
+	docker-compose -f docker-compose.dev.yml up --build
 dev-down:
 	docker-compose -f docker-compose.dev.yml down $(args)
 dev-init-db:
