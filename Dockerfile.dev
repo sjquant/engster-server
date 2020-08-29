@@ -1,6 +1,6 @@
 FROM python:3.8-slim
 LABEL maintainer="sjquant (seonujang92@gmail.com)"
-RUN apt-get update -y && apt-get install wget build-essential git vim -y
+RUN apt-get update -y && apt-get install build-essential -y
 # timezone
 RUN cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
   echo "Asia/Seoul" > /etc/timezone
