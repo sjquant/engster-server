@@ -1,24 +1,35 @@
 ### Variables
-@token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImNsYXNzIjoiYWNjZXNzIn0.eyJzdWIiOiIwOWUxOGRkYi1jYjNiLTQwMGMtOWU4Mi02MjdiOGIyMDUwMjUiLCJuYmYiOjE1ODMwNzM4NTEsImp0aSI6ImVjNzczY2RiYmRhYTRiMzY4MTIzY2I2OWQ4ZWQxNDI5IiwiaWF0IjoxNTgzMDczODUxLCJleHAiOjI0NTM5ODU4NTF9.z_ziYIrSv0n7wam-DS4uQZNNd5Kb9MT5ILFZVCmj4YU
+@userid = {{ siginin.response.body.$.user.id }}
+
+### Sign In
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "user@test.com",
+    "password": "abcdefg!!!"
+}
+
 
 ### Content List
-GET http://localhost:8000/subtitle/contents
+GET {{ host }}/subtitle/contents
 Content-Type: application/json
 
 ### DELETE Content
-DELETE http://localhost:8000/subtitle/contents/2
+DELETE {{ host }}/subtitle/contents/2
 Content-Type: application/json
 
 ### Line List
-GET http://localhost:8000/subtitle/contents/1/lines
+GET {{ host }}/subtitle/contents/1/lines
 Content-Type: application/json
 
 ### Category List
-GET http://localhost:8000/subtitle/categories
+GET {{ host }}/subtitle/categories
 Content-Type: application/json
 
 ### Post Category
-POST http://localhost:8000/subtitle/categories
+POST {{ host }}/subtitle/categories
 Content-Type: application/json
 
 {
@@ -26,7 +37,7 @@ Content-Type: application/json
 }
 
 ### Post genre
-POST http://localhost:8000/subtitle/genres
+POST {{ host }}/subtitle/genres
 Content-Type: application/json
 
 {
@@ -34,11 +45,11 @@ Content-Type: application/json
 }
 
 ### Get Individual Category
-GET http://localhost:8000/subtitle/categories/1
+GET {{ host }}/subtitle/categories/1
 Content-Type: application/json
 
 ### Change Individual Category
-PUT http://localhost:8000/subtitle/categories/3
+PUT {{ host }}/subtitle/categories/3
 Content-Type: application/json
 
 {
@@ -46,15 +57,15 @@ Content-Type: application/json
 }
 
 ### Delete Individual Category
-DELETE http://localhost:8000/subtitle/categories/7
+DELETE {{ host }}/subtitle/categories/7
 Content-Type: application/json
 
 ### Get Individual genre
-GET http://localhost:8000/subtitle/genres/2
+GET {{ host }}/subtitle/genres/2
 Content-Type: application/json
 
 ### Change Individual genre
-PUT http://localhost:8000/subtitle/genres/10
+PUT {{ host }}/subtitle/genres/10
 Content-Type: application/json
 
 {
@@ -62,62 +73,58 @@ Content-Type: application/json
 }
 
 ### Delete Individual genre
-DELETE http://localhost:8000/subtitle/genres/2
+DELETE {{ host }}/subtitle/genres/2
 Content-Type: application/json
 
 ### Get Specific translation
-GET http://localhost:8000/subtitle/translations/1423
+GET {{ host }}/subtitle/translations/1423
 
 ### Change specific translation
-PUT http://localhost:8000/subtitle/translations/1423
+PUT {{ host }}/subtitle/translations/1423
 
 {
     "translation": "민호야 힘내!"
 }
 
 ### Delete specific translation
-DELETE http://localhost:8000/subtitle/translations/2181
+DELETE {{ host }}/subtitle/translations/2181
 
 ### Randomly pick subtitles
-GET http://localhost:8000/subtitle/random/subtitles?count=30
+GET {{ host }}/subtitle/random/subtitles?count=30
 Content-Type: application/json
 
 ### Search By English
-GET http://localhost:8000/subtitle/search/english?keyword=minho
+GET {{ host }}/subtitle/search/english?keyword=minho
 Content-Type: application/json
 
 ### Search By Korean
-GET http://localhost:8000/subtitle/search/korean?keyword=위험
+GET {{ host }}/subtitle/search/korean?keyword=위험
 Content-Type: application/json
 
 ### Like English Line
-POST http://localhost:8000/subtitle/likes/english/1
+POST {{ host }}/subtitle/likes/english/1
 Content-Type: application/json
-Authorization: Bearer {{token}}
 
 ### Unlike English Line
-DELETE http://localhost:8000/subtitle/likes/english/1
+DELETE {{ host }}/subtitle/likes/english/1
 Content-Type: application/json
-Authorization: Bearer {{token}}
 
 ### Like Korean Line
-POST http://localhost:8000/subtitle/likes/korean/1
+POST {{ host }}/subtitle/likes/korean/1
 Content-Type: application/json
-Authorization: Bearer {{token}}
 
 ### Cancel the like of Korean Line
-DELETE http://localhost:8000/subtitle/likes/korean/1
+DELETE {{ host }}/subtitle/likes/korean/1
 Content-Type: application/json
-Authorization: Bearer {{token}}
 
 ### Get Translations for line
-GET http://localhost:8000/subtitle/translations?line_id=800
+GET {{ host }}/subtitle/translations?line_id=800
 Content-Type: application/json
 
-### Post Translation
-POST http://localhost:8000/subtitle/translations
+### Create Translation
+# @name createTranslation
+POST {{ host }}/subtitle/translations
 Content-Type: application.json
-Authorization: Bearer {{token}}
 
 {
     "line_id": 800,
@@ -125,19 +132,17 @@ Authorization: Bearer {{token}}
 }
 
 ### Get Translation Detail
-GET http://localhost:8000/subtitle/translations/1088
+GET {{ host }}/subtitle/translations/{{ createTranslation.response.body.$.id }}
 Content-Type: application.json
 
 ### Update Translation Detail
-PUT http://localhost:8000/subtitle/translations/1088
+PUT {{ host }}/subtitle/translations/{{ createTranslation.response.body.$.id }}
 Content-Type: application.json
-Authorization: Bearer {{token}}
 
 {
     "translation": "무슨일인데?"
 }
 
 ### Delete Translation Detail
-DELETE http://localhost:8000/subtitle/translations/1088
+DELETE {{ host }}/subtitle/translations/{{ createTranslation.response.body.$.id }}
 Content-Type: application.json
-Authorization: Bearer {{token}}

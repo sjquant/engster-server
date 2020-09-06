@@ -20,16 +20,30 @@ DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
 DB_URL = f"postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
 
 # JWT
+
+csrf_protect = os.getenv("JWT_CSRF_PROTECT", "false")
+cookie_secure = os.getenv("JWT_COOKIE_SECURE", "false")
+
+if csrf_protect.lower() == "true":
+    csrf_protect = True
+else:
+    csrf_protect = False
+
+if cookie_secure.lower() == "true":
+    cookie_secure = True
+else:
+    cookie_secure = False
+
 JWT = {
     "namespace": "https://engster.co.kr",
     "private_claim_prefix": "engster_private",
     "secret_key": os.getenv("JWT_SECRET_KEY", "secret_key"),
     "token_location": ("cookies",),
     "access_expires": datetime.timedelta(int(os.getenv("JWT_ACCESS_EXPIRES", "10080"))),
-    "csrf_protect": True,
+    "csrf_protect": csrf_protect,
     "jwt_csrf_header": "X-CSRF-Token",
     "refresh_jwt_csrf_header": "X-RCSRF-Token",
-    "cookie_secure": True if ENV == "production" else False,
+    "cookie_secure": cookie_secure,
     "cookie_domain": os.getenv("JWT_COOKIE_DOMAIN", None),
 }
 

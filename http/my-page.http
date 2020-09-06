@@ -1,18 +1,28 @@
-## Variables
-@userid = 09e18ddb-cb3b-400c-9e82-627b8b205025
+### Variables
+@userid = {{ siginin.response.body.$.user.id }}
+
+### Sign In
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "user@test.com",
+    "password": "abcdefg!!!"
+}
 
 ### Get user activities
-GET http://localhost:8000/my-page/{{userid}}/activity-summary
+GET {{ host }}/my-page/{{userid}}/activity-summary
 Content-Type: application/json
 
 ### Get Lines a user liked
-GET http://localhost:8000/my-page/{{userid}}/liked-english-lines?page=1
+GET {{ host }}/my-page/{{userid}}/liked-english-lines?page=1
 Content-Type: application/json
 
 ### Get Translations a user liked
-GET http://localhost:8000/my-page/{{userid}}/liked-korean-lines?page=2
+GET {{ host }}/my-page/{{userid}}/liked-korean-lines?page=2
 Content-Type: application/json
 
 ### Get Translations a user created
-GET http://localhost:8000/my-page/{{userid}}/translations?page=1
+GET {{ host }}/my-page/{{userid}}/translations?page=1
 Content-Type: application/json
