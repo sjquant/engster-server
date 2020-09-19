@@ -24,6 +24,8 @@ def init_jwt(app):
         manager.config.refresh_jwt_csrf_header = config.JWT["refresh_jwt_csrf_header"]
         manager.config.csrf_protect = config.JWT["csrf_protect"]
         manager.config.cookie_domain = config.JWT["cookie_domain"]
+        manager.config.use_acl = True
+        manager.config.acl_claim = "role"
 
 
 def init_oauth(app):

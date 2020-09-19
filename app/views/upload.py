@@ -5,19 +5,23 @@ import uuid
 from sanic.request import Request
 from sanic.blueprints import Blueprint
 from sanic.exceptions import ServerError
+from sanic_jwt_extended import jwt_required
+from sanic_jwt_extended.tokens import Token
 import pandas as pd
 from PIL import Image
 
 from app.db_models import Line, Content, Translation
 from app.utils import JsonResponse, validate_file_size
 from app.libs import converter
+from app.decorators import admin_required
 
 
 blueprint = Blueprint("upload_blueprint")
 
 
 @blueprint.route("/create/csv", methods=["POST"])
-async def create_csv(request):
+@admin_required
+async def create_csv(request: Request, token: Token):
     """
     Convert Single File
 
@@ -48,7 +52,8 @@ async def create_csv(request):
 
 
 @blueprint.route("/create/mixed-csv", methods=["POST"])
-async def create_mixed_csv(request):
+@admin_required
+async def create_mixed_csv(request: Request, token: Token):
     """
     Convert Single File
 
@@ -90,7 +95,8 @@ async def create_mixed_csv(request):
 
 
 @blueprint.route("/upload/eng-subtitle/<content_id:int>", methods=["POST"])
-async def upload_eng_subtitle(request, content_id):
+@admin_required
+async def upload_eng_subtitle(request: Request, content_id: int, token: Token):
     content = await Content.get(content_id)
     if content is None:
         raise ServerError("No Such Instance", status_code=404)
@@ -108,7 +114,8 @@ async def upload_eng_subtitle(request, content_id):
 
 
 @blueprint.route("/upload/kor-subtitle/<content_id:int>", methods=["POST"])
-async def update_kor_subtitle(request, content_id):
+@admin_required
+async def update_kor_subtitle(request: Request, content_id: int, token: Token):
     lines = await Line.query.where(content_id == content_id).order_by("id").gino.all()
 
     if lines is None:
@@ -137,7 +144,8 @@ async def update_kor_subtitle(request, content_id):
 
 
 @blueprint.route("/upload/photo", methods=["POST"])
-async def upload_photo(request: Request):
+@jwt_required
+async def upload_photo(request: Request, token: Token):
     photo = request.files.get("photo")
     if not validate_file_size(photo, 1e7):
         raise ServerError(

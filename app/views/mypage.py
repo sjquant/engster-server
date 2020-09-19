@@ -8,20 +8,8 @@ from sanic_jwt_extended import jwt_optional
 from sanic_jwt_extended.tokens import Token
 
 from app.db_models import LineLike, TranslationLike, Translation
-from app.services.mypage import (
-    get_user_activitiy_summary,
-    fetch_user_liked_english_lines,
-    fetch_user_liked_korean_lines,
-    fetch_user_translations,
-)
-from app.services.subtitle import (
-    get_like_count_per_english_line,
-    get_like_count_per_korean_line,
-    get_translation_count_per_line,
-    fetch_genres_per_content,
-    fetch_user_liked_english_lines,
-    fetch_user_liked_korean_lines,
-)
+from app.services import mypage as mypage_service
+from app.services import subtitle as subtitle_service
 from app.utils import JsonResponse, calc_max_page
 from app.decorators import expect_query
 from app.exceptions import DataDoesNotExist
@@ -33,7 +21,7 @@ blueprint = Blueprint("mypage_blueprint", url_prefix="/my-page")
 class UserActivitySummary(HTTPMethodView):
     async def get(self, request: Request, user_id: str):
         try:
-            resp = await get_user_activitiy_summary(user_id)
+            resp = await mypage_service.get_user_activitiy_summary(user_id)
         except DataDoesNotExist as e:
             raise ServerError(str(e), status_code=404)
         return JsonResponse(resp, status=200)
@@ -59,16 +47,20 @@ class UserLikedEnglishLines(HTTPMethodView):
             return JsonResponse(
                 {"max_page": 0, "count": 0, "page": 0, "data": []}, status=200
             )
-        lines = await fetch_user_liked_english_lines(
+        lines = await mypage_service.fetch_user_liked_english_lines(
             user_id, limit=per_page, offset=offset
         )
         content_ids, line_ids = self._get_required_ids(lines)
-        like_count = await get_like_count_per_english_line(line_ids)
-        translation_count = await get_translation_count_per_line(line_ids)
-        genres = await fetch_genres_per_content(content_ids)
+        like_count = await subtitle_service.get_like_count_per_english_line(line_ids)
+        translation_count = await subtitle_service.get_translation_count_per_line(
+            line_ids
+        )
+        genres = await subtitle_service.fetch_genres_per_content(content_ids)
         user_id = token.identity if token else None
         user_liked = (
-            await fetch_user_liked_english_lines(user_id, line_ids) if user_id else []
+            await subtitle_service.fetch_user_liked_english_lines(user_id, line_ids)
+            if user_id
+            else []
         )
         data = [
             {
@@ -114,16 +106,22 @@ class UserLikedKoreanLines(HTTPMethodView):
             return JsonResponse(
                 {"max_page": 0, "count": 0, "page": 0, "data": []}, status=200
             )
-        translations = await fetch_user_liked_korean_lines(
+        translations = await mypage_service.fetch_user_liked_korean_lines(
             user_id, limit=per_page, offset=offset
         )
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
-        genres = await fetch_genres_per_content(content_ids)
-        like_count = await get_like_count_per_korean_line(translation_ids)
-        translation_count = await get_translation_count_per_line(line_ids)
+        genres = await subtitle_service.fetch_genres_per_content(content_ids)
+        like_count = await subtitle_service.get_like_count_per_korean_line(
+            translation_ids
+        )
+        translation_count = await subtitle_service.get_translation_count_per_line(
+            line_ids
+        )
         user_id = token.identity if token else None
         user_liked = (
-            await fetch_user_liked_korean_lines(user_id, translation_ids)
+            await subtitle_service.fetch_user_liked_korean_lines(
+                user_id, translation_ids
+            )
             if user_id
             else []
         )
@@ -166,16 +164,22 @@ class UserTranslations(HTTPMethodView):
             return JsonResponse(
                 {"max_page": 0, "count": 0, "page": 0, "data": []}, status=200
             )
-        translations = await fetch_user_translations(
+        translations = await mypage_service.fetch_user_translations(
             user_id, limit=per_page, offset=offset
         )
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
-        genres = await fetch_genres_per_content(content_ids)
-        like_count = await get_like_count_per_korean_line(translation_ids)
-        translation_count = await get_translation_count_per_line(line_ids)
+        genres = await subtitle_service.fetch_genres_per_content(content_ids)
+        like_count = await subtitle_service.get_like_count_per_korean_line(
+            translation_ids
+        )
+        translation_count = await subtitle_service.get_translation_count_per_line(
+            line_ids
+        )
         user_id = token.identity if token else None
         user_liked = (
-            await fetch_user_liked_korean_lines(user_id, translation_ids)
+            await subtitle_service.fetch_user_liked_korean_lines(
+                user_id, translation_ids
+            )
             if user_id
             else []
         )

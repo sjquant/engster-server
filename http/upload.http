@@ -1,3 +1,17 @@
+### Variables
+@userid = {{ siginin.response.body.$.user.id }}
+
+### Sign In
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "admin@test.com",
+    "password": "abcdefg!!!"
+}
+
+
 ### Convert File (smi)
 POST {{ host }}/create/csv
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW

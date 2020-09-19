@@ -6,6 +6,7 @@ from alembic.config import Config
 import click
 
 from app import config, create_app
+from app.services.user import create_user
 
 
 def coroutine(f):
@@ -129,6 +130,25 @@ async def init():
 def runserver():
     app = create_app()
     app.run(host="0.0.0.0", port=8000, debug=True)
+
+
+@cli.command(help="Create Admin User")
+@coroutine
+async def create_admin():
+    from app import db
+
+    await db.set_bind(config.DB_URL)
+
+    email = input("Email : ")
+    nickname = input("Nickname : ")
+    password = input("Password : ")
+    password2 = input("Password Confirmation : ")
+
+    if password != password2:
+        raise Exception("Password does not match!")
+
+    await create_user(email=email, nickname=nickname, password=password, is_admin=True)
+    print(f"Successfully created admin : {nickname}")
 
 
 if __name__ == "__main__":
