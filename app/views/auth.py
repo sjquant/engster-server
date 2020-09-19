@@ -22,17 +22,17 @@ blueprint = Blueprint("auth_blueprint", url_prefix="/auth")
 
 @blueprint.route("/register", methods=["POST"])
 @expect_body(
-    email=(str, ...), password=(str, ...), nickname=(str, None), is_admin=(bool, False)
+    email=(str, ...), password=(str, ...), nickname=(str, None)
 )
 async def register(request: Request):
-    """ register user """
+    """register user"""
 
     try:
-        user = await create_user(**request.json)
+        user = await create_user(**request.json, is_admin=False)
     except asyncpg.exceptions.UniqueViolationError:
         raise ServerError("Already Registered", status_code=400)
 
-    access_token = JWT.create_access_token(identity=str(user.id))
+    access_token = JWT.create_access_token(identity=str(user.id), role="user")
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
     resp = JsonResponse({"new": True, "user": UserModel.from_orm(user)}, status=201,)
     set_access_cookies(resp, access_token)
@@ -49,11 +49,11 @@ async def obtain_token(request: Request):
 
     if user is None:
         raise ServerError("User not found.", status_code=404)
-
     if not user.check_password(password):
         raise ServerError("Password is wrong.", status_code=400)
 
-    access_token = JWT.create_access_token(identity=str(user.id))
+    role = "admin" if user.is_admin else "user"
+    access_token = JWT.create_access_token(identity=str(user.id), role=role)
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
     resp = JsonResponse({"new": False, "user": UserModel.from_orm(user)}, status=201)
     set_access_cookies(resp, access_token)
@@ -99,7 +99,9 @@ async def oauth_obtain_token(request: Request, provider: str):
         is_new = True
     else:
         is_new = False
-    access_token = JWT.create_access_token(identity=str(user.id))
+
+    role = "admin" if user.is_admin else "user"
+    access_token = JWT.create_access_token(identity=str(user.id), role=role)
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
     resp = JsonResponse({"new": is_new, "user": UserModel.from_orm(user)}, status=201)
     set_access_cookies(resp, access_token)
@@ -131,8 +133,8 @@ async def reset_password(request: Request, token: Token):
 @blueprint.route("/refresh-token", methods=["POST"])
 @refresh_jwt_required
 async def refresh_token(request, token: Token):
-    """ refresh access token """
-    access_token = JWT.create_access_token(identity=token.identity)
+    """refresh access token"""
+    access_token = JWT.create_access_token(identity=token.identity, role=token.role)
     refresh_token = JWT.create_refresh_token(identity=token.identity)
     user_id = token.identity
     user = await get_user_by_id(user_id)

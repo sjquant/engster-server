@@ -12,7 +12,7 @@ CORS_AUTOMATIC_OPTIONS = True
 CORS_SUPPORTS_CREDENTIALS = True
 
 # DB
-DB_PORT = "5432"
+DB_PORT = os.getenv("DB_PORT", "5123")
 DB_DATABASE = os.getenv("DB_NAME", "engster")
 DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
 DB_USER = os.getenv("DB_USER", "user")

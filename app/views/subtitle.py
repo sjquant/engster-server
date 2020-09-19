@@ -17,7 +17,7 @@ from app.db_models import (
     Genre,
     Content,
 )
-from app.decorators import expect_query, expect_body
+from app.decorators import expect_query, expect_body, admin_required
 from app.services import subtitle as service
 from app.utils import calc_max_page, JsonResponse
 from app import db
@@ -27,14 +27,15 @@ blueprint = Blueprint("subtitle_blueprint", url_prefix="subtitle")
 
 class ContentList(HTTPMethodView):
     @expect_query(limit=(int, 10), cursor=(int, None))
-    async def get(self, request, limit, cursor):
+    async def get(self, request: Request, limit: int, cursor: int):
         contents = await service.fetch_contents(limit, cursor)
         return JsonResponse({"data": contents}, 200)
 
     @expect_body(
         title=(str, ...), year=(str, ...), reference=(str, ""), category_id=(int, None),
     )
-    async def post(self, request):
+    @admin_required
+    async def post(self, request: Request, token: Token):
         """
         Create content
         """
@@ -43,7 +44,7 @@ class ContentList(HTTPMethodView):
 
 
 class ContentXGenreList(HTTPMethodView):
-    async def get(self, request, content_id: int):
+    async def get(self, request: Request, content_id: int):
         """
         Fetch genres to content
         """
@@ -52,7 +53,8 @@ class ContentXGenreList(HTTPMethodView):
         return JsonResponse(genres, status=200)
 
     @expect_body(genre_ids=(List[int], ...))
-    async def post(self, request, content_id: int):
+    @admin_required
+    async def post(self, request: Request, content_id: int, token: Token):
         """
         Add genres to content
         """
@@ -69,7 +71,8 @@ class ContentXGenreList(HTTPMethodView):
         return JsonResponse({"message": "success"}, status=201)
 
     @expect_body(genre_ids=(List[int], ...))
-    async def put(self, request, content_id: int):
+    @admin_required
+    async def put(self, request: Request, content_id: int, token: Token):
         """
         Update genres of contents
         """
@@ -89,49 +92,53 @@ class ContentXGenreList(HTTPMethodView):
 
 
 class CategoryList(HTTPMethodView):
-    async def get(self, request):
+    async def get(self, request: Request):
         categories = await service.fetch_all_categories()
         return JsonResponse({"data": categories}, 200)
 
     @expect_body(category=(str, ...))
-    async def post(self, request):
+    @admin_required
+    async def post(self, request: Request, token: Token):
         category = await Category(**request.json).create()
         return JsonResponse(category.to_dict(), status=201)
 
 
 class GenreList(HTTPMethodView):
-    async def get(self, request):
+    async def get(self, request: Request):
         genres = await service.fetch_all_genres()
         return JsonResponse({"data": genres}, 200)
 
     @expect_body(genre=(str, ...))
-    async def post(self, request):
+    @admin_required
+    async def post(self, request: Request, token: Token):
         genre = await Genre(**request.json).create()
         return JsonResponse(genre.to_dict(), status=200)
 
 
 class LineList(HTTPMethodView):
     @expect_query(cursor=(int, None), limit=(int, 20))
-    async def get(self, request, content_id: int, cursor: int, limit: int):
+    async def get(self, request: Request, content_id: int, cursor: int, limit: int):
         lines = await service.fetch_content_lines(content_id, limit, cursor)
         return JsonResponse(lines, status=200)
 
 
 class ContentDetail(HTTPMethodView):
-    async def get(self, request, content_id: int):
+    async def get(self, request: Request, content_id: int):
         content = await service.get_content_by_id(content_id)
         if not content:
             raise ServerError("no such content", 404)
         return JsonResponse(content.to_dict(), 200)
 
-    async def put(self, request, content_id: int):
+    @admin_required
+    async def put(self, request: Request, content_id: int, token: Token):
         content = await service.get_content_by_id(content_id)
         if not content:
             raise ServerError("no such content", 404)
         await content.update(**request.json).apply()
         return JsonResponse({"message": "success"}, status=202)
 
-    async def delete(self, request, content_id: int):
+    @admin_required
+    async def delete(self, request: Request, content_id: int, token: Token):
         content = await service.get_content_by_id(content_id)
         if not content:
             raise ServerError("no such content", 404)
@@ -140,20 +147,22 @@ class ContentDetail(HTTPMethodView):
 
 
 class CategoryDetail(HTTPMethodView):
-    async def get(self, request, category_id: int):
+    async def get(self, request: Request, category_id: int):
         category = await service.get_category_by_id(category_id)
         if not category:
             raise ServerError("no such category", 404)
         return JsonResponse(category.to_dict(), 200)
 
-    async def put(self, request, category_id: int):
+    @admin_required
+    async def put(self, request: Request, category_id: int, token: Token):
         category = await service.get_category_by_id(category_id)
         if not category:
             raise ServerError("no such category", 404)
         await category.update(**request.json).apply()
         return JsonResponse({"message": "success"}, status=202)
 
-    async def delete(self, request, category_id: int):
+    @admin_required
+    async def delete(self, request: Request, category_id: int, token: Token):
         category = await service.get_category_by_id(category_id)
         if not category:
             raise ServerError("no such category", 404)
@@ -162,20 +171,22 @@ class CategoryDetail(HTTPMethodView):
 
 
 class GenreDetail(HTTPMethodView):
-    async def get(self, request, genre_id):
+    async def get(self, request, genre_id: int):
         genre = await service.get_genre_by_id(genre_id)
         if not genre:
             raise ServerError("no such genre", 404)
         return JsonResponse(genre.to_dict(), 200)
 
-    async def put(self, request, genre_id: int):
+    @admin_required
+    async def put(self, request: Request, genre_id: int, token: Token):
         genre = await service.get_genre_by_id(genre_id)
         if not genre:
             raise ServerError("no such genre", 404)
         await genre.update(**request.json).apply()
         return JsonResponse({"message": "success"}, status=202)
 
-    async def delete(self, request, genre_id: int):
+    @admin_required
+    async def delete(self, request: Request, genre_id: int, token: Token):
         genre = await service.get_genre_by_id(genre_id)
         if not genre:
             raise ServerError("no such genre", 404)
