@@ -30,7 +30,15 @@ PUT {{ host }}/auth/profile
 Content-Type: application/json
 
 {
-    "email": "seonu97@gmail.com"
+    "email": "jane@test.com"
+}
+
+### rollback user email
+PUT {{ host }}/auth/profile
+Content-Type: application/json
+
+{
+    "email": "user@test.com"
 }
 
 ### reset user password
@@ -38,6 +46,16 @@ PUT {{ host }}/auth/reset-password
 Content-Type: application/json
 
 {
-    "original_password": "1234!",
-    "new_password": "12345!"
+    "original_password": "abcdefg!!!",
+    "new_password": "abcdefghi!!!"
+}
+
+
+### rollback user password
+PUT {{ host }}/auth/reset-password
+Content-Type: application/json
+
+{
+    "original_password": "abcdefghi!!!",
+    "new_password": "abcdefg!!!"
 }

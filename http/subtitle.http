@@ -12,23 +12,71 @@ Content-Type: application/json
 }
 
 
+########## Content ##########
+
+### Create Content
+POST {{ host }}/subtitle/contents
+Content-Type: application/json
+
+{
+    "title": "Avatar",
+    "year": "2009",
+    "reference": "",
+    "category_id": 1
+}
+
 ### Content List
 GET {{ host }}/subtitle/contents
 Content-Type: application/json
 
-### DELETE Content
+### Get Content Detail
+GET {{ host }}/subtitle/contents/2
+Content-Type: application/json
+
+### Update Content
+PUT {{ host }}/subtitle/contents/2
+Content-Type: application/json
+
+{
+    "title": "Avatar"
+}
+
+### Delete Content
 DELETE {{ host }}/subtitle/contents/2
 Content-Type: application/json
 
-### Line List
-GET {{ host }}/subtitle/contents/1/lines
+### Fetch genres of content
+GET {{ host }}/subtitle/contents/2/genres
 Content-Type: application/json
+
+### Add genres to content
+POST {{ host }}/subtitle/contents/2/genres
+Content-Type: application/json
+
+{
+    "genre_ids": [1, 2, 3]
+}
+
+### Update genres to content
+PUT {{ host }}/subtitle/contents/2/genres
+Content-Type: application/json
+
+{
+    "genre_ids": [2, 3, 5]
+}
+
+
+### Fetch content lines
+GET {{ host }}/subtitle/contents/1/lines?cursor=3242
+
+
+########### Category ###########
 
 ### Category List
 GET {{ host }}/subtitle/categories
 Content-Type: application/json
 
-### Post Category
+### Create Category
 POST {{ host }}/subtitle/categories
 Content-Type: application/json
 
@@ -36,19 +84,11 @@ Content-Type: application/json
     "category": "youtube"
 }
 
-### Post genre
-POST {{ host }}/subtitle/genres
-Content-Type: application/json
-
-{
-    "genre": "crime"
-}
-
-### Get Individual Category
+### Category Detail
 GET {{ host }}/subtitle/categories/1
 Content-Type: application/json
 
-### Change Individual Category
+### Update Individual Category
 PUT {{ host }}/subtitle/categories/3
 Content-Type: application/json
 
@@ -60,11 +100,25 @@ Content-Type: application/json
 DELETE {{ host }}/subtitle/categories/7
 Content-Type: application/json
 
-### Get Individual genre
+########### Genre ###########
+
+### Genre List
+GET {{ host }}/subtitle/genres
+Content-Type: application/json
+
+### Create genre
+POST {{ host }}/subtitle/genres
+Content-Type: application/json
+
+{
+    "genre": "crime"
+}
+
+### Genre Detail
 GET {{ host }}/subtitle/genres/2
 Content-Type: application/json
 
-### Change Individual genre
+### Update Individual genre
 PUT {{ host }}/subtitle/genres/10
 Content-Type: application/json
 
@@ -75,6 +129,10 @@ Content-Type: application/json
 ### Delete Individual genre
 DELETE {{ host }}/subtitle/genres/2
 Content-Type: application/json
+
+
+########### Translation ###########
+
 
 ### Get Specific translation
 GET {{ host }}/subtitle/translations/1423

@@ -1,27 +1,27 @@
 from typing import List, Dict, Any, Tuple
 
 from sanic.request import Request
+from sanic.views import HTTPMethodView
 from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
 from sanic_jwt_extended import jwt_optional
 from sanic_jwt_extended.tokens import Token
 
 from app.db_models import LineLike, TranslationLike, Translation
-from app.db_access.mypage import (
+from app.services.mypage import (
     get_user_activitiy_summary,
     fetch_user_liked_english_lines,
     fetch_user_liked_korean_lines,
     fetch_user_translations,
 )
-from app.db_access.subtitle import (
+from app.services.subtitle import (
     get_like_count_per_english_line,
     get_like_count_per_korean_line,
     get_translation_count_per_line,
-    get_genres_per_content,
-    get_user_liked_english_lines,
-    get_user_liked_korean_lines,
+    fetch_genres_per_content,
+    fetch_user_liked_english_lines,
+    fetch_user_liked_korean_lines,
 )
-from app.libs.views import APIView
 from app.utils import JsonResponse, calc_max_page
 from app.decorators import expect_query
 from app.exceptions import DataDoesNotExist
@@ -30,7 +30,7 @@ from app.exceptions import DataDoesNotExist
 blueprint = Blueprint("mypage_blueprint", url_prefix="/my-page")
 
 
-class UserActivitySummary(APIView):
+class UserActivitySummary(HTTPMethodView):
     async def get(self, request: Request, user_id: str):
         try:
             resp = await get_user_activitiy_summary(user_id)
@@ -39,7 +39,7 @@ class UserActivitySummary(APIView):
         return JsonResponse(resp, status=200)
 
 
-class UserLikedEnglishLines(APIView):
+class UserLikedEnglishLines(HTTPMethodView):
     def _get_required_ids(self, lines: List[Dict[str, Any]]) -> Tuple[List[int]]:
         content_ids = []
         line_ids = []
@@ -65,10 +65,10 @@ class UserLikedEnglishLines(APIView):
         content_ids, line_ids = self._get_required_ids(lines)
         like_count = await get_like_count_per_english_line(line_ids)
         translation_count = await get_translation_count_per_line(line_ids)
-        genres = await get_genres_per_content(content_ids)
+        genres = await fetch_genres_per_content(content_ids)
         user_id = token.identity if token else None
         user_liked = (
-            await get_user_liked_english_lines(user_id, line_ids) if user_id else []
+            await fetch_user_liked_english_lines(user_id, line_ids) if user_id else []
         )
         data = [
             {
@@ -90,7 +90,7 @@ class UserLikedEnglishLines(APIView):
         return JsonResponse(resp, status=200,)
 
 
-class UserLikedKoreanLines(APIView):
+class UserLikedKoreanLines(HTTPMethodView):
     def _get_required_ids(self, translations: List[Dict[str, Any]]) -> Tuple[List[int]]:
         content_ids = []
         translation_ids = []
@@ -118,12 +118,12 @@ class UserLikedKoreanLines(APIView):
             user_id, limit=per_page, offset=offset
         )
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
-        genres = await get_genres_per_content(content_ids)
+        genres = await fetch_genres_per_content(content_ids)
         like_count = await get_like_count_per_korean_line(translation_ids)
         translation_count = await get_translation_count_per_line(line_ids)
         user_id = token.identity if token else None
         user_liked = (
-            await get_user_liked_korean_lines(user_id, translation_ids)
+            await fetch_user_liked_korean_lines(user_id, translation_ids)
             if user_id
             else []
         )
@@ -144,7 +144,7 @@ class UserLikedKoreanLines(APIView):
         )
 
 
-class UserTranslations(APIView):
+class UserTranslations(HTTPMethodView):
     def _get_required_ids(self, translations: List[Dict[str, Any]]) -> Tuple[List[int]]:
         content_ids = []
         translation_ids = []
@@ -170,12 +170,12 @@ class UserTranslations(APIView):
             user_id, limit=per_page, offset=offset
         )
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
-        genres = await get_genres_per_content(content_ids)
+        genres = await fetch_genres_per_content(content_ids)
         like_count = await get_like_count_per_korean_line(translation_ids)
         translation_count = await get_translation_count_per_line(line_ids)
         user_id = token.identity if token else None
         user_liked = (
-            await get_user_liked_korean_lines(user_id, translation_ids)
+            await fetch_user_liked_korean_lines(user_id, translation_ids)
             if user_id
             else []
         )
