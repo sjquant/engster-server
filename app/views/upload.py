@@ -1,5 +1,4 @@
 import datetime
-from typing import List
 from io import BytesIO
 import uuid
 
@@ -9,8 +8,7 @@ from sanic.exceptions import ServerError
 import pandas as pd
 from PIL import Image
 
-from app.db_models import Line, Content, ContentXGenre, Category, Genre, Translation
-from app.decorators import expect_body
+from app.db_models import Line, Content, Translation
 from app.utils import JsonResponse, validate_file_size
 from app.libs import converter
 
@@ -89,41 +87,6 @@ async def create_mixed_csv(request):
         {"message": "successfully combined eng and kor and converted it to csv"},
         status=201,
     )
-
-
-@blueprint.route("/upload/content", methods=["POST"])
-@expect_body(
-    title=(str, ...),
-    year=(str, ...),
-    reference=(str, ""),
-    category_id=(int, ...),
-    genre_ids=(List[int], ...),
-)
-async def upload_content(request):
-    """
-    Upload Single File
-    """
-    title = request.json["title"]
-    year = request.json["year"]
-    reference = request.json["reference"]
-    category_id = request.json["category_id"]
-    genre_ids = request.json["genre_ids"]
-
-    category = await Category.get(category_id)
-    genres = await Genre.query.where(Genre.id.in_(genre_ids)).gino.all()
-    content = Content(
-        title=title, year=year, reference=reference, category_id=category.id
-    )
-
-    await content.create()
-
-    content_genre_list = [
-        dict(content_id=content.id, genre_id=genre.id) for genre in genres
-    ]
-
-    await ContentXGenre.insert().gino.all(*content_genre_list)
-
-    return JsonResponse(content.to_dict(), status=201)
 
 
 @blueprint.route("/upload/eng-subtitle/<content_id:int>", methods=["POST"])

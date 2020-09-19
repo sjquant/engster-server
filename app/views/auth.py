@@ -1,6 +1,8 @@
 import asyncpg
+
 from sanic import Blueprint
 from sanic.request import Request
+from sanic.views import HTTPMethodView
 from sanic.exceptions import ServerError
 from sanic_jwt_extended import (
     refresh_jwt_required,
@@ -9,12 +11,10 @@ from sanic_jwt_extended import (
 from sanic_jwt_extended.tokens import Token
 
 from app import JWT
-from app.db_models import User
-from app.db_access.user import get_user_by_email, get_user_by_id, create_user
+from app.services.user import get_user_by_email, get_user_by_id, create_user
 from app.utils import JsonResponse, set_access_cookies, set_refresh_cookies
 from app.decorators import expect_body
 from app.models import UserModel
-from app.libs.views import DetailAPIView
 from app.vendors.sanic_oauth import GoogleClient, FacebookClient, NaverClient
 
 blueprint = Blueprint("auth_blueprint", url_prefix="/auth")
@@ -142,20 +142,19 @@ async def refresh_token(request, token: Token):
     return resp
 
 
-class UserProfileView(DetailAPIView):
-    model = User
-
+class UserProfileView(HTTPMethodView):
     @jwt_required
     async def get(self, request, token: Token):
         user_id = token.identity
-        user = await super().get(request, id=user_id, return_obj=True)
+        user = await get_user_by_id(user_id)
         return JsonResponse(UserModel.from_orm(user), status=200)
 
     @jwt_required
-    @expect_body(email=(str, None), nickname=(str, None), photo=(str, None))
     async def put(self, request: Request, token: Token):
         user_id = token.identity
-        user = await super().put(request, id=user_id, return_obj=True)
+        data = {key: value for key, value in request.json.items()}
+        user = await get_user_by_id(user_id)
+        await user.update(**data).apply()
         return JsonResponse(UserModel.from_orm(user), status=202)
 
     async def delete(self):

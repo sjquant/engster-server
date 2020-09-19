@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from uuid import UUID
 
 from app import db
@@ -13,6 +13,86 @@ from app.db_models import (
     TranslationLike,
     LineLike,
 )
+
+
+async def fetch_contents(
+    limit: int, cursor: Optional[int] = None
+) -> List[Dict[str, Any]]:
+    """Fetch contents"""
+    if cursor:
+        query = (
+            Content.query.where(Content.id < cursor)
+            .limit(limit)
+            .order_by(Content.id.desc())
+        )
+    else:
+        query = Content.query.limit(limit).order_by(Content.id.desc())
+    data = await query.gino.all()
+    return [each.to_dict() for each in data]
+
+
+async def get_content_by_id(content_id: int) -> Content:
+    content = await Content.query.where(Content.id == content_id).gino.first()
+    return content
+
+
+async def fetch_all_categories() -> List[Dict[str, Any]]:
+    """Fetch all categories"""
+    data = await Category.query.gino.all()
+    return [each.to_dict() for each in data]
+
+
+async def get_category_by_id(category_id: int) -> Category:
+    category = await Category.query.where(Category.id == category_id).gino.first()
+    return category
+
+
+async def fetch_all_genres() -> List[Dict[str, Any]]:
+    """Fetch all genres"""
+    data = await Genre.query.gino.all()
+    return [each.to_dict() for each in data]
+
+
+async def fetch_genres_by_ids(genre_ids) -> List[Dict[str, Any]]:
+    """Fetch genres by ids"""
+    data = await Genre.query.where(Genre.id.in_(genre_ids)).gino.all()
+    return [each.to_dict() for each in data]
+
+
+async def get_genre_by_id(genre_id: int) -> Genre:
+    genre = await Genre.query.where(Genre.id == genre_id).gino.first()
+    return genre
+
+
+async def add_genres_to_content(
+    content: Content, genres: List[Dict[str, Any]]
+) -> None:
+    """Add genres to content"""
+    content_x_genres = [
+        dict(content_id=content.id, genre_id=genre["id"]) for genre in genres
+    ]
+    await ContentXGenre.insert().gino.all(*content_x_genres)
+
+
+async def empty_content_of_gneres(content_id: int) -> None:
+    await ContentXGenre.delete.where(
+        ContentXGenre.content_id == content_id
+    ).gino.status()
+
+
+async def fetch_content_lines(
+    content_id: int, limit: int = 20, cursor: int = None
+) -> List[Dict[str, Any]]:
+    """Fetch lines of a content"""
+
+    if cursor is None:
+        condition = Line.content_id == content_id
+    else:
+        condition = db.and_(Line.content_id == content_id, Line.id < cursor)
+
+    query = Line.query.where(condition).order_by(Line.id.desc()).limit(limit)
+    data = await query.gino.all()
+    return [each.to_dict() for each in data]
 
 
 async def get_like_count_per_english_line(line_ids: List[int]) -> Dict[int, int]:
@@ -43,7 +123,9 @@ async def get_like_count_per_korean_line(translation_ids: List[int]) -> Dict[int
     return {each[0]: each[1] for each in data}
 
 
-async def get_user_liked_english_lines(user_id: UUID, line_ids: List[int]) -> List[int]:
+async def fetch_user_liked_english_lines(
+    user_id: UUID, line_ids: List[int]
+) -> List[int]:
     query = db.select([LineLike.line_id]).where(
         db.and_(LineLike.user_id == user_id, LineLike.line_id.in_(line_ids))
     )
@@ -51,7 +133,7 @@ async def get_user_liked_english_lines(user_id: UUID, line_ids: List[int]) -> Li
     return [each[0] for each in data]
 
 
-async def get_user_liked_korean_lines(
+async def fetch_user_liked_korean_lines(
     user_id: UUID, translation_ids: List[int]
 ) -> List[int]:
     query = db.select([TranslationLike.translation_id]).where(
@@ -190,7 +272,7 @@ async def get_translation_count_per_line(line_ids: List[int]) -> Dict[int, int]:
     return translation_count_per_line
 
 
-async def get_genres_per_content(content_ids: List[int]) -> Dict[str, Dict[str, Any]]:
+async def fetch_genres_per_content(content_ids: List[int]) -> Dict[str, Dict[str, Any]]:
     """get genres of each content"""
     query = (
         db.select([Genre.id, Genre.genre, ContentXGenre.content_id])
@@ -205,7 +287,7 @@ async def get_genres_per_content(content_ids: List[int]) -> Dict[str, Dict[str, 
     return genres
 
 
-async def get_translations(
+async def fetch_translations(
     line_id: int, limit: int = 15, offset: int = 0
 ) -> List[Dict[str, Any]]:
     query = (
@@ -225,7 +307,7 @@ async def get_translations(
     return translations
 
 
-async def get_translation(translation_id: int) -> Translation:
+async def get_translation_by_id(translation_id: int) -> Translation:
     query = Translation.query.where(db.and_(Translation.id == translation_id))
     translation = query.gino.first()
     return translation

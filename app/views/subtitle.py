@@ -3,6 +3,7 @@ from typing import List, Tuple, Dict, Any, Optional
 import asyncpg
 from pydantic import constr
 from sanic.request import Request
+from sanic.views import HTTPMethodView
 from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
 from sanic_jwt_extended import jwt_required, jwt_optional
@@ -16,79 +17,173 @@ from app.db_models import (
     Genre,
     Content,
 )
-from app.libs.views import APIView, ListAPIView, DetailAPIView
-from app.libs.view_mixins import (
-    UpdateModelMixin,
-    DestroyModelMixin,
-)
-from app.utils import calc_max_page
-from app.utils import JsonResponse
 from app.decorators import expect_query, expect_body
-from app.db_access.subtitle import (
-    get_like_count_per_korean_line,
-    get_like_count_per_english_line,
-    randomly_pick_subtitles,
-    search_english_lines,
-    search_korean_lines,
-    get_translation_count_per_line,
-    get_genres_per_content,
-    get_user_liked_english_lines,
-    get_user_liked_korean_lines,
-    get_translations,
-    get_translation,
-    create_english_like,
-    delete_english_like,
-    create_korean_like,
-    delete_korean_like,
-)
-
+from app.services import subtitle as service
+from app.utils import calc_max_page, JsonResponse
+from app import db
 
 blueprint = Blueprint("subtitle_blueprint", url_prefix="subtitle")
 
 
-class ContentList(ListAPIView):
-    model = Content
+class ContentList(HTTPMethodView):
+    @expect_query(limit=(int, 10), cursor=(int, None))
+    async def get(self, request, limit, cursor):
+        contents = await service.fetch_contents(limit, cursor)
+        return JsonResponse({"data": contents}, 200)
 
-
-class CategoryList(ListAPIView):
-    model = Category
-
-
-class GenreList(ListAPIView):
-    model = Genre
-
-
-class ContentDetail(DetailAPIView):
-    model = Content
-
-
-class CategoryDetail(DetailAPIView):
-    model = Category
-
-
-class GenreDetail(DetailAPIView):
-    model = Genre
-
-
-class TranslationDetail(DetailAPIView):
-    model = Translation
-
-
-class LineList(ListAPIView):
-    model = Line
-
-    def get_query(self, request, content_id: int):
-        return Line.query.where(Line.content_id == content_id)
-
-    @expect_query(page=(int, 1), content_id=(int, ...))
-    async def get(self, request, page, content_id):
-        return await super().get(request, page=page, content_id=content_id)
-
+    @expect_body(
+        title=(str, ...), year=(str, ...), reference=(str, ""), category_id=(int, None),
+    )
     async def post(self, request):
-        raise ServerError("Not Allowed Method", 405)
+        """
+        Create content
+        """
+        content = await Content(**request.json).create()
+        return JsonResponse(content.to_dict(), status=201)
 
 
-class RandomSubtitles(APIView):
+class ContentXGenreList(HTTPMethodView):
+    async def get(self, request, content_id: int):
+        """
+        Fetch genres to content
+        """
+        res = await service.fetch_genres_per_content([content_id])
+        genres = res.get(content_id, [])
+        return JsonResponse(genres, status=200)
+
+    @expect_body(genre_ids=(List[int], ...))
+    async def post(self, request, content_id: int):
+        """
+        Add genres to content
+        """
+        content = await service.get_content_by_id(content_id)
+        genre_ids = request.json["genre_ids"]
+        if not content:
+            raise ServerError("no such content", 404)
+
+        genres = await service.fetch_genres_by_ids(genre_ids)
+        if len(genre_ids) != len(genres):
+            raise ServerError("some genres are missing", 400)
+
+        await service.add_genres_to_content(content, genres)
+        return JsonResponse({"message": "success"}, status=201)
+
+    @expect_body(genre_ids=(List[int], ...))
+    async def put(self, request, content_id: int):
+        """
+        Update genres of contents
+        """
+        content = await service.get_content_by_id(content_id)
+        genre_ids = request.json["genre_ids"]
+        if not content:
+            raise ServerError("no such content", 404)
+
+        genres = await service.fetch_genres_by_ids(genre_ids)
+        if len(genre_ids) != len(genres):
+            raise ServerError("some genres are missing", 400)
+
+        async with db.transaction():
+            await service.empty_content_of_gneres(content_id)
+            await service.add_genres_to_content(content, genres)
+        return JsonResponse({"message": "success"}, status=202)
+
+
+class CategoryList(HTTPMethodView):
+    async def get(self, request):
+        categories = await service.fetch_all_categories()
+        return JsonResponse({"data": categories}, 200)
+
+    @expect_body(category=(str, ...))
+    async def post(self, request):
+        category = await Category(**request.json).create()
+        return JsonResponse(category.to_dict(), status=201)
+
+
+class GenreList(HTTPMethodView):
+    async def get(self, request):
+        genres = await service.fetch_all_genres()
+        return JsonResponse({"data": genres}, 200)
+
+    @expect_body(genre=(str, ...))
+    async def post(self, request):
+        genre = await Genre(**request.json).create()
+        return JsonResponse(genre.to_dict(), status=200)
+
+
+class LineList(HTTPMethodView):
+    @expect_query(cursor=(int, None), limit=(int, 20))
+    async def get(self, request, content_id: int, cursor: int, limit: int):
+        lines = await service.fetch_content_lines(content_id, limit, cursor)
+        return JsonResponse(lines, status=200)
+
+
+class ContentDetail(HTTPMethodView):
+    async def get(self, request, content_id: int):
+        content = await service.get_content_by_id(content_id)
+        if not content:
+            raise ServerError("no such content", 404)
+        return JsonResponse(content.to_dict(), 200)
+
+    async def put(self, request, content_id: int):
+        content = await service.get_content_by_id(content_id)
+        if not content:
+            raise ServerError("no such content", 404)
+        await content.update(**request.json).apply()
+        return JsonResponse({"message": "success"}, status=202)
+
+    async def delete(self, request, content_id: int):
+        content = await service.get_content_by_id(content_id)
+        if not content:
+            raise ServerError("no such content", 404)
+        await content.delete()
+        return JsonResponse({"message": "success"}, status=204)
+
+
+class CategoryDetail(HTTPMethodView):
+    async def get(self, request, category_id: int):
+        category = await service.get_category_by_id(category_id)
+        if not category:
+            raise ServerError("no such category", 404)
+        return JsonResponse(category.to_dict(), 200)
+
+    async def put(self, request, category_id: int):
+        category = await service.get_category_by_id(category_id)
+        if not category:
+            raise ServerError("no such category", 404)
+        await category.update(**request.json).apply()
+        return JsonResponse({"message": "success"}, status=202)
+
+    async def delete(self, request, category_id: int):
+        category = await service.get_category_by_id(category_id)
+        if not category:
+            raise ServerError("no such category", 404)
+        await category.delete()
+        return JsonResponse({"message": "success"}, status=204)
+
+
+class GenreDetail(HTTPMethodView):
+    async def get(self, request, genre_id):
+        genre = await service.get_genre_by_id(genre_id)
+        if not genre:
+            raise ServerError("no such genre", 404)
+        return JsonResponse(genre.to_dict(), 200)
+
+    async def put(self, request, genre_id: int):
+        genre = await service.get_genre_by_id(genre_id)
+        if not genre:
+            raise ServerError("no such genre", 404)
+        await genre.update(**request.json).apply()
+        return JsonResponse({"message": "success"}, status=202)
+
+    async def delete(self, request, genre_id: int):
+        genre = await service.get_genre_by_id(genre_id)
+        if not genre:
+            raise ServerError("no such genre", 404)
+        await genre.delete()
+        return JsonResponse({"message": "success"}, status=204)
+
+
+class RandomSubtitles(HTTPMethodView):
     """
     This view is temporarily serving for main page.
     It will be replaced by a recommendation system or contents.
@@ -110,14 +205,16 @@ class RandomSubtitles(APIView):
             count: approximated count to pick.
                 It does not ensure **exact count**.
         """
-        lines = await randomly_pick_subtitles(count)
+        lines = await service.randomly_pick_subtitles(count)
         content_ids, line_ids = self._get_required_ids(lines)
-        like_count = await get_like_count_per_english_line(line_ids)
-        translation_count = await get_translation_count_per_line(line_ids)
-        genres = await get_genres_per_content(content_ids)
+        like_count = await service.get_like_count_per_english_line(line_ids)
+        translation_count = await service.get_translation_count_per_line(line_ids)
+        genres = await service.fetch_genres_per_content(content_ids)
         user_id = token.identity if token else None
         user_liked = (
-            await get_user_liked_english_lines(user_id, line_ids) if user_id else []
+            await service.fetch_user_liked_english_lines(user_id, line_ids)
+            if user_id
+            else []
         )
         data = [
             {
@@ -138,7 +235,7 @@ class RandomSubtitles(APIView):
         return JsonResponse(resp, status=200)
 
 
-class SearchEnglish(APIView):
+class SearchEnglish(HTTPMethodView):
     def _get_required_ids(self, lines: List[Dict[str, Any]]) -> Tuple[List[int]]:
         content_ids = []
         line_ids = []
@@ -161,14 +258,16 @@ class SearchEnglish(APIView):
                 {"max_page": 0, "count": 0, "page": 0, "data": []}, status=200,
             )
         offset = per_page * (page - 1)
-        lines = await search_english_lines(keyword, per_page, offset)
+        lines = await service.search_english_lines(keyword, per_page, offset)
         content_ids, line_ids = self._get_required_ids(lines)
-        like_count = await get_like_count_per_english_line(line_ids)
-        translation_count = await get_translation_count_per_line(line_ids)
-        genres = await get_genres_per_content(content_ids)
+        like_count = await service.get_like_count_per_english_line(line_ids)
+        translation_count = await service.get_translation_count_per_line(line_ids)
+        genres = await service.fetch_genres_per_content(content_ids)
         user_id = token.identity if token else None
         user_liked = (
-            await get_user_liked_english_lines(user_id, line_ids) if user_id else []
+            await service.fetch_user_liked_english_lines(user_id, line_ids)
+            if user_id
+            else []
         )
         data = [
             {
@@ -189,7 +288,7 @@ class SearchEnglish(APIView):
         return JsonResponse(resp, status=200)
 
 
-class SearchKorean(APIView):
+class SearchKorean(HTTPMethodView):
     def _get_required_ids(self, translations: List[Dict[str, Any]]) -> Tuple[List[int]]:
         content_ids = []
         translation_ids = []
@@ -217,14 +316,14 @@ class SearchKorean(APIView):
                 {"max_page": 0, "page": 0, "count": 0, "data": []}, status=200,
             )
 
-        translations = await search_korean_lines(keyword, per_page, offset)
+        translations = await service.search_korean_lines(keyword, per_page, offset)
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
-        genres = await get_genres_per_content(content_ids)
-        like_count = await get_like_count_per_korean_line(translation_ids)
-        translation_count = await get_translation_count_per_line(line_ids)
+        genres = await service.fetch_genres_per_content(content_ids)
+        like_count = await service.get_like_count_per_korean_line(translation_ids)
+        translation_count = await service.get_translation_count_per_line(line_ids)
         user_id = token.identity if token else None
         user_liked = (
-            await get_user_liked_korean_lines(user_id, translation_ids)
+            await service.fetch_user_liked_korean_lines(user_id, translation_ids)
             if user_id
             else []
         )
@@ -247,7 +346,7 @@ class SearchKorean(APIView):
         return JsonResponse(resp)
 
 
-class TranslationListView(APIView):
+class TranslationList(HTTPMethodView):
     @jwt_optional
     @expect_query(page=(int, 1), per_page=(int, 10), line_id=(int, ...))
     async def get(
@@ -265,12 +364,12 @@ class TranslationListView(APIView):
                 {"max_page": 0, "page": 0, "count": 0, "data": []}, status=200
             )
 
-        translations = await get_translations(line_id, per_page, offset)
+        translations = await service.fetch_translations(line_id, per_page, offset)
         translation_ids = [each["id"] for each in translations]
-        like_count = await get_like_count_per_korean_line(translation_ids)
+        like_count = await service.get_like_count_per_korean_line(translation_ids)
         user_id = token.identity if token else None
         user_liked = (
-            await get_user_liked_korean_lines(user_id, translation_ids)
+            await service.fetch_user_liked_korean_lines(user_id, translation_ids)
             if user_id
             else []
         )
@@ -303,37 +402,47 @@ class TranslationListView(APIView):
         )
 
 
-class TranslationDetailView(APIView, UpdateModelMixin, DestroyModelMixin):
-    async def get_object(self, translation_id):
-        return await get_translation(translation_id)
+class TranslationDetail(HTTPMethodView):
+    async def get(self, request, translation_id: int):
+        translation = await service.get_translation_by_id(translation_id)
+        if not translation:
+            raise ServerError("no such translation", 404)
+        return JsonResponse(translation.to_dict(), 200)
 
     @jwt_required
     async def put(self, request: Request, translation_id: int, token: Token):
-        translation = await get_translation(translation_id)
         user_id = token.identity
+        translation = await service.get_translation_by_id(translation_id)
+        if not translation:
+            raise ServerError("no such translation", 404)
+
         if user_id == translation.translatior_id:
-            resp = await self.update(request, translation_id)
-            return resp
+            await translation.update(**request.json).apply()
+            return JsonResponse({"message": "success"}, 202)
         else:
             raise ServerError("permission denied", 403)
 
     @jwt_required
     async def delete(self, request: Request, translation_id: int, token: Token):
-        translation = await get_translation(translation_id)
         user_id = token.identity
+        translation = await service.get_translation_by_id(translation_id)
+        if not translation:
+            raise ServerError("no such translation", 404)
+
         if user_id == translation.translatior_id:
-            resp = await self.destroy(request, translation_id)
+            await translation.delete()
+            resp = await translation.destroy(request, translation_id)
             return resp
         else:
             raise ServerError("permission denied", 403)
 
 
-class LikeEnglish(APIView):
+class LikeEnglish(HTTPMethodView):
     @jwt_required
     async def post(self, request: Request, line_id: int, token: Token):
         user_id = token.identity
         try:
-            await create_english_like(line_id, user_id)
+            await service.create_english_like(line_id, user_id)
         except asyncpg.exceptions.UniqueViolationError:
             return JsonResponse({"message": "already liked"}, status=400)
         return JsonResponse({"message": "liked"}, status=201)
@@ -341,16 +450,16 @@ class LikeEnglish(APIView):
     @jwt_required
     async def delete(self, request: Request, line_id: int, token: Token):
         user_id = token.identity
-        await delete_english_like(line_id, user_id)
+        await service.delete_english_like(line_id, user_id)
         return JsonResponse({"message": "deleted like"}, status=204)
 
 
-class LikeKorean(APIView):
+class LikeKorean(HTTPMethodView):
     @jwt_required
     async def post(self, request: Request, translation_id: int, token: Token):
         user_id = token.identity
         try:
-            await create_korean_like(translation_id, user_id)
+            await service.create_korean_like(translation_id, user_id)
         except asyncpg.exceptions.UniqueViolationError:
             return JsonResponse({"message": "already liked"}, status=400)
         return JsonResponse({"message": "liked"}, status=201)
@@ -358,24 +467,22 @@ class LikeKorean(APIView):
     @jwt_required
     async def delete(self, request: Request, translation_id: int, token: Token):
         user_id = token.identity
-        await delete_korean_like(translation_id, user_id)
+        await service.delete_korean_like(translation_id, user_id)
         return JsonResponse({"message": "deleted like"}, status=204)
 
 
 blueprint.add_route(ContentList.as_view(), "/contents")
 blueprint.add_route(CategoryList.as_view(), "/categories")
 blueprint.add_route(GenreList.as_view(), "/genres")
-blueprint.add_route(ContentDetail.as_view(), "/contents/<id:int>"),
+blueprint.add_route(ContentXGenreList.as_view(), "/contents/<content_id:int>/genres")
+blueprint.add_route(ContentDetail.as_view(), "/contents/<content_id:int>"),
 blueprint.add_route(LineList.as_view(), "/contents/<content_id:int>/lines"),
-blueprint.add_route(CategoryDetail.as_view(), "/categories/<id:int>")
-blueprint.add_route(GenreDetail.as_view(), "/genres/<id:int>")
+blueprint.add_route(CategoryDetail.as_view(), "/categories/<category_id:int>")
+blueprint.add_route(GenreDetail.as_view(), "/genres/<genre_id:int>")
 blueprint.add_route(RandomSubtitles.as_view(), "/random/subtitles")
 blueprint.add_route(SearchEnglish.as_view(), "/search/english")
 blueprint.add_route(SearchKorean.as_view(), "/search/korean")
-blueprint.add_route(TranslationDetail.as_view(), "/translations/<id:int>")
-blueprint.add_route(TranslationListView.as_view(), "/translations")
-blueprint.add_route(
-    TranslationDetailView.as_view(), "/translations/<translation_id:int>"
-)
+blueprint.add_route(TranslationList.as_view(), "/translations")
+blueprint.add_route(TranslationDetail.as_view(), "/translations/<translation_id:int>")
 blueprint.add_route(LikeEnglish.as_view(), "/likes/english/<line_id:int>")
 blueprint.add_route(LikeKorean.as_view(), "/likes/korean/<translation_id:int>")
