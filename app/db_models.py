@@ -159,6 +159,7 @@ class LineLike(TimeStampedModel):
     user_id = db.Column(UUID, db.ForeignKey("user.id"))
     line_id = db.Column(db.Integer, db.ForeignKey("line.id"))
 
+    _id_idx = db.Index("line_like_idx_id", "id")
     _unique = db.UniqueConstraint("user_id", "line_id", name="line_like_unique")
 
     def __repr__(self):
@@ -193,6 +194,7 @@ class TranslationLike(TimeStampedModel):
         db.Integer, db.ForeignKey("translation.id"), nullable=False
     )
 
+    _id_idx = db.Index("translation_like_idx_id", "id")
     _unique = db.UniqueConstraint(
         "user_id", "translation_id", name="translation_like_unique"
     )

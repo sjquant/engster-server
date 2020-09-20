@@ -7,10 +7,9 @@ from sanic.blueprints import Blueprint
 from sanic_jwt_extended import jwt_optional
 from sanic_jwt_extended.tokens import Token
 
-from app.db_models import LineLike, TranslationLike, Translation
 from app.services import mypage as mypage_service
 from app.services import subtitle as subtitle_service
-from app.utils import JsonResponse, calc_max_page
+from app.utils import JsonResponse
 from app.decorators import expect_query
 from app.exceptions import DataDoesNotExist
 
@@ -37,18 +36,12 @@ class UserLikedEnglishLines(HTTPMethodView):
         return content_ids, line_ids
 
     @jwt_optional
-    @expect_query(page=(int, 1), per_page=(int, 15))
+    @expect_query(limit=(int, 20), cursor=(int, None))
     async def get(
-        self, request: Request, user_id: str, page: int, per_page: int, token: Token
+        self, request: Request, user_id: str, limit: int, cursor: int, token: Token
     ):
-        max_page, count = await calc_max_page(per_page, LineLike.user_id == user_id)
-        offset = per_page * (page - 1)
-        if page > max_page:
-            return JsonResponse(
-                {"max_page": 0, "count": 0, "page": 0, "data": []}, status=200
-            )
         lines = await mypage_service.fetch_user_liked_english_lines(
-            user_id, limit=per_page, offset=offset
+            user_id, limit=limit, cursor=cursor
         )
         content_ids, line_ids = self._get_required_ids(lines)
         like_count = await subtitle_service.get_like_count_per_english_line(line_ids)
@@ -73,9 +66,8 @@ class UserLikedEnglishLines(HTTPMethodView):
             for line in lines
         ]
         resp = {
-            "max_page": max_page,
-            "page": page,
-            "count": count,
+            "limit": limit,
+            "cursor": cursor,
             "data": data,
         }
 
@@ -94,20 +86,12 @@ class UserLikedKoreanLines(HTTPMethodView):
         return content_ids, translation_ids, line_ids
 
     @jwt_optional
-    @expect_query(page=(int, 1), per_page=(int, 15))
+    @expect_query(limit=(int, 20), cursor=(int, None))
     async def get(
-        self, request: Request, user_id: str, page: int, per_page: int, token: Token
+        self, request: Request, user_id: str, limit: int, cursor: int, token: Token
     ):
-        max_page, count = await calc_max_page(
-            per_page, TranslationLike.user_id == user_id
-        )
-        offset = per_page * (page - 1)
-        if page > max_page:
-            return JsonResponse(
-                {"max_page": 0, "count": 0, "page": 0, "data": []}, status=200
-            )
         translations = await mypage_service.fetch_user_liked_korean_lines(
-            user_id, limit=per_page, offset=offset
+            user_id, limit=limit, cursor=cursor
         )
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
         genres = await subtitle_service.fetch_genres_per_content(content_ids)
@@ -137,8 +121,7 @@ class UserLikedKoreanLines(HTTPMethodView):
         ]
 
         return JsonResponse(
-            {"max_page": max_page, "page": page, "count": count, "data": data},
-            status=200,
+            {"limit": limit, "cursor": cursor, "data": data}, status=200,
         )
 
 
@@ -154,18 +137,12 @@ class UserTranslations(HTTPMethodView):
         return content_ids, translation_ids, line_ids
 
     @jwt_optional
-    @expect_query(page=(int, 1), per_page=(int, 15))
+    @expect_query(limit=(int, 20), cursor=(int, None))
     async def get(
-        self, request: Request, user_id: str, page: int, per_page: int, token: Token
+        self, request: Request, user_id: str, limit: int, cursor: int, token: Token
     ):
-        max_page, count = await calc_max_page(per_page, Translation.user_id == user_id)
-        offset = per_page * (page - 1)
-        if page > max_page:
-            return JsonResponse(
-                {"max_page": 0, "count": 0, "page": 0, "data": []}, status=200
-            )
         translations = await mypage_service.fetch_user_translations(
-            user_id, limit=per_page, offset=offset
+            user_id, limit=limit, cursor=cursor
         )
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
         genres = await subtitle_service.fetch_genres_per_content(content_ids)
@@ -195,8 +172,7 @@ class UserTranslations(HTTPMethodView):
         ]
 
         return JsonResponse(
-            {"max_page": max_page, "page": page, "count": count, "data": data},
-            status=200,
+            {"limit": limit, "cursor": cursor, "data": data}, status=200,
         )
 
 

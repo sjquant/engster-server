@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from uuid import UUID
 from app.db_models import (
     Line,
@@ -36,8 +36,13 @@ async def get_user_activitiy_summary(user_id: UUID) -> Dict[str, Any]:
 
 
 async def fetch_user_liked_english_lines(
-    user_id: UUID, limit: int = 15, offset: int = 0
+    user_id: UUID, limit: int = 20, cursor: Optional[int] = 0
 ) -> List[Dict["str", Any]]:
+    condition = (
+        db.and_(LineLike.id < cursor, LineLike.user_id == user_id)
+        if cursor
+        else LineLike.user_id == user_id
+    )
     query = (
         db.select(
             [
@@ -51,15 +56,14 @@ async def fetch_user_liked_english_lines(
                 LineLike.created_at,
             ]
         )
-        .where(LineLike.user_id == user_id)
+        .where(condition)
         .select_from(
             Line.join(Content, Line.content_id == Content.id)
             .join(Category, Content.category_id == Category.id)
             .join(LineLike, Line.id == LineLike.line_id)
         )
         .limit(limit)
-        .offset(offset)
-        .order_by(LineLike.created_at.desc())
+        .order_by(LineLike.id.desc())
     )
     columns = (
         "id",
@@ -76,8 +80,13 @@ async def fetch_user_liked_english_lines(
 
 
 async def fetch_user_liked_korean_lines(
-    user_id: UUID, limit: int = 15, offset: int = 0
+    user_id: UUID, limit: int = 20, cursor: Optional[int] = None
 ) -> List[Dict["str", Any]]:
+    condition = (
+        db.and_(TranslationLike.id < cursor, TranslationLike.user_id == user_id)
+        if cursor
+        else TranslationLike.user_id == user_id
+    )
     query = (
         db.select(
             [
@@ -93,7 +102,7 @@ async def fetch_user_liked_korean_lines(
                 TranslationLike.created_at,
             ]
         )
-        .where(TranslationLike.user_id == user_id)
+        .where(condition)
         .select_from(
             Translation.join(Line, Translation.line_id == Line.id)
             .join(Content, Line.content_id == Content.id)
@@ -101,8 +110,7 @@ async def fetch_user_liked_korean_lines(
             .join(TranslationLike, Translation.id == TranslationLike.translation_id)
         )
         .limit(limit)
-        .offset(offset)
-        .order_by(TranslationLike.created_at.desc())
+        .order_by(TranslationLike.id.desc())
     )
 
     columns = (
@@ -122,8 +130,13 @@ async def fetch_user_liked_korean_lines(
 
 
 async def fetch_user_translations(
-    user_id: UUID, limit: int = 15, offset: int = 0
+    user_id: UUID, limit: int = 20, cursor: Optional[int] = None
 ) -> List[Dict["str", Any]]:
+    condition = (
+        db.and_(Translation.id < cursor, Translation.user_id == user_id)
+        if cursor
+        else Translation.user_id == user_id
+    )
     query = (
         db.select(
             [
@@ -138,15 +151,14 @@ async def fetch_user_translations(
                 Category.category,
             ]
         )
-        .where(Translation.user_id == user_id)
+        .where(condition)
         .select_from(
             Translation.join(Line, Translation.line_id == Line.id)
             .join(Content, Line.content_id == Content.id)
             .join(Category, Content.category_id == Category.id)
         )
         .limit(limit)
-        .offset(offset)
-        .order_by(Translation.created_at.desc())
+        .order_by(Translation.id.desc())
     )
     columns = (
         "id",
