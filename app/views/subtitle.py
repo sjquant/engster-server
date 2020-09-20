@@ -11,7 +11,6 @@ from sanic_jwt_extended.tokens import Token
 
 from app.db_models import (
     User,
-    Line,
     Translation,
     Category,
     Genre,
@@ -19,7 +18,7 @@ from app.db_models import (
 )
 from app.decorators import expect_query, expect_body, admin_required
 from app.services import subtitle as service
-from app.utils import calc_max_page, JsonResponse
+from app.utils import JsonResponse
 from app import db
 
 blueprint = Blueprint("subtitle_blueprint", url_prefix="subtitle")
@@ -257,19 +256,18 @@ class SearchEnglish(HTTPMethodView):
 
     @jwt_optional
     @expect_query(
-        page=(int, 1), per_page=(int, 10), keyword=(constr(min_length=2), ...)
+        limit=(int, 20), cursor=(int, None), keyword=(constr(min_length=2), ...)
     )
     async def get(
-        self, request, page: int, per_page: int, keyword: str, token: Optional[Token]
+        self, request, limit: int, cursor: int, keyword: str, token: Optional[Token]
     ):
         """search english"""
-        max_page, count = await calc_max_page(per_page, Line.line.op("~*")(keyword))
-        if page > max_page:
-            return JsonResponse(
-                {"max_page": 0, "count": 0, "page": 0, "data": []}, status=200,
-            )
-        offset = per_page * (page - 1)
-        lines = await service.search_english_lines(keyword, per_page, offset)
+
+        count = await service.count_english_lines(keyword) if cursor is None else None
+        if count == 0:
+            return JsonResponse({"data": [], "count": 0, "cursor": cursor})
+
+        lines = await service.search_english_lines(keyword, limit, cursor)
         content_ids, line_ids = self._get_required_ids(lines)
         like_count = await service.get_like_count_per_english_line(line_ids)
         translation_count = await service.get_translation_count_per_line(line_ids)
@@ -291,8 +289,7 @@ class SearchEnglish(HTTPMethodView):
             for line in lines
         ]
         resp = {
-            "max_page": max_page,
-            "page": page,
+            "cursor": cursor,
             "count": count,
             "data": data,
         }
@@ -312,22 +309,17 @@ class SearchKorean(HTTPMethodView):
 
     @jwt_optional
     @expect_query(
-        page=(int, 1), per_page=(int, 10), keyword=(constr(min_length=2), ...)
+        limit=(int, 20), cursor=(int, None), keyword=(constr(min_length=2), ...)
     )
     async def get(
-        self, request, page: int, per_page: int, keyword: str, token: Optional[Token]
+        self, request, limit: int, cursor: int, keyword: str, token: Optional[Token]
     ):
         """search korean(translations)"""
-        max_page, count = await calc_max_page(
-            per_page, condition=Translation.translation.op("~*")(keyword)
-        )
-        offset = per_page * (page - 1)
-        if page > max_page:
-            return JsonResponse(
-                {"max_page": 0, "page": 0, "count": 0, "data": []}, status=200,
-            )
+        count = await service.count_korean_lines(keyword) if cursor is None else None
+        if count == 0:
+            return JsonResponse({"data": [], "count": 0, "cursor": cursor})
 
-        translations = await service.search_korean_lines(keyword, per_page, offset)
+        translations = await service.search_korean_lines(keyword, limit, cursor)
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
         genres = await service.fetch_genres_per_content(content_ids)
         like_count = await service.get_like_count_per_korean_line(translation_ids)
@@ -349,8 +341,7 @@ class SearchKorean(HTTPMethodView):
             for each in translations
         ]
         resp = {
-            "max_page": max_page,
-            "page": page,
+            "cursor": cursor,
             "count": count,
             "data": data,
         }
@@ -359,23 +350,16 @@ class SearchKorean(HTTPMethodView):
 
 class TranslationList(HTTPMethodView):
     @jwt_optional
-    @expect_query(page=(int, 1), per_page=(int, 10), line_id=(int, ...))
+    @expect_query(limit=(int, 20), cursor=(int, None), line_id=(int, ...))
     async def get(
         self,
         request: Request,
-        page: int,
-        per_page: int,
+        limit: int,
+        cursor: int,
         line_id: int,
         token: Optional[Token],
     ):
-        max_page, count = await calc_max_page(per_page, Translation.line_id == line_id)
-        offset = per_page * (page - 1)
-        if page > max_page:
-            return JsonResponse(
-                {"max_page": 0, "page": 0, "count": 0, "data": []}, status=200
-            )
-
-        translations = await service.fetch_translations(line_id, per_page, offset)
+        translations = await service.fetch_translations(line_id, limit, cursor)
         translation_ids = [each["id"] for each in translations]
         like_count = await service.get_like_count_per_korean_line(translation_ids)
         user_id = token.identity if token else None
@@ -393,12 +377,7 @@ class TranslationList(HTTPMethodView):
             }
             for each in translations
         ]
-        resp = {
-            "max_page": max_page,
-            "page": page,
-            "count": count,
-            "data": data,
-        }
+        resp = {"cursor": cursor, "data": data}
         return JsonResponse(resp)
 
     @jwt_required

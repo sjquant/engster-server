@@ -16,13 +16,13 @@ GET {{ host }}/my-page/{{userid}}/activity-summary
 Content-Type: application/json
 
 ### Get Lines a user liked
-GET {{ host }}/my-page/{{userid}}/liked-english-lines?page=1
+GET {{ host }}/my-page/{{userid}}/liked-english-lines?limit=20
 Content-Type: application/json
 
 ### Get Translations a user liked
-GET {{ host }}/my-page/{{userid}}/liked-korean-lines?page=2
+GET {{ host }}/my-page/{{userid}}/liked-korean-lines?limit=20
 Content-Type: application/json
 
 ### Get Translations a user created
-GET {{ host }}/my-page/{{userid}}/translations?page=1
+GET {{ host }}/my-page/{{userid}}/translations?limit=20
 Content-Type: application/json

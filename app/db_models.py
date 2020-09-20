@@ -83,6 +83,9 @@ class Content(BaseModel):
     reference = db.Column(db.Text)
     category_id = db.Column(db.Integer, db.ForeignKey("category.id"))
 
+    _id_idx = db.Index("content_idx_id", "id")
+    _title_idx = db.Index("content_idx_title", "title")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -126,6 +129,8 @@ class ContentXGenre(BaseModel):
         db.Integer, db.ForeignKey("genre.id", ondelete="CASCADE"), nullable=False
     )
 
+    _unique = db.UniqueConstraint("content_id", "genre_id", name="content_genre_unique")
+
 
 class Line(BaseModel):
 
@@ -136,7 +141,8 @@ class Line(BaseModel):
     time = db.Column(db.Time)
     content_id = db.Column(db.Integer, db.ForeignKey("content.id"), nullable=False)
 
-    _idx = db.Index("line_idx_line", "line")
+    _id_idx = db.Index("line_idx_id", "id")
+    _line_idx = db.Index("line_idx_line", "line")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -153,6 +159,7 @@ class LineLike(TimeStampedModel):
     user_id = db.Column(UUID, db.ForeignKey("user.id"))
     line_id = db.Column(db.Integer, db.ForeignKey("line.id"))
 
+    _id_idx = db.Index("line_like_idx_id", "id")
     _unique = db.UniqueConstraint("user_id", "line_id", name="line_like_unique")
 
     def __repr__(self):
@@ -168,7 +175,8 @@ class Translation(TimeStampedModel):
     line_id = db.Column(db.Integer, db.ForeignKey("line.id"), nullable=False)
     user_id = db.Column(UUID, db.ForeignKey("user.id"))
 
-    _idx = db.Index("translation_idx_translation", "translation")
+    _id_idx = db.Index("translation_idx_id", "id")
+    _translation_idx = db.Index("translation_idx_translation", "translation")
 
     def __repr__(self):
         return "<Translation {}>".format(self.translation)
@@ -186,6 +194,7 @@ class TranslationLike(TimeStampedModel):
         db.Integer, db.ForeignKey("translation.id"), nullable=False
     )
 
+    _id_idx = db.Index("translation_like_idx_id", "id")
     _unique = db.UniqueConstraint(
         "user_id", "translation_id", name="translation_like_unique"
     )

@@ -64,9 +64,7 @@ async def get_genre_by_id(genre_id: int) -> Genre:
     return genre
 
 
-async def add_genres_to_content(
-    content: Content, genres: List[Dict[str, Any]]
-) -> None:
+async def add_genres_to_content(content: Content, genres: List[Dict[str, Any]]) -> None:
     """Add genres to content"""
     content_x_genres = [
         dict(content_id=content.id, genre_id=genre["id"]) for genre in genres
@@ -81,14 +79,14 @@ async def empty_content_of_gneres(content_id: int) -> None:
 
 
 async def fetch_content_lines(
-    content_id: int, limit: int = 20, cursor: int = None
+    content_id: int, limit: int = 20, cursor: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """Fetch lines of a content"""
-
-    if cursor is None:
-        condition = Line.content_id == content_id
-    else:
-        condition = db.and_(Line.content_id == content_id, Line.id < cursor)
+    condition = (
+        db.and_(Line.id < cursor, Line.content_id == content_id)
+        if cursor
+        else Line.content_id == content_id
+    )
 
     query = Line.query.where(condition).order_by(Line.id.desc()).limit(limit)
     data = await query.gino.all()
@@ -146,8 +144,15 @@ async def fetch_user_liked_korean_lines(
     return [each[0] for each in data]
 
 
-async def search_english_lines(keyword: str, limit: int = 15, offset: int = 0):
+async def search_english_lines(
+    keyword: str, limit: int = 20, cursor: Optional[int] = None
+):
     """Search English with a keyword"""
+    condition = (
+        db.and_(Line.id < cursor, Line.line.op("~*")(keyword))
+        if cursor
+        else Line.line.op("~*")(keyword)
+    )
     query = (
         db.select(
             [
@@ -160,14 +165,14 @@ async def search_english_lines(keyword: str, limit: int = 15, offset: int = 0):
                 Category.category,
             ]
         )
-        .where(Line.line.op("~*")(keyword),)
+        .where(condition)
         .select_from(
             Line.join(Content, Line.content_id == Content.id).join(
                 Category, Content.category_id == Category.id
             )
         )
         .limit(limit)
-        .offset(offset)
+        .order_by(Line.id.desc())
     )
     columns = (
         "id",
@@ -180,6 +185,18 @@ async def search_english_lines(keyword: str, limit: int = 15, offset: int = 0):
     )
     data = await query.gino.all()
     return [dict(zip(columns, each)) for each in data]
+
+
+async def count_english_lines(keyword: str) -> int:
+    query = db.select([db.func.count(Line.id)]).where(Line.line.op("~*")(keyword))
+    return await query.gino.scalar()
+
+
+async def count_korean_lines(keyword: str) -> int:
+    query = db.select([db.func.count(Translation.id)]).where(
+        Translation.translation.op("~*")(keyword)
+    )
+    return await query.gino.scalar()
 
 
 async def randomly_pick_subtitles(count=30):
@@ -221,8 +238,15 @@ async def randomly_pick_subtitles(count=30):
     return [dict(zip(columns, each)) for each in data]
 
 
-async def search_korean_lines(keyword: str, limit: int = 15, offset: int = 0):
+async def search_korean_lines(
+    keyword: str, limit: int = 20, cursor: Optional[int] = None
+):
     """Search Korean with a keyword"""
+    condition = (
+        db.and_(Translation.id < cursor, Translation.translation.op("~*")(keyword))
+        if cursor
+        else Translation.translation.op("~*")(keyword)
+    )
     query = (
         db.select(
             [
@@ -237,14 +261,14 @@ async def search_korean_lines(keyword: str, limit: int = 15, offset: int = 0):
                 Category.category,
             ]
         )
-        .where(db.and_(Translation.translation.op("~*")(keyword)))
+        .where(condition)
         .select_from(
             Translation.join(Line, Translation.line_id == Line.id)
             .join(Content, Line.content_id == Content.id)
             .join(Category, Content.category_id == Category.id)
         )
         .limit(limit)
-        .offset(offset)
+        .order_by(Translation.id.desc())
     )
     columns = (
         "id",
@@ -288,13 +312,17 @@ async def fetch_genres_per_content(content_ids: List[int]) -> Dict[str, Dict[str
 
 
 async def fetch_translations(
-    line_id: int, limit: int = 15, offset: int = 0
+    line_id: int, limit: int = 15, cursor: Optional[int] = None
 ) -> List[Dict[str, Any]]:
+    condition = (
+        db.and_(Translation.id < cursor, Translation.line_id == line_id)
+        if cursor
+        else Translation.line_id == line_id
+    )
     query = (
         Translation.load(user=User.on(Translation.user_id == User.id))
-        .query.where(db.and_(Translation.line_id == line_id))
+        .query.where(condition)
         .limit(limit)
-        .offset(offset)
     )
     data = await query.gino.all()
     translations = []
