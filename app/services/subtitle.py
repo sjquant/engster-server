@@ -199,8 +199,11 @@ async def count_korean_lines(keyword: str) -> int:
     return await query.gino.scalar()
 
 
-async def randomly_pick_subtitles(count=30):
+async def randomly_pick_subtitles(count=30) -> List[Optional[Dict[str, Any]]]:
     total_count = await db.select([db.func.count(Line.id)]).gino.scalar()
+    if total_count == 0:
+        return []
+
     percentage = count / total_count
     query = (
         db.select(

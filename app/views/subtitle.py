@@ -229,7 +229,7 @@ class RandomSubtitles(HTTPMethodView):
         data = [
             {
                 **line,
-                "genres": genres[line["content_id"]],
+                "genres": genres.get(line["content_id"], []),
                 "like_count": like_count.get(line["id"], 0),
                 "translation_count": translation_count.get(line["id"], 0),
                 "user_liked": line["id"] in user_liked,
