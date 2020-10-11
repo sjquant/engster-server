@@ -28,10 +28,14 @@ class ContentList(HTTPMethodView):
     @expect_query(limit=(int, 10), cursor=(int, None))
     async def get(self, request: Request, limit: int, cursor: int):
         contents = await service.fetch_contents(limit, cursor)
-        return JsonResponse({"data": contents}, 200)
+        genres = await service.fetch_genres_per_content(
+            [each["id"] for each in contents]
+        )
+        data = [{**each, "genres": genres.get(each["id"], [])} for each in contents]
+        return JsonResponse({"data": data}, 200)
 
     @expect_body(
-        title=(str, ...), year=(str, ...), reference=(str, ""), category_id=(int, None),
+        title=(str, ...), year=(str, ...), poster=(str, ""), category_id=(int, None),
     )
     @admin_required
     async def post(self, request: Request, token: Token):
@@ -126,7 +130,10 @@ class ContentDetail(HTTPMethodView):
         content = await service.get_content_by_id(content_id)
         if not content:
             raise ServerError("no such content", 404)
-        return JsonResponse(content.to_dict(), 200)
+        genres = await service.fetch_genres_per_content([content_id])
+        return JsonResponse(
+            {**content.to_dict(), "genres": genres.get(content_id, [])}, 200
+        )
 
     @admin_required
     async def put(self, request: Request, content_id: int, token: Token):

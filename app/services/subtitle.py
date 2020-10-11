@@ -19,16 +19,27 @@ async def fetch_contents(
     limit: int, cursor: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """Fetch contents"""
+
+    query = db.select(
+        [
+            Content.id,
+            Content.title,
+            Content.year,
+            Content.poster,
+            Category.id,
+            Category.category,
+        ]
+    ).select_from(Content.join(Category, Content.category_id == Category.id))
     if cursor:
         query = (
-            Content.query.where(Content.id < cursor)
-            .limit(limit)
-            .order_by(Content.id.desc())
+            query.where(Content.id < cursor).limit(limit).order_by(Content.id.desc())
         )
     else:
-        query = Content.query.limit(limit).order_by(Content.id.desc())
+        query = query.limit(limit).order_by(Content.id.desc())
+
+    columns = ["id", "title", "year", "poster", "category_id", "category_name"]
     data = await query.gino.all()
-    return [each.to_dict() for each in data]
+    return [dict(zip(columns, each)) for each in data]
 
 
 async def get_content_by_id(content_id: int) -> Content:

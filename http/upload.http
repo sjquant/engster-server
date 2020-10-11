@@ -62,18 +62,6 @@ Content-Disposition: form-data; name="output"
 InsideOut.csv
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-### Upload Content
-POST {{ host }}/upload/content
-Content-Type: application/json
-
-{
-    "title": "The Maze Runner",
-    "year": "2014",
-    "reference": "",
-    "category_id": 1,
-    "genre_ids": [4, 10, 11, 14]
-}
-
 ### Upload Eng Subtitle (Maze Runner)
 POST {{ host }}/upload/eng-subtitle/1
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW

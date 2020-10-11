@@ -11,6 +11,15 @@ Content-Type: application/json
     "password": "abcdefg!!!"
 }
 
+### Sign In with admin
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "admin@test.com",
+    "password": "abcdefg!!!"
+}
 
 ########## Content ##########
 
@@ -19,9 +28,9 @@ POST {{ host }}/subtitle/contents
 Content-Type: application/json
 
 {
-    "title": "Avatar",
-    "year": "2009",
-    "reference": "",
+    "title": "The Maze Runner",
+    "year": "2014",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/b/be/The_Maze_Runner_poster.jpg",
     "category_id": 1
 }
 
@@ -54,7 +63,7 @@ POST {{ host }}/subtitle/contents/2/genres
 Content-Type: application/json
 
 {
-    "genre_ids": [1, 2, 3]
+  "genre_ids": [4, 10, 11, 14]
 }
 
 ### Update genres to content
