@@ -80,7 +80,7 @@ class Content(BaseModel):
     id = db.Column(db.Integer, db.Sequence("content_id_seq"), primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     year = db.Column(db.String(4), nullable=False)
-    reference = db.Column(db.Text)
+    poster = db.Column(db.String(255))
     category_id = db.Column(db.Integer, db.ForeignKey("category.id"))
 
     _id_idx = db.Index("content_idx_id", "id")
