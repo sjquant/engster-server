@@ -12,7 +12,6 @@ from sanic_jwt_extended.tokens import Token
 from app.db_models import (
     User,
     Translation,
-    Category,
     Genre,
     Content,
 )
@@ -34,9 +33,7 @@ class ContentList(HTTPMethodView):
         data = [{**each, "genres": genres.get(each["id"], [])} for each in contents]
         return JsonResponse({"data": data}, 200)
 
-    @expect_body(
-        title=(str, ...), year=(str, ...), poster=(str, ""), category_id=(int, None),
-    )
+    @expect_body(title=(str, ...), year=(str, ...), poster=(str, ""))
     @admin_required
     async def post(self, request: Request, token: Token):
         """
@@ -94,18 +91,6 @@ class ContentXGenreList(HTTPMethodView):
         return JsonResponse({"message": "success"}, status=202)
 
 
-class CategoryList(HTTPMethodView):
-    async def get(self, request: Request):
-        categories = await service.fetch_all_categories()
-        return JsonResponse({"data": categories}, 200)
-
-    @expect_body(category=(str, ...))
-    @admin_required
-    async def post(self, request: Request, token: Token):
-        category = await Category(**request.json).create()
-        return JsonResponse(category.to_dict(), status=201)
-
-
 class GenreList(HTTPMethodView):
     async def get(self, request: Request):
         genres = await service.fetch_all_genres()
@@ -149,30 +134,6 @@ class ContentDetail(HTTPMethodView):
         if not content:
             raise ServerError("no such content", 404)
         await content.delete()
-        return JsonResponse({"message": "success"}, status=204)
-
-
-class CategoryDetail(HTTPMethodView):
-    async def get(self, request: Request, category_id: int):
-        category = await service.get_category_by_id(category_id)
-        if not category:
-            raise ServerError("no such category", 404)
-        return JsonResponse(category.to_dict(), 200)
-
-    @admin_required
-    async def put(self, request: Request, category_id: int, token: Token):
-        category = await service.get_category_by_id(category_id)
-        if not category:
-            raise ServerError("no such category", 404)
-        await category.update(**request.json).apply()
-        return JsonResponse({"message": "success"}, status=202)
-
-    @admin_required
-    async def delete(self, request: Request, category_id: int, token: Token):
-        category = await service.get_category_by_id(category_id)
-        if not category:
-            raise ServerError("no such category", 404)
-        await category.delete()
         return JsonResponse({"message": "success"}, status=204)
 
 
@@ -469,12 +430,10 @@ class LikeKorean(HTTPMethodView):
 
 
 blueprint.add_route(ContentList.as_view(), "/contents")
-blueprint.add_route(CategoryList.as_view(), "/categories")
 blueprint.add_route(GenreList.as_view(), "/genres")
 blueprint.add_route(ContentXGenreList.as_view(), "/contents/<content_id:int>/genres")
 blueprint.add_route(ContentDetail.as_view(), "/contents/<content_id:int>"),
-blueprint.add_route(LineList.as_view(), "/contents/<content_id:int>/lines"),
-blueprint.add_route(CategoryDetail.as_view(), "/categories/<category_id:int>")
+blueprint.add_route(LineList.as_view(), "/contents/<content_id:int>/lines")
 blueprint.add_route(GenreDetail.as_view(), "/genres/<genre_id:int>")
 blueprint.add_route(RandomSubtitles.as_view(), "/random/subtitles")
 blueprint.add_route(SearchEnglish.as_view(), "/search/english")

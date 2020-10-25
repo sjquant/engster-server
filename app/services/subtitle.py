@@ -8,7 +8,6 @@ from app.db_models import (
     Translation,
     Content,
     Genre,
-    Category,
     ContentXGenre,
     TranslationLike,
     LineLike,
@@ -20,16 +19,7 @@ async def fetch_contents(
 ) -> List[Dict[str, Any]]:
     """Fetch contents"""
 
-    query = db.select(
-        [
-            Content.id,
-            Content.title,
-            Content.year,
-            Content.poster,
-            Category.id,
-            Category.category,
-        ]
-    ).select_from(Content.join(Category, Content.category_id == Category.id))
+    query = db.select([Content.id, Content.title, Content.year, Content.poster])
     if cursor:
         query = (
             query.where(Content.id < cursor).limit(limit).order_by(Content.id.desc())
@@ -37,7 +27,7 @@ async def fetch_contents(
     else:
         query = query.limit(limit).order_by(Content.id.desc())
 
-    columns = ["id", "title", "year", "poster", "category_id", "category_name"]
+    columns = ["id", "title", "year", "poster"]
     data = await query.gino.all()
     return [dict(zip(columns, each)) for each in data]
 
@@ -45,17 +35,6 @@ async def fetch_contents(
 async def get_content_by_id(content_id: int) -> Content:
     content = await Content.query.where(Content.id == content_id).gino.first()
     return content
-
-
-async def fetch_all_categories() -> List[Dict[str, Any]]:
-    """Fetch all categories"""
-    data = await Category.query.gino.all()
-    return [each.to_dict() for each in data]
-
-
-async def get_category_by_id(category_id: int) -> Category:
-    category = await Category.query.where(Category.id == category_id).gino.first()
-    return category
 
 
 async def fetch_all_genres() -> List[Dict[str, Any]]:
@@ -165,23 +144,9 @@ async def search_english_lines(
         else Line.line.op("~*")(keyword)
     )
     query = (
-        db.select(
-            [
-                Line.id,
-                Line.line,
-                Content.id,
-                Content.title,
-                Content.year,
-                Category.id,
-                Category.category,
-            ]
-        )
+        db.select([Line.id, Line.line, Content.id, Content.title, Content.year])
         .where(condition)
-        .select_from(
-            Line.join(Content, Line.content_id == Content.id).join(
-                Category, Content.category_id == Category.id
-            )
-        )
+        .select_from(Line.join(Content, Line.content_id == Content.id))
         .limit(limit)
         .order_by(Line.id.desc())
     )
@@ -191,8 +156,6 @@ async def search_english_lines(
         "content_id",
         "content_title",
         "content_year",
-        "category_id",
-        "category_name",
     )
     data = await query.gino.all()
     return [dict(zip(columns, each)) for each in data]
@@ -226,14 +189,12 @@ async def randomly_pick_subtitles(count=30) -> List[Optional[Dict[str, Any]]]:
                 Content.id,
                 Content.title,
                 Content.year,
-                Category.id,
-                Category.category,
             ]
         )
         .select_from(
-            Line.join(Content, Line.content_id == Content.id)
-            .join(Translation, Line.id == Translation.line_id)
-            .join(Category, Content.category_id == Category.id)
+            Line.join(Content, Line.content_id == Content.id).join(
+                Translation, Line.id == Translation.line_id
+            )
         )
         .where(db.func.random() < percentage)
     )
@@ -245,8 +206,6 @@ async def randomly_pick_subtitles(count=30) -> List[Optional[Dict[str, Any]]]:
         "content_id",
         "content_title",
         "content_year",
-        "category_id",
-        "category_name",
     )
     data = await query.gino.all()
     return [dict(zip(columns, each)) for each in data]
@@ -271,15 +230,13 @@ async def search_korean_lines(
                 Content.id,
                 Content.title,
                 Content.year,
-                Category.id,
-                Category.category,
             ]
         )
         .where(condition)
         .select_from(
-            Translation.join(Line, Translation.line_id == Line.id)
-            .join(Content, Line.content_id == Content.id)
-            .join(Category, Content.category_id == Category.id)
+            Translation.join(Line, Translation.line_id == Line.id).join(
+                Content, Line.content_id == Content.id
+            )
         )
         .limit(limit)
         .order_by(Translation.id.desc())
@@ -292,8 +249,6 @@ async def search_korean_lines(
         "content_id",
         "content_title",
         "content_year",
-        "category_id",
-        "category_name",
     )
     data = await query.gino.all()
     return [dict(zip(columns, each)) for each in data]

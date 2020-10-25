@@ -108,16 +108,9 @@ async def init():
     :set categories and genres
     """
     from app import db
-    from app.db_models import Category
     from app.db_models import Genre
 
     await db.set_bind(config.DB_URL)
-
-    with open("data/categories.json") as f:
-        categories = json.loads(f.read())
-
-    # Insert Categories
-    await Category.insert().gino.all(*categories)
 
     with open("data/genres.json") as f:
         genres = json.loads(f.read())

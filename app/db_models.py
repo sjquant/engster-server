@@ -81,7 +81,6 @@ class Content(BaseModel):
     title = db.Column(db.String(255), nullable=False)
     year = db.Column(db.String(4), nullable=False)
     poster = db.Column(db.String(255))
-    category_id = db.Column(db.Integer, db.ForeignKey("category.id"))
 
     _id_idx = db.Index("content_idx_id", "id")
     _title_idx = db.Index("content_idx_title", "title")
@@ -91,17 +90,6 @@ class Content(BaseModel):
 
     def __repr__(self):
         return "<Content {}>".format(self.title)
-
-
-class Category(BaseModel):
-
-    __tablename__ = "category"
-
-    id = db.Column(db.Integer, db.Sequence("category_id_seq"), primary_key=True)
-    category = db.Column(db.String(50), nullable=False, unique=True)
-
-    def __repr__(self):
-        return "<Category {}>".format(self.category)
 
 
 class Genre(BaseModel):

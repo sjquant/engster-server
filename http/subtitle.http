@@ -30,8 +30,7 @@ Content-Type: application/json
 {
     "title": "The Maze Runner",
     "year": "2014",
-    "poster": "https://upload.wikimedia.org/wikipedia/en/b/be/The_Maze_Runner_poster.jpg",
-    "category_id": 1
+    "poster": "https://upload.wikimedia.org/wikipedia/en/b/be/The_Maze_Runner_poster.jpg"
 }
 
 ### Content List
@@ -78,36 +77,6 @@ Content-Type: application/json
 ### Fetch content lines
 GET {{ host }}/subtitle/contents/1/lines?cursor=3242
 
-
-########### Category ###########
-
-### Category List
-GET {{ host }}/subtitle/categories
-Content-Type: application/json
-
-### Create Category
-POST {{ host }}/subtitle/categories
-Content-Type: application/json
-
-{
-    "category": "youtube"
-}
-
-### Category Detail
-GET {{ host }}/subtitle/categories/1
-Content-Type: application/json
-
-### Update Individual Category
-PUT {{ host }}/subtitle/categories/3
-Content-Type: application/json
-
-{
-    "category":"tv drama"
-}
-
-### Delete Individual Category
-DELETE {{ host }}/subtitle/categories/7
-Content-Type: application/json
 
 ########### Genre ###########
 
