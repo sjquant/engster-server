@@ -12,7 +12,6 @@ from sanic_jwt_extended.tokens import Token
 from app.db_models import (
     User,
     Translation,
-    Category,
     Genre,
     Content,
 )
@@ -35,75 +34,20 @@ class ContentList(HTTPMethodView):
         return JsonResponse({"data": data}, 200)
 
     @expect_body(
-        title=(str, ...), year=(str, ...), poster=(str, ""), category_id=(int, None),
+        title=(str, ...), year=(str, ...), poster=(str, ""), genre_ids=(List[int], [])
     )
     @admin_required
     async def post(self, request: Request, token: Token):
         """
         Create content
         """
-        content = await Content(**request.json).create()
-        return JsonResponse(content.to_dict(), status=201)
-
-
-class ContentXGenreList(HTTPMethodView):
-    async def get(self, request: Request, content_id: int):
-        """
-        Fetch genres to content
-        """
-        res = await service.fetch_genres_per_content([content_id])
-        genres = res.get(content_id, [])
-        return JsonResponse(genres, status=200)
-
-    @expect_body(genre_ids=(List[int], ...))
-    @admin_required
-    async def post(self, request: Request, content_id: int, token: Token):
-        """
-        Add genres to content
-        """
-        content = await service.get_content_by_id(content_id)
-        genre_ids = request.json["genre_ids"]
-        if not content:
-            raise ServerError("no such content", 404)
-
-        genres = await service.fetch_genres_by_ids(genre_ids)
-        if len(genre_ids) != len(genres):
-            raise ServerError("some genres are missing", 400)
-
-        await service.add_genres_to_content(content, genres)
-        return JsonResponse({"message": "success"}, status=201)
-
-    @expect_body(genre_ids=(List[int], ...))
-    @admin_required
-    async def put(self, request: Request, content_id: int, token: Token):
-        """
-        Update genres of contents
-        """
-        content = await service.get_content_by_id(content_id)
-        genre_ids = request.json["genre_ids"]
-        if not content:
-            raise ServerError("no such content", 404)
-
-        genres = await service.fetch_genres_by_ids(genre_ids)
-        if len(genre_ids) != len(genres):
-            raise ServerError("some genres are missing", 400)
-
+        data = request.json
         async with db.transaction():
-            await service.empty_content_of_gneres(content_id)
-            await service.add_genres_to_content(content, genres)
-        return JsonResponse({"message": "success"}, status=202)
-
-
-class CategoryList(HTTPMethodView):
-    async def get(self, request: Request):
-        categories = await service.fetch_all_categories()
-        return JsonResponse({"data": categories}, 200)
-
-    @expect_body(category=(str, ...))
-    @admin_required
-    async def post(self, request: Request, token: Token):
-        category = await Category(**request.json).create()
-        return JsonResponse(category.to_dict(), status=201)
+            content = await Content(
+                title=data["title"], year=data["year"], poster=data["poster"]
+            ).create()
+            await service.add_genres_to_content(content, data["genre_ids"])
+        return JsonResponse({"message": "success"}, status=201)
 
 
 class GenreList(HTTPMethodView):
@@ -135,12 +79,22 @@ class ContentDetail(HTTPMethodView):
             {**content.to_dict(), "genres": genres.get(content_id, [])}, 200
         )
 
+    @expect_body(
+        title=(str, ...), year=(str, ...), poster=(str, ""), genre_ids=(List[int], ...)
+    )
     @admin_required
     async def put(self, request: Request, content_id: int, token: Token):
+        data = request.json
         content = await service.get_content_by_id(content_id)
         if not content:
             raise ServerError("no such content", 404)
-        await content.update(**request.json).apply()
+
+        async with db.transaction():
+            await content.update(
+                title=data["title"], poster=data["poster"], year=data["year"]
+            ).apply()
+            await service.empty_content_of_gneres(content_id)
+            await service.add_genres_to_content(content, data["genre_ids"])
         return JsonResponse({"message": "success"}, status=202)
 
     @admin_required
@@ -149,30 +103,6 @@ class ContentDetail(HTTPMethodView):
         if not content:
             raise ServerError("no such content", 404)
         await content.delete()
-        return JsonResponse({"message": "success"}, status=204)
-
-
-class CategoryDetail(HTTPMethodView):
-    async def get(self, request: Request, category_id: int):
-        category = await service.get_category_by_id(category_id)
-        if not category:
-            raise ServerError("no such category", 404)
-        return JsonResponse(category.to_dict(), 200)
-
-    @admin_required
-    async def put(self, request: Request, category_id: int, token: Token):
-        category = await service.get_category_by_id(category_id)
-        if not category:
-            raise ServerError("no such category", 404)
-        await category.update(**request.json).apply()
-        return JsonResponse({"message": "success"}, status=202)
-
-    @admin_required
-    async def delete(self, request: Request, category_id: int, token: Token):
-        category = await service.get_category_by_id(category_id)
-        if not category:
-            raise ServerError("no such category", 404)
-        await category.delete()
         return JsonResponse({"message": "success"}, status=204)
 
 
@@ -469,12 +399,9 @@ class LikeKorean(HTTPMethodView):
 
 
 blueprint.add_route(ContentList.as_view(), "/contents")
-blueprint.add_route(CategoryList.as_view(), "/categories")
 blueprint.add_route(GenreList.as_view(), "/genres")
-blueprint.add_route(ContentXGenreList.as_view(), "/contents/<content_id:int>/genres")
 blueprint.add_route(ContentDetail.as_view(), "/contents/<content_id:int>"),
-blueprint.add_route(LineList.as_view(), "/contents/<content_id:int>/lines"),
-blueprint.add_route(CategoryDetail.as_view(), "/categories/<category_id:int>")
+blueprint.add_route(LineList.as_view(), "/contents/<content_id:int>/lines")
 blueprint.add_route(GenreDetail.as_view(), "/genres/<genre_id:int>")
 blueprint.add_route(RandomSubtitles.as_view(), "/random/subtitles")
 blueprint.add_route(SearchEnglish.as_view(), "/search/english")

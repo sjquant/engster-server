@@ -5,7 +5,6 @@ from app.db_models import (
     Translation,
     User,
     Content,
-    Category,
     LineLike,
     TranslationLike,
 )
@@ -51,16 +50,14 @@ async def fetch_user_liked_english_lines(
                 Content.id,
                 Content.title,
                 Content.year,
-                Category.id,
-                Category.category,
                 LineLike.created_at,
             ]
         )
         .where(condition)
         .select_from(
-            Line.join(Content, Line.content_id == Content.id)
-            .join(Category, Content.category_id == Category.id)
-            .join(LineLike, Line.id == LineLike.line_id)
+            Line.join(Content, Line.content_id == Content.id).join(
+                LineLike, Line.id == LineLike.line_id
+            )
         )
         .limit(limit)
         .order_by(LineLike.id.desc())
@@ -71,8 +68,6 @@ async def fetch_user_liked_english_lines(
         "content_id",
         "content_title",
         "content_year",
-        "category_id",
-        "category_name",
         "liked_at",
     )
     data = await query.gino.all()
@@ -97,8 +92,6 @@ async def fetch_user_liked_korean_lines(
                 Content.id,
                 Content.title,
                 Content.year,
-                Category.id,
-                Category.category,
                 TranslationLike.created_at,
             ]
         )
@@ -106,7 +99,6 @@ async def fetch_user_liked_korean_lines(
         .select_from(
             Translation.join(Line, Translation.line_id == Line.id)
             .join(Content, Line.content_id == Content.id)
-            .join(Category, Content.category_id == Category.id)
             .join(TranslationLike, Translation.id == TranslationLike.translation_id)
         )
         .limit(limit)
@@ -121,8 +113,6 @@ async def fetch_user_liked_korean_lines(
         "content_id",
         "content_title",
         "content_year",
-        "category_id",
-        "category_name",
         "liked_at",
     )
     data = await query.gino.all()
@@ -147,15 +137,13 @@ async def fetch_user_translations(
                 Content.id,
                 Content.title,
                 Content.year,
-                Category.id,
-                Category.category,
             ]
         )
         .where(condition)
         .select_from(
-            Translation.join(Line, Translation.line_id == Line.id)
-            .join(Content, Line.content_id == Content.id)
-            .join(Category, Content.category_id == Category.id)
+            Translation.join(Line, Translation.line_id == Line.id).join(
+                Content, Line.content_id == Content.id
+            )
         )
         .limit(limit)
         .order_by(Translation.id.desc())
@@ -168,8 +156,6 @@ async def fetch_user_translations(
         "content_id",
         "content_title",
         "content_year",
-        "category_id",
-        "category_name",
     )
     data = await query.gino.all()
     return [dict(zip(columns, each)) for each in data]
