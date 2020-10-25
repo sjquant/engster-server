@@ -54,12 +54,13 @@ async def get_genre_by_id(genre_id: int) -> Genre:
     return genre
 
 
-async def add_genres_to_content(content: Content, genres: List[Dict[str, Any]]) -> None:
+async def add_genres_to_content(content: Content, genre_ids: List[int]) -> None:
     """Add genres to content"""
     content_x_genres = [
-        dict(content_id=content.id, genre_id=genre["id"]) for genre in genres
+        dict(content_id=content.id, genre_id=genre_id) for genre_id in genre_ids
     ]
-    await ContentXGenre.insert().gino.all(*content_x_genres)
+    if content_x_genres:
+        await ContentXGenre.insert().gino.all(*content_x_genres)
 
 
 async def empty_content_of_gneres(content_id: int) -> None:

@@ -30,7 +30,8 @@ Content-Type: application/json
 {
     "title": "The Maze Runner",
     "year": "2014",
-    "poster": "https://upload.wikimedia.org/wikipedia/en/b/be/The_Maze_Runner_poster.jpg"
+    "poster": "https://upload.wikimedia.org/wikipedia/en/b/be/The_Maze_Runner_poster.jpg",
+    "genre_ids": [4, 10, 11, 14]
 }
 
 ### Content List
@@ -46,32 +47,15 @@ PUT {{ host }}/subtitle/contents/2
 Content-Type: application/json
 
 {
-    "title": "Avatar"
+    "title": "Avatar",
+    "year": "2009",
+    "poster": "https://images-na.ssl-images-amazon.com/images/I/41kTVLeW1CL._AC_.jpg",
+    "genre_ids": [4, 10, 11, 14]
 }
 
 ### Delete Content
 DELETE {{ host }}/subtitle/contents/2
 Content-Type: application/json
-
-### Fetch genres of content
-GET {{ host }}/subtitle/contents/2/genres
-Content-Type: application/json
-
-### Add genres to content
-POST {{ host }}/subtitle/contents/2/genres
-Content-Type: application/json
-
-{
-  "genre_ids": [4, 10, 11, 14]
-}
-
-### Update genres to content
-PUT {{ host }}/subtitle/contents/2/genres
-Content-Type: application/json
-
-{
-    "genre_ids": [2, 3, 5]
-}
 
 
 ### Fetch content lines
