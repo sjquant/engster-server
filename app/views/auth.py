@@ -21,9 +21,7 @@ blueprint = Blueprint("auth_blueprint", url_prefix="/auth")
 
 
 @blueprint.route("/register", methods=["POST"])
-@expect_body(
-    email=(str, ...), password=(str, ...), nickname=(str, None)
-)
+@expect_body(email=(str, ...), password=(str, ...), nickname=(str, None))
 async def register(request: Request):
     """register user"""
 
@@ -46,7 +44,6 @@ async def obtain_token(request: Request):
     password = request.json.get("password", None)
 
     user = await get_user_by_email(email)
-
     if user is None:
         raise ServerError("User not found.", status_code=404)
     if not user.check_password(password):
@@ -58,6 +55,28 @@ async def obtain_token(request: Request):
     resp = JsonResponse({"new": False, "user": UserModel.from_orm(user)}, status=201)
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
+    return resp
+
+
+@blueprint.route("/sign-out", methods=["POST"])
+async def sign_out(request: Request):
+
+    resp = JsonResponse({"message": "success"}, status=200)
+
+    access_cookie_key = JWT.config.jwt_cookie
+    refresh_cookie_key = JWT.config.refresh_jwt_cookie
+    resp.cookies[access_cookie_key] = ""
+    resp.cookies[access_cookie_key]["max-age"] = -9999
+    resp.cookies[refresh_cookie_key] = ""
+    resp.cookies[refresh_cookie_key]["max-age"] = -9999
+
+    if JWT.config.csrf_protect:
+        access_cookie_csrf_key = JWT.config.jwt_csrf_header
+        refresh_cookie_csrf_key = JWT.config.refresh_jwt_csrf_header
+        resp.cookies[access_cookie_csrf_key] = ""
+        resp.cookies[access_cookie_csrf_key]["max-age"] = -9999
+        resp.cookies[refresh_cookie_csrf_key] = ""
+        resp.cookies[refresh_cookie_csrf_key]["max-age"] = -9999
     return resp
 
 
