@@ -12,7 +12,7 @@ from PIL import Image
 
 from app.db_models import Line, Content, Translation
 from app.utils import JsonResponse, validate_file_size
-from app.libs import converter
+from app.core import sub_converter as converter
 from app.decorators import admin_required
 
 
