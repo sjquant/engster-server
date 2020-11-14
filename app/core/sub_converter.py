@@ -76,10 +76,7 @@ def get_smi_lines(text: str) -> List[Tuple[str, str, str]]:
     """
     text = trim_smi_text(text)
     lines = []
-    re_sync = re.compile(
-        r"<SYNC Start[\s]*=[\s]*([0-9]+)[\s]*><P[\s]*Class[\s]*=[\s]*(\w*)[\s]*",
-        flags=re.IGNORECASE,
-    )
+    re_sync = re.compile(r"<SYNC Start[\s]*=[\s]*([0-9]+)[\s]*>", flags=re.IGNORECASE)
     time = ""
     lang = ""
     for line in text.split("\n"):
@@ -88,7 +85,6 @@ def get_smi_lines(text: str) -> List[Tuple[str, str, str]]:
         m = re.search(re_sync, line)
         if m:
             time = m.group(1)
-            lang = _convert_lang(m.group(2))
         else:
             # html 제거
             line = re.sub(r"(<.*?>|^[\s]*-|\(.*\))", "", line).strip()
