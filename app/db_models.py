@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sanic.exceptions import ServerError
 
 from app import db
-from app.libs.hasher import PBKDF2PasswordHasher
+from app.utils import PBKDF2PasswordHasher
 
 
 class BaseModel(db.Model):
