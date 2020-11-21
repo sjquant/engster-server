@@ -1,0 +1,33 @@
+@userid = {{ siginin.response.body.$.user.id }}
+
+### Obtain Token
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "user@test.com",
+    "password": "abcdefg!!!"
+}
+
+
+### Get user profile
+GET {{host}}/users/{{userid}}/profile
+Content-Type: application/json
+
+### update user profile
+PATCH {{host}}/users/{{userid}}/profile
+Content-Type: application/json
+
+{
+    "email": "jane@test.com"
+}
+
+### rollback user email
+PATCH {{host}}/users/{{userid}}/profile
+Content-Type: application/json
+
+{
+    "email": "user@test.com"
+}
+

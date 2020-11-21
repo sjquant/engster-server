@@ -8,7 +8,6 @@ Content-Type: application/json
 }
 
 ### Obtain Token
-# @name obtainToken
 POST {{ host }}/auth/obtain-token
 Content-Type: application/json
 
@@ -21,25 +20,6 @@ Content-Type: application/json
 POST {{ host }}/auth/refresh-token
 Content-Type: application/json
 
-### Get user profile
-GET {{ host }}/auth/profile
-Content-Type: application/json
-
-### update user profile
-PUT {{ host }}/auth/profile
-Content-Type: application/json
-
-{
-    "email": "jane@test.com"
-}
-
-### rollback user email
-PUT {{ host }}/auth/profile
-Content-Type: application/json
-
-{
-    "email": "user@test.com"
-}
 
 ### reset user password
 PUT {{ host }}/auth/reset-password
