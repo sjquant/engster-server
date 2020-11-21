@@ -1,0 +1,49 @@
+@userid = {{ siginin.response.body.$.user.id }}
+
+### Sign In with admin
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "admin@test.com",
+    "password": "abcdefg!!!"
+}
+
+### Create Content
+POST {{ host }}/contents
+Content-Type: application/json
+
+{
+    "title": "The Maze Runner",
+    "year": "2014",
+    "poster": "https://upload.wikimedia.org/wikipedia/en/b/be/The_Maze_Runner_poster.jpg",
+    "genre_ids": [4, 10, 11, 14]
+}
+
+### Content List
+GET {{ host }}/contents
+Content-Type: application/json
+
+### Get Content Detail
+GET {{ host }}/contents/2
+Content-Type: application/json
+
+### Update Content
+PUT {{ host }}/contents/2
+Content-Type: application/json
+
+{
+    "title": "Avatar",
+    "year": "2009",
+    "poster": "https://images-na.ssl-images-amazon.com/images/I/41kTVLeW1CL._AC_.jpg",
+    "genre_ids": [4, 10, 11, 14]
+}
+
+### Delete Content
+DELETE {{ host }}/contents/2
+Content-Type: application/json
+
+
+### Fetch content subtitles
+GET {{ host }}/contents/2/subtitles

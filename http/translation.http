@@ -1,0 +1,39 @@
+@userid = {{ siginin.response.body.$.user.id }}
+
+### Obtain Token
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "user@test.com",
+    "password": "abcdefg!!!"
+}
+
+
+### Get Specific translation
+GET {{ host }}/translations/1423
+
+### Change specific translation
+PATCH {{ host }}/translations/1423
+
+{
+    "translation": "민호야 힘내!"
+}
+
+### Delete specific translation
+DELETE {{ host }}/translations/2181
+
+
+### Search Translations
+GET {{ host }}/translations/search?keyword=위험
+Content-Type: application/json
+
+
+### Like translation
+POST {{ host }}/translations/1/like
+Content-Type: application/json
+
+### Unlike translation
+DELETE {{ host }}/translations/1/like
+Content-Type: application/json
