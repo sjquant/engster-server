@@ -6,7 +6,7 @@ from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
 from sanic_jwt_extended.tokens import Token
 
-from app.db_models import Content
+from app.models import Content
 from app.decorators import expect_query, expect_body, admin_required
 from app.services import content as service
 from app.utils import JsonResponse

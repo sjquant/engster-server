@@ -37,3 +37,11 @@ Content-Type: application/json
 ### Unlike translation
 DELETE {{ host }}/translations/1/like
 Content-Type: application/json
+
+### Get Translations a user liked
+GET {{ host }}/translations/liked?user_id={{userid}}&limit=20
+Content-Type: application/json
+
+### Get Translations a user created
+GET {{ host }}/translations/written?user_id={{userid}}&limit=20
+Content-Type: application/json

@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Optional
 from uuid import UUID
 
 from app import db
-from app.db_models import (
+from app.models import (
     User,
     Line,
     Translation,

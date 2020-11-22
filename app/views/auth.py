@@ -13,7 +13,7 @@ from app import JWT
 from app.services.user import get_user_by_email, get_user_by_id, create_user
 from app.utils import JsonResponse, set_access_cookies, set_refresh_cookies
 from app.decorators import expect_body
-from app.models import UserModel
+from app.schemas import UserModel
 from app.vendors.sanic_oauth import GoogleClient, FacebookClient, NaverClient
 
 blueprint = Blueprint("auth_blueprint", url_prefix="/auth")

@@ -31,3 +31,6 @@ Content-Type: application/json
     "email": "user@test.com"
 }
 
+### Get user activities
+GET {{ host }}/users/{{userid}}/activity-summary
+Content-Type: application/json

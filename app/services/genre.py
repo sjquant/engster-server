@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
 
-from app.db_models import Genre
+from app.models import Genre
 
 
 async def fetch_all() -> List[Dict[str, Any]]:

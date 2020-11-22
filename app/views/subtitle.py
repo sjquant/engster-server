@@ -8,7 +8,7 @@ from sanic.blueprints import Blueprint
 from sanic_jwt_extended import jwt_required, jwt_optional
 from sanic_jwt_extended.tokens import Token
 
-from app.db_models import (
+from app.models import (
     User,
     Translation,
 )
@@ -136,7 +136,7 @@ class TranslationList(HTTPMethodView):
         like_count = await translation_service.get_like_count(translation_ids)
         user_id = token.identity if token else None
         user_liked = (
-            await subtitle_service.pick_user_liked(user_id, translation_ids)
+            await translation_service.pick_user_liked(user_id, translation_ids)
             if user_id
             else []
         )
@@ -193,11 +193,11 @@ class UserLikedSubtitles(HTTPMethodView):
         return content_ids, line_ids
 
     @jwt_optional
-    @expect_query(limit=(int, 20), cursor=(int, None))
+    @expect_query(user_id=(str, ...), limit=(int, 20), cursor=(int, None))
     async def get(
         self, request: Request, user_id: str, limit: int, cursor: int, token: Token
     ):
-        lines = await subtitle_service.pick_user_liked(
+        lines = await subtitle_service.fetch_user_liked(
             user_id, limit=limit, cursor=cursor
         )
         content_ids, line_ids = self._get_required_ids(lines)
@@ -227,8 +227,8 @@ class UserLikedSubtitles(HTTPMethodView):
         return JsonResponse(resp, status=200,)
 
 
-blueprint.add_route(SearchSubtitles.as_view(), "")
+blueprint.add_route(SearchSubtitles.as_view(), "/search")
 blueprint.add_route(RandomSubtitles.as_view(), "/random")
 blueprint.add_route(TranslationList.as_view(), "/<line_id:int>/translations")
 blueprint.add_route(LikeSubtitle.as_view(), "/<line_id:int>/like")
-blueprint.add_route(UserLikedSubtitles.as_view(), "/<user_id:uuid>/liked")
+blueprint.add_route(UserLikedSubtitles.as_view(), "/liked")

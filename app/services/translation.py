@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Optional
 from uuid import UUID
 
-from app.db_models import (
+from app.models import (
     Line,
     Translation,
     Content,
@@ -23,11 +23,11 @@ async def search(keyword: str, limit: int = 20, cursor: Optional[int] = None):
             [
                 Translation.id,
                 Translation.translation,
-                Line.id,
+                Line.id.label("line_id"),
                 Line.line,
-                Content.id,
-                Content.title,
-                Content.year,
+                Content.id.label("content_id"),
+                Content.title.label("content_title"),
+                Content.year.label("content_year"),
             ]
         )
         .where(condition)
@@ -42,6 +42,14 @@ async def search(keyword: str, limit: int = 20, cursor: Optional[int] = None):
 
     data = await fetch_all(query)
     return data
+
+
+async def count(keyword: str) -> int:
+    """Count translations"""
+    query = db.select([db.func.count(Translation.id)]).where(
+        Translation.translation.op("~*")(keyword)
+    )
+    return await query.gino.scalar()
 
 
 async def get_by_id(translation_id: int) -> Translation:
@@ -63,11 +71,11 @@ async def fetch_user_liked(
             [
                 Translation.id,
                 Translation.translation,
-                Line.id,
+                Line.id.label("line_id"),
                 Line.line,
-                Content.id,
-                Content.title,
-                Content.year,
+                Content.id.label("content_id"),
+                Content.title.label("content_title"),
+                Content.year.label("content_year"),
                 TranslationLike.created_at,
             ]
         )
@@ -98,11 +106,11 @@ async def fetch_user_written(
             [
                 Translation.id,
                 Translation.translation,
-                Line.id,
+                Line.id.label("line_id"),
                 Line.line,
-                Content.id,
-                Content.title,
-                Content.year,
+                Content.id.label("content_id"),
+                Content.title.label("content_title"),
+                Content.year.label("content_year"),
             ]
         )
         .where(condition)

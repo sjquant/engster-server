@@ -1,9 +1,12 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 import secrets
 import random
 import uuid
 
-from app.db_models import User
+from app.models import User, Translation
+from app.utils import get_photo_url
+from app.exceptions import DataDoesNotExist
+from app import config, db
 
 
 def generate_random_characters(prefix_length=4, suffix_length=6):
@@ -44,3 +47,23 @@ async def create_user(
     user.set_password(password)
     await user.create()
     return user
+
+
+async def get_activitiy_summary(user_id: uuid.UUID) -> Dict[str, Any]:
+    query = (
+        db.select([User.nickname, User.photo, db.func.count(Translation.id)])
+        .select_from(User.outerjoin(Translation))
+        .where(User.id == user_id)
+        .group_by(User.id)
+    )
+    data = await query.gino.first()
+    if data:
+        data = {
+            "user_id": user_id,
+            "user_nickname": data[0],
+            "user_photo": get_photo_url(data[1], media_url=config.MEDIA_URL),
+            "translation_count": data[2],
+        }
+    else:
+        raise DataDoesNotExist("User activity summary does not exist.")
+    return data
