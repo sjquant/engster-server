@@ -2,7 +2,6 @@ import asyncpg
 
 from sanic import Blueprint
 from sanic.request import Request
-from sanic.views import HTTPMethodView
 from sanic.exceptions import ServerError
 from sanic_jwt_extended import (
     refresh_jwt_required,
@@ -161,25 +160,3 @@ async def refresh_token(request, token: Token):
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
     return resp
-
-
-class UserProfileView(HTTPMethodView):
-    @jwt_required
-    async def get(self, request, token: Token):
-        user_id = token.identity
-        user = await get_user_by_id(user_id)
-        return JsonResponse(UserModel.from_orm(user), status=200)
-
-    @jwt_required
-    async def put(self, request: Request, token: Token):
-        user_id = token.identity
-        data = {key: value for key, value in request.json.items()}
-        user = await get_user_by_id(user_id)
-        await user.update(**data).apply()
-        return JsonResponse(UserModel.from_orm(user), status=202)
-
-    async def delete(self):
-        raise ServerError(status_code=405)
-
-
-blueprint.add_route(UserProfileView.as_view(), "/profile")

@@ -1,80 +1,56 @@
 from typing import List, Dict, Any, Optional
 from uuid import UUID
+
 from app.db_models import (
     Line,
     Translation,
-    User,
     Content,
-    LineLike,
     TranslationLike,
 )
 from app import db
-from app import config
-from app.exceptions import DataDoesNotExist
-from app.utils import get_photo_url
+from app.utils import fetch_all
 
 
-async def get_user_activitiy_summary(user_id: UUID) -> Dict[str, Any]:
-    query = (
-        db.select([User.nickname, User.photo, db.func.count(Translation.id)])
-        .select_from(User.outerjoin(Translation))
-        .where(User.id == user_id)
-        .group_by(User.id)
-    )
-    data = await query.gino.first()
-    if data:
-        data = {
-            "user_id": user_id,
-            "user_nickname": data[0],
-            "user_photo": get_photo_url(data[1], media_url=config.MEDIA_URL),
-            "translation_count": data[2],
-        }
-    else:
-        raise DataDoesNotExist("User activity summary does not exist.")
-    return data
-
-
-async def fetch_user_liked_english_lines(
-    user_id: UUID, limit: int = 20, cursor: Optional[int] = 0
-) -> List[Dict["str", Any]]:
+async def search(keyword: str, limit: int = 20, cursor: Optional[int] = None):
+    """Search Korean with a keyword"""
     condition = (
-        db.and_(LineLike.id < cursor, LineLike.user_id == user_id)
+        db.and_(Translation.id < cursor, Translation.translation.op("~*")(keyword))
         if cursor
-        else LineLike.user_id == user_id
+        else Translation.translation.op("~*")(keyword)
     )
     query = (
         db.select(
             [
+                Translation.id,
+                Translation.translation,
                 Line.id,
                 Line.line,
                 Content.id,
                 Content.title,
                 Content.year,
-                LineLike.created_at,
             ]
         )
         .where(condition)
         .select_from(
-            Line.join(Content, Line.content_id == Content.id).join(
-                LineLike, Line.id == LineLike.line_id
+            Translation.join(Line, Translation.line_id == Line.id).join(
+                Content, Line.content_id == Content.id
             )
         )
         .limit(limit)
-        .order_by(LineLike.id.desc())
+        .order_by(Translation.id.desc())
     )
-    columns = (
-        "id",
-        "line",
-        "content_id",
-        "content_title",
-        "content_year",
-        "liked_at",
-    )
-    data = await query.gino.all()
-    return [dict(zip(columns, each)) for each in data]
+
+    data = await fetch_all(query)
+    return data
 
 
-async def fetch_user_liked_korean_lines(
+async def get_by_id(translation_id: int) -> Translation:
+    query = Translation.query.where(db.and_(Translation.id == translation_id))
+    translation = await query.gino.first()
+    return translation
+
+
+async def fetch_user_liked(
     user_id: UUID, limit: int = 20, cursor: Optional[int] = None
 ) -> List[Dict["str", Any]]:
     condition = (
@@ -105,21 +81,11 @@ async def fetch_user_liked_korean_lines(
         .order_by(TranslationLike.id.desc())
     )
 
-    columns = (
-        "id",
-        "translation",
-        "line_id",
-        "line",
-        "content_id",
-        "content_title",
-        "content_year",
-        "liked_at",
-    )
-    data = await query.gino.all()
-    return [dict(zip(columns, each)) for each in data]
+    data = await fetch_all(query)
+    return data
 
 
-async def fetch_user_translations(
+async def fetch_user_written(
     user_id: UUID, limit: int = 20, cursor: Optional[int] = None
 ) -> List[Dict["str", Any]]:
     condition = (
@@ -148,14 +114,47 @@ async def fetch_user_translations(
         .limit(limit)
         .order_by(Translation.id.desc())
     )
-    columns = (
-        "id",
-        "translation",
-        "line_id",
-        "line",
-        "content_id",
-        "content_title",
-        "content_year",
+    data = await fetch_all(query)
+    return data
+
+
+async def add_like(translation_id: int, user_id: UUID) -> TranslationLike:
+    like = TranslationLike(translation_id=translation_id, user_id=user_id)
+    await like.create()
+    return like
+
+
+async def remove_like(translation_id: int, user_id: UUID) -> None:
+    await TranslationLike.delete.where(
+        db.and_(
+            TranslationLike.translation_id == translation_id,
+            TranslationLike.user_id == user_id,
+        )
+    ).gino.status()
+
+
+async def get_like_count(translation_ids: List[int]) -> Dict[int, int]:
+    """get korean count per translation """
+    query = (
+        db.select(
+            [
+                TranslationLike.translation_id,
+                db.func.count(TranslationLike.translation_id),
+            ]
+        )
+        .where(TranslationLike.translation_id.in_(translation_ids))
+        .group_by(TranslationLike.translation_id)
     )
     data = await query.gino.all()
-    return [dict(zip(columns, each)) for each in data]
+    return {each[0]: each[1] for each in data}
+
+
+async def pick_user_liked(user_id: UUID, translation_ids: List[int]) -> List[int]:
+    query = db.select([TranslationLike.translation_id]).where(
+        db.and_(
+            TranslationLike.user_id == user_id,
+            TranslationLike.translation_id.in_(translation_ids),
+        )
+    )
+    data = await query.gino.all()
+    return [each[0] for each in data]

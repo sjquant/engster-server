@@ -5,6 +5,7 @@ import uuid
 from sanic.request import Request
 from pydantic import create_model
 from sanic_jwt_extended import jwt_required
+from sanic_jwt_extended.exceptions import AccessDeniedError
 
 
 def _get_request(*args):
@@ -60,6 +61,18 @@ def expect_body(**field_definitions):
 def admin_required(func):
     @jwt_required(allow=["admin"])
     def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def self_required(func):
+    @jwt_required
+    def wrapper(*args, **kwargs):
+        token = kwargs["token"]
+        user_id = kwargs["user_id"]
+        if token.identity != str(user_id):
+            raise AccessDeniedError("Permission Denied")
         return func(*args, **kwargs)
 
     return wrapper

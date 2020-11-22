@@ -21,148 +21,32 @@ Content-Type: application/json
     "password": "abcdefg!!!"
 }
 
-########## Content ##########
-
-### Create Content
-POST {{ host }}/subtitle/contents
-Content-Type: application/json
-
-{
-    "title": "The Maze Runner",
-    "year": "2014",
-    "poster": "https://upload.wikimedia.org/wikipedia/en/b/be/The_Maze_Runner_poster.jpg",
-    "genre_ids": [4, 10, 11, 14]
-}
-
-### Content List
-GET {{ host }}/subtitle/contents
-Content-Type: application/json
-
-### Get Content Detail
-GET {{ host }}/subtitle/contents/2
-Content-Type: application/json
-
-### Update Content
-PUT {{ host }}/subtitle/contents/2
-Content-Type: application/json
-
-{
-    "title": "Avatar",
-    "year": "2009",
-    "poster": "https://images-na.ssl-images-amazon.com/images/I/41kTVLeW1CL._AC_.jpg",
-    "genre_ids": [4, 10, 11, 14]
-}
-
-### Delete Content
-DELETE {{ host }}/subtitle/contents/2
-Content-Type: application/json
-
-
-### Fetch content lines
-GET {{ host }}/subtitle/contents/1/lines?cursor=3242
-
-
-########### Genre ###########
-
-### Genre List
-GET {{ host }}/subtitle/genres
-Content-Type: application/json
-
-### Create genre
-POST {{ host }}/subtitle/genres
-Content-Type: application/json
-
-{
-    "genre": "crime"
-}
-
-### Genre Detail
-GET {{ host }}/subtitle/genres/2
-Content-Type: application/json
-
-### Update Individual genre
-PUT {{ host }}/subtitle/genres/10
-Content-Type: application/json
-
-{
-    "genre":"science fiction"
-}
-
-### Delete Individual genre
-DELETE {{ host }}/subtitle/genres/2
-Content-Type: application/json
-
-
-########### Translation ###########
-
-
-### Get Specific translation
-GET {{ host }}/subtitle/translations/1423
-
-### Change specific translation
-PUT {{ host }}/subtitle/translations/1423
-
-{
-    "translation": "민호야 힘내!"
-}
-
-### Delete specific translation
-DELETE {{ host }}/subtitle/translations/2181
-
 ### Randomly pick subtitles
-GET {{ host }}/subtitle/random/subtitles?count=30
+GET {{ host }}/subtitles/random?max_count=30
 Content-Type: application/json
 
 ### Search By English
-GET {{ host }}/subtitle/search/english?keyword=minho
+GET {{ host }}/subtitles/search?keyword=minho
 Content-Type: application/json
 
-### Search By Korean
-GET {{ host }}/subtitle/search/korean?keyword=위험
+### Like subtitles
+POST {{ host }}/subtitles/1/like
 Content-Type: application/json
 
-### Like English Line
-POST {{ host }}/subtitle/likes/english/1
+### Unlike subtitles
+DELETE {{ host }}/subtitles/1/like
 Content-Type: application/json
 
-### Unlike English Line
-DELETE {{ host }}/subtitle/likes/english/1
-Content-Type: application/json
 
-### Like Korean Line
-POST {{ host }}/subtitle/likes/korean/1
-Content-Type: application/json
-
-### Cancel the like of Korean Line
-DELETE {{ host }}/subtitle/likes/korean/1
-Content-Type: application/json
-
-### Get Translations for line
-GET {{ host }}/subtitle/translations?line_id=800
+### Fetch Translations for a subtitle
+GET {{ host }}/subtitles/800/translations
 Content-Type: application/json
 
 ### Create Translation
 # @name createTranslation
-POST {{ host }}/subtitle/translations
+POST {{ host }}/subtitles/800/translations
 Content-Type: application.json
 
 {
-    "line_id": 800,
     "translation": "무슨 일?"
 }
-
-### Get Translation Detail
-GET {{ host }}/subtitle/translations/{{ createTranslation.response.body.$.id }}
-Content-Type: application.json
-
-### Update Translation Detail
-PUT {{ host }}/subtitle/translations/{{ createTranslation.response.body.$.id }}
-Content-Type: application.json
-
-{
-    "translation": "무슨일인데?"
-}
-
-### Delete Translation Detail
-DELETE {{ host }}/subtitle/translations/{{ createTranslation.response.body.$.id }}
-Content-Type: application.json

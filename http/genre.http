@@ -1,0 +1,40 @@
+@userid = {{ siginin.response.body.$.user.id }}
+
+### Sign In with admin
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "admin@test.com",
+    "password": "abcdefg!!!"
+}
+
+
+### Genre List
+GET {{ host }}/genres
+Content-Type: application/json
+
+### Create genre
+POST {{ host }}/genres
+Content-Type: application/json
+
+{
+    "genre": "crime"
+}
+
+### Genre Detail
+GET {{ host }}/genres/2
+Content-Type: application/json
+
+### Update Individual genre
+PUT {{ host }}/genres/10
+Content-Type: application/json
+
+{
+    "genre":"science fiction"
+}
+
+### Delete Individual genre
+DELETE {{ host }}/genres/2
+Content-Type: application/json

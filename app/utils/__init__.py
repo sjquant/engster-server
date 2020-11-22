@@ -3,3 +3,4 @@ from .hasher import *
 from .jwt import *
 from .serializer import *
 from .upload import *
+from .db import *
