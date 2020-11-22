@@ -108,7 +108,7 @@ async def init():
     :set categories and genres
     """
     from app import db
-    from app.db_models import Genre
+    from app.models import Genre
 
     await db.set_bind(config.DB_URL)
 

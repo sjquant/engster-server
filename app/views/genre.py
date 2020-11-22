@@ -4,7 +4,7 @@ from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
 from sanic_jwt_extended.tokens import Token
 
-from app.db_models import Genre
+from app.models import Genre
 from app.decorators import expect_body, admin_required
 from app.services import genre as service
 from app.utils import JsonResponse

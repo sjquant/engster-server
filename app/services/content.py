@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Optional
 
 from app import db
-from app.db_models import Line, Content, Genre, ContentXGenre
+from app.models import Line, Content, Genre, ContentXGenre
 
 
 async def fetch(limit: int, cursor: Optional[int] = None) -> List[Dict[str, Any]]:

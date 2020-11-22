@@ -37,11 +37,7 @@ class SearchTranslation(HTTPMethodView):
         self, request, limit: int, cursor: int, keyword: str, token: Optional[Token]
     ):
         """search korean(translations)"""
-        count = (
-            await subtitle_service.count_translations(keyword)
-            if cursor is None
-            else None
-        )
+        count = await translation_service.count(keyword) if cursor is None else None
         if count == 0:
             return JsonResponse({"data": [], "count": 0, "cursor": cursor})
 
@@ -60,7 +56,7 @@ class SearchTranslation(HTTPMethodView):
             {
                 **each,
                 "like_count": like_count.get(each["id"], 0),
-                "translation_count": translation_count.get(each["id"], 0),
+                "translation_count": translation_count.get(each["line_id"], 0),
                 "genres": genres[each["content_id"]],
                 "user_liked": each["id"] in user_liked,
             }
@@ -127,7 +123,7 @@ class UserLikedTranslations(HTTPMethodView):
         return content_ids, translation_ids, line_ids
 
     @jwt_optional
-    @expect_query(limit=(int, 20), cursor=(int, None))
+    @expect_query(user_id=(str, ...), limit=(int, 20), cursor=(int, None))
     async def get(
         self, request: Request, user_id: str, limit: int, cursor: int, token: Token
     ):
@@ -172,7 +168,7 @@ class UserWrittenTranslations(HTTPMethodView):
         return content_ids, translation_ids, line_ids
 
     @jwt_optional
-    @expect_query(limit=(int, 20), cursor=(int, None))
+    @expect_query(user_id=(str, ...), limit=(int, 20), cursor=(int, None))
     async def get(
         self, request: Request, user_id: str, limit: int, cursor: int, token: Token
     ):
@@ -205,7 +201,7 @@ class UserWrittenTranslations(HTTPMethodView):
         )
 
 
-blueprint.add_route(SearchTranslation.as_view(), "")
+blueprint.add_route(SearchTranslation.as_view(), "/search")
 blueprint.add_route(UserLikedTranslations.as_view(), "/liked")
 blueprint.add_route(UserWrittenTranslations.as_view(), "/written")
 blueprint.add_route(TranslationDetail.as_view(), "/<translation_id:int>")

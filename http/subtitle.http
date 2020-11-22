@@ -50,3 +50,7 @@ Content-Type: application.json
 {
     "translation": "무슨 일?"
 }
+
+### Get User-liked subtitles
+GET {{ host }}/subtitles/liked?user_id={{userid}}&limit=20
+Content-Type: application/json

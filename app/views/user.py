@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sanic import Blueprint
 from sanic.request import Request
 from sanic.views import HTTPMethodView
@@ -5,7 +7,7 @@ from sanic.exceptions import ServerError
 from sanic_jwt_extended.tokens import Token
 
 from app.services import user as service
-from app.models import UserModel
+from app.schemas import UserModel
 from app.exceptions import DataDoesNotExist
 from app.decorators import self_required
 from app.utils import JsonResponse
@@ -33,9 +35,9 @@ class UserProfileView(HTTPMethodView):
 
 
 class UserActivitySummary(HTTPMethodView):
-    async def get(self, request: Request, user_id: str):
+    async def get(self, request: Request, user_id: UUID):
         try:
-            resp = await service.get_user_activitiy_summary(user_id)
+            resp = await service.get_activitiy_summary(user_id)
         except DataDoesNotExist as e:
             raise ServerError(str(e), status_code=404)
         return JsonResponse(resp, status=200)
