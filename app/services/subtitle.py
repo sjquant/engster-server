@@ -175,3 +175,18 @@ async def fetch_translations(
             user = {"id": None, "nickname": "자막"}
         translations.append({**each.to_dict(hide=["user_id"]), "user": user})
     return translations
+
+
+async def fetch_by_content_id(
+    content_id: int, limit: int = 20, cursor: Optional[int] = None
+) -> List[Dict[str, Any]]:
+    """Fetch lines of a content"""
+    condition = (
+        db.and_(Line.id < cursor, Line.content_id == content_id)
+        if cursor
+        else Line.content_id == content_id
+    )
+
+    query = Line.query.where(condition).order_by(Line.id.desc()).limit(limit)
+    data = await query.gino.all()
+    return [each.to_dict() for each in data]

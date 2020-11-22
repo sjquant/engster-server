@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Optional
 
 from app import db
-from app.models import Line, Content, Genre, ContentXGenre
+from app.models import Content, Genre, ContentXGenre
 
 
 async def fetch(limit: int, cursor: Optional[int] = None) -> List[Dict[str, Any]]:
@@ -54,18 +54,3 @@ async def clear_genres(content_id: int) -> None:
     await ContentXGenre.delete.where(
         ContentXGenre.content_id == content_id
     ).gino.status()
-
-
-async def fetch_subtitles(
-    content_id: int, limit: int = 20, cursor: Optional[int] = None
-) -> List[Dict[str, Any]]:
-    """Fetch lines of a content"""
-    condition = (
-        db.and_(Line.id < cursor, Line.content_id == content_id)
-        if cursor
-        else Line.content_id == content_id
-    )
-
-    query = Line.query.where(condition).order_by(Line.id.desc()).limit(limit)
-    data = await query.gino.all()
-    return [each.to_dict() for each in data]

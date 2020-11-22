@@ -1,17 +1,16 @@
 from typing import List, Tuple, Dict, Any, Optional
+from io import BytesIO
 
 import asyncpg
 from pydantic import constr
 from sanic.request import Request
 from sanic.views import HTTPMethodView
 from sanic.blueprints import Blueprint
+from sanic.exceptions import ServerError
 from sanic_jwt_extended import jwt_required, jwt_optional
 from sanic_jwt_extended.tokens import Token
 
-from app.models import (
-    User,
-    Translation,
-)
+from app.models import User, Translation, Content
 from app.decorators import expect_query, expect_body
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
@@ -19,6 +18,32 @@ from app.services import translation as translation_service
 from app.utils import JsonResponse
 
 blueprint = Blueprint("subtitle_blueprint", url_prefix="/subtitles")
+
+
+class SubtitleList(HTTPMethodView):
+
+    @expect_query(content_id=(int, None), cursor=(int, None), limit=(int, 20))
+    async def get(self, request: Request, content_id: int, cursor: int, limit: int):
+
+        data = []
+
+        if content_id:
+            data = await subtitle_service.fetch_by_content_id(content_id, limit, cursor)
+
+        resp = {
+            "cursor": cursor,
+            "data": data,
+        }
+        return JsonResponse(resp, status=200)
+
+    @expect_query(content_id=(int, ...), cursor=(int, None), limit=(int, 20))
+    async def post(self, request: Request, content_id: int):
+        content = await Content.get(content_id)
+        if content is None:
+            raise ServerError("No Such Instance", status_code=404)
+        input_file = request.files.get("input_file")
+        csv_file = BytesIO(input_file.body)
+        pass
 
 
 class RandomSubtitles(HTTPMethodView):
@@ -227,6 +252,7 @@ class UserLikedSubtitles(HTTPMethodView):
         return JsonResponse(resp, status=200,)
 
 
+blueprint.add_route(SubtitleList.as_view(), "")
 blueprint.add_route(SearchSubtitles.as_view(), "/search")
 blueprint.add_route(RandomSubtitles.as_view(), "/random")
 blueprint.add_route(TranslationList.as_view(), "/<line_id:int>/translations")

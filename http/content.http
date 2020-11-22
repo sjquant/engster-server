@@ -43,7 +43,3 @@ Content-Type: application/json
 ### Delete Content
 DELETE {{ host }}/contents/2
 Content-Type: application/json
-
-
-### Fetch content subtitles
-GET {{ host }}/contents/2/subtitles

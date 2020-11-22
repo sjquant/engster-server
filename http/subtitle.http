@@ -21,6 +21,12 @@ Content-Type: application/json
     "password": "abcdefg!!!"
 }
 
+
+### Fetch content subtitles
+GET {{ host }}/subtitles?content_id=1
+Content-Type: application/json
+
+
 ### Randomly pick subtitles
 GET {{ host }}/subtitles/random?max_count=30
 Content-Type: application/json

@@ -77,13 +77,5 @@ class ContentDetail(HTTPMethodView):
         return JsonResponse({"message": "success"}, status=204)
 
 
-class SubtitleList(HTTPMethodView):
-    @expect_query(cursor=(int, None), limit=(int, 20))
-    async def get(self, request: Request, content_id: int, cursor: int, limit: int):
-        lines = await service.fetch_subtitles(content_id, limit, cursor)
-        return JsonResponse(lines, status=200)
-
-
 blueprint.add_route(ContentList.as_view(), "")
 blueprint.add_route(ContentDetail.as_view(), "/<content_id:int>"),
-blueprint.add_route(SubtitleList.as_view(), "/<content_id:int>/subtitles")
