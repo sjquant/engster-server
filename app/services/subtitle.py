@@ -49,6 +49,11 @@ async def count(keyword: str) -> int:
 
 
 async def pick_randomly(max_count=30) -> List[Optional[Dict[str, Any]]]:
+    """Pick subtitles randomly
+    
+    Args:
+        max_count: maximum length of subtitles to pick
+    """
     total_count = await db.select([db.func.count(Subtitle.id)]).gino.scalar()
     if total_count == 0:
         return []
@@ -94,6 +99,7 @@ async def remove_like(line_id: int, user_id: UUID) -> None:
 async def fetch_user_liked(
     user_id: UUID, limit: int = 20, cursor: Optional[int] = 0
 ) -> List[Dict["str", Any]]:
+    """Fetch subtitle a user liked"""
     condition = (
         db.and_(SubtitleLike.id < cursor, SubtitleLike.user_id == user_id)
         if cursor
@@ -161,6 +167,7 @@ async def pick_user_liked(user_id: UUID, line_ids: List[int]) -> List[int]:
 async def fetch_translations(
     line_id: int, limit: int = 15, cursor: Optional[int] = None
 ) -> List[Dict[str, Any]]:
+    """Fetch translations for give lines"""
     condition = (
         db.and_(Translation.id < cursor, Translation.line_id == line_id)
         if cursor
@@ -195,3 +202,10 @@ async def fetch_by_content_id(
     query = Subtitle.query.where(condition).order_by(Subtitle.id.desc()).limit(limit)
     data = await query.gino.all()
     return [each.to_dict() for each in data]
+
+
+async def fetch_all_ids_by_content_id(content_id: int) -> List[Dict[str, Any]]:
+    """Fetch subtitle line ids of a content"""
+    query = db.select([Subtitle.id]).order_by(Subtitle.id.asc())
+    data = [each[0] for each in await query.gino.all()]
+    return data
