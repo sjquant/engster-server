@@ -1,27 +1,28 @@
 from typing import List, Tuple, Dict, Any, Optional
 from io import BytesIO
 
-import asyncpg
-from pydantic import constr
 from sanic.request import Request
 from sanic.views import HTTPMethodView
 from sanic.blueprints import Blueprint
 from sanic.exceptions import ServerError
 from sanic_jwt_extended import jwt_required, jwt_optional
 from sanic_jwt_extended.tokens import Token
+from pydantic import constr
+import pandas as pd
+import asyncpg
 
-from app.models import User, Translation, Content
-from app.decorators import expect_query, expect_body
+from app.models import User, Subtitle, Translation, Content
+from app.decorators import expect_query, expect_body, admin_required
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
 from app.services import translation as translation_service
+from app import db
 from app.utils import JsonResponse
 
 blueprint = Blueprint("subtitle_blueprint", url_prefix="/subtitles")
 
 
 class SubtitleList(HTTPMethodView):
-
     @expect_query(content_id=(int, None), cursor=(int, None), limit=(int, 20))
     async def get(self, request: Request, content_id: int, cursor: int, limit: int):
 
@@ -36,14 +37,28 @@ class SubtitleList(HTTPMethodView):
         }
         return JsonResponse(resp, status=200)
 
-    @expect_query(content_id=(int, ...), cursor=(int, None), limit=(int, 20))
-    async def post(self, request: Request, content_id: int):
+    async def _upload_subtitle(self, df):
+        subtitle = df[["time", "line", "content_id"]]
+        subtitltes = subtitle.to_dict(orient="records")
+        return await Subtitle.insert().gino.all(subtitltes)
+
+    @admin_required
+    @expect_query(content_id=(int, ...))
+    async def post(self, request: Request, content_id: int, token: Token):
         content = await Content.get(content_id)
         if content is None:
             raise ServerError("No Such Instance", status_code=404)
-        input_file = request.files.get("input_file")
-        csv_file = BytesIO(input_file.body)
-        pass
+
+        input_file = request.files.get("input")
+        data = BytesIO(input_file.body)
+        df = pd.read_csv(data, encoding="utf-8")
+        df["content_id"] = content_id
+        async with db.transaction():
+            data = await self._upload_subtitle(df)
+            print(data)
+        # await self._upload_translation(df)
+
+        return JsonResponse({"message": "Hi"})
 
 
 class RandomSubtitles(HTTPMethodView):

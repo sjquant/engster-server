@@ -27,11 +27,23 @@ GET {{ host }}/subtitles?content_id=1
 Content-Type: application/json
 
 
+### Upload subtitles
+POST {{ host }}/subtitles?content_id=1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="input"; filename="Inside Out.smi"
+Content-Type: text/plain
+
+< ../data/csv/TheMazeRunner.csv
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+
+
 ### Randomly pick subtitles
 GET {{ host }}/subtitles/random?max_count=30
 Content-Type: application/json
 
-### Search By English
+### Search subtitles
 GET {{ host }}/subtitles/search?keyword=minho
 Content-Type: application/json
 
