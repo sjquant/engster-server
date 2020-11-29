@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Optional
 from uuid import UUID
 
 from app.models import (
-    Line,
+    Subtitle,
     Translation,
     Content,
     TranslationLike,
@@ -23,8 +23,9 @@ async def search(keyword: str, limit: int = 20, cursor: Optional[int] = None):
             [
                 Translation.id,
                 Translation.translation,
-                Line.id.label("line_id"),
-                Line.line,
+                Subtitle.id.label("line_id"),
+                Subtitle.line,
+                Subtitle.time,
                 Content.id.label("content_id"),
                 Content.title.label("content_title"),
                 Content.year.label("content_year"),
@@ -32,8 +33,8 @@ async def search(keyword: str, limit: int = 20, cursor: Optional[int] = None):
         )
         .where(condition)
         .select_from(
-            Translation.join(Line, Translation.line_id == Line.id).join(
-                Content, Line.content_id == Content.id
+            Translation.join(Subtitle, Translation.line_id == Subtitle.id).join(
+                Content, Subtitle.content_id == Content.id
             )
         )
         .limit(limit)
@@ -71,8 +72,9 @@ async def fetch_user_liked(
             [
                 Translation.id,
                 Translation.translation,
-                Line.id.label("line_id"),
-                Line.line,
+                Subtitle.id.label("line_id"),
+                Subtitle.line,
+                Subtitle.time,
                 Content.id.label("content_id"),
                 Content.title.label("content_title"),
                 Content.year.label("content_year"),
@@ -81,8 +83,8 @@ async def fetch_user_liked(
         )
         .where(condition)
         .select_from(
-            Translation.join(Line, Translation.line_id == Line.id)
-            .join(Content, Line.content_id == Content.id)
+            Translation.join(Subtitle, Translation.line_id == Subtitle.id)
+            .join(Content, Subtitle.content_id == Content.id)
             .join(TranslationLike, Translation.id == TranslationLike.translation_id)
         )
         .limit(limit)
@@ -106,8 +108,9 @@ async def fetch_user_written(
             [
                 Translation.id,
                 Translation.translation,
-                Line.id.label("line_id"),
-                Line.line,
+                Subtitle.id.label("line_id"),
+                Subtitle.line,
+                Subtitle.time,
                 Content.id.label("content_id"),
                 Content.title.label("content_title"),
                 Content.year.label("content_year"),
@@ -115,8 +118,8 @@ async def fetch_user_written(
         )
         .where(condition)
         .select_from(
-            Translation.join(Line, Translation.line_id == Line.id).join(
-                Content, Line.content_id == Content.id
+            Translation.join(Subtitle, Translation.line_id == Subtitle.id).join(
+                Content, Subtitle.content_id == Content.id
             )
         )
         .limit(limit)

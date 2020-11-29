@@ -88,9 +88,6 @@ class Content(BaseModel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def __repr__(self):
-        return "<Content {}>".format(self.title)
-
 
 class Genre(BaseModel):
 
@@ -101,9 +98,6 @@ class Genre(BaseModel):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-    def __repr__(self):
-        return "<Genre {}>".format(self.genre)
 
 
 class ContentXGenre(BaseModel):
@@ -120,13 +114,13 @@ class ContentXGenre(BaseModel):
     _unique = db.UniqueConstraint("content_id", "genre_id", name="content_genre_unique")
 
 
-class Line(BaseModel):
+class Subtitle(BaseModel):
 
-    __tablename__ = "line"
+    __tablename__ = "subtitle"
 
     id = db.Column(db.Integer, db.Sequence("line_id_seq"), primary_key=True)
     line = db.Column(db.Text, nullable=False)
-    time = db.Column(db.Time)
+    time = db.Column(db.Integer)  # time as seconds
     content_id = db.Column(db.Integer, db.ForeignKey("content.id"), nullable=False)
 
     _id_idx = db.Index("line_idx_id", "id")
@@ -135,11 +129,8 @@ class Line(BaseModel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def __repr__(self):
-        return "<Line {}>".format(self.line)
 
-
-class LineLike(TimeStampedModel):
+class SubtitleLike(TimeStampedModel):
 
     __tablename__ = "line_like"
 
@@ -149,9 +140,6 @@ class LineLike(TimeStampedModel):
 
     _id_idx = db.Index("line_like_idx_id", "id")
     _unique = db.UniqueConstraint("user_id", "line_id", name="line_like_unique")
-
-    def __repr__(self):
-        return "<Line Like {}>".format(self.id)
 
 
 class Translation(TimeStampedModel):
@@ -165,9 +153,6 @@ class Translation(TimeStampedModel):
 
     _id_idx = db.Index("translation_idx_id", "id")
     _translation_idx = db.Index("translation_idx_translation", "translation")
-
-    def __repr__(self):
-        return "<Translation {}>".format(self.translation)
 
 
 class TranslationLike(TimeStampedModel):
@@ -186,6 +171,3 @@ class TranslationLike(TimeStampedModel):
     _unique = db.UniqueConstraint(
         "user_id", "translation_id", name="translation_like_unique"
     )
-
-    def __repr__(self):
-        return "<Translation Like {}>".format(self.id)

@@ -11,5 +11,17 @@
     "$shared": {
       "host": "http://127.0.0.1:8000"
     }
-  }
+  },
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "127.0.0.1",
+      "port": 5123,
+      "driver": "PostgreSQL",
+      "name": "engster-local",
+      "database": "engster",
+      "username": "user",
+      "password": "password"
+    }
+  ]
 }
