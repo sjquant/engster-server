@@ -32,8 +32,8 @@ POST {{ host }}/subtitles?content_id=1
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="input"; filename="Inside Out.smi"
-Content-Type: text/plain
+Content-Disposition: form-data; name="input"; filename="TheMazeRunner.csv"
+Content-Type: text/csv
 
 < ../data/csv/TheMazeRunner.csv
 ------WebKitFormBoundary7MA4YWxkTrZu0gW

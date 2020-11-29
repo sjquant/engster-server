@@ -40,7 +40,15 @@ class SubtitleList(HTTPMethodView):
     async def _upload_subtitle(self, df):
         subtitle = df[["time", "line", "content_id"]]
         subtitltes = subtitle.to_dict(orient="records")
-        return await Subtitle.insert().gino.all(subtitltes)
+        await Subtitle.insert().gino.all(subtitltes)
+
+    async def _upload_translation(self, df):
+        content_id = df["content_id"].iloc[0]
+        subtitle_ids = await subtitle_service.fetch_all_ids_by_content_id(content_id)
+        translation = df[["translation", "content_id"]]
+        translation["line_id"] = subtitle_ids
+        translations = translation.to_dict(orient="records")
+        await Translation.insert().gino.all(translations)
 
     @admin_required
     @expect_query(content_id=(int, ...))
@@ -49,16 +57,19 @@ class SubtitleList(HTTPMethodView):
         if content is None:
             raise ServerError("No Such Instance", status_code=404)
 
+        existing_lines = await subtitle_service.fetch_by_content_id(content_id)
+        if existing_lines:
+            raise ServerError("Subtitle already exists.", status_code=400)
+
         input_file = request.files.get("input")
         data = BytesIO(input_file.body)
         df = pd.read_csv(data, encoding="utf-8")
         df["content_id"] = content_id
         async with db.transaction():
-            data = await self._upload_subtitle(df)
-            print(data)
-        # await self._upload_translation(df)
-
-        return JsonResponse({"message": "Hi"})
+            await self._upload_subtitle(df)
+            if "translation" in df.columns:
+                await self._upload_translation(df)
+        return JsonResponse({"message": "success"})
 
 
 class RandomSubtitles(HTTPMethodView):
