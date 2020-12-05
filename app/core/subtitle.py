@@ -11,6 +11,9 @@ class SubtitleList(list):
     def to_csv(self, path: str, encoding="utf-8"):
         self.to_df().to_csv(path, encoding=encoding)
 
+    def __repr__(self):
+        return super().__repr__()
+
 
 class BaseSubtitle(abc.ABC):
     def __init__(self, text: str):
@@ -21,6 +24,9 @@ class BaseSubtitle(abc.ABC):
 
     def __len__(self):
         return len(self._subtitles)
+
+    def __repr__(self):
+        return repr(self._subtitles)
 
     @abc.abstractmethod
     def read(self, text: str):
@@ -71,6 +77,13 @@ class SRTSubtitle(BaseSubtitle):
 
             lines.append({"time": prev_seconds, "line": line})
             prev_seconds = self._process_time(each.group(1))
+
+        # process last group
+        line = text[each.start() :]
+        line = re.sub(re_sync, "", line).strip()
+        time = self._process_time(each.group(1))
+        lines.append({"time": time, "line": line})
+
         return lines
 
 
@@ -117,6 +130,12 @@ class SMISubtitle(BaseSubtitle):
 
             lines.append({"time": prev_seconds, "line": line})
             prev_seconds = self._process_time(each.group(1))
+        # process last group
+        line = text[each.start() :]
+        time = self._process_time(each.group(1))
+        line = re.sub(r"(<.*?>|^[\s]*-|\(.*\))", "", line).strip()
+        lines.append({"time": time, "line": line})
+
         return lines
 
 
@@ -125,11 +144,31 @@ class SubtitleMatcher:
         self._subtitles = subtitles
         self._translations = translations
 
-    def _find_lte_idx(self, partition: SubtitleList, *, lte_time: int):
-        for idx, each in enumerate(partition):
-            if each["time"] > lte_time:
+    def _find_lte_idx(
+        self,
+        translations: SubtitleList,
+        current_sub: SubtitleList,
+        next_sub: SubtitleList,
+    ):
+        for idx, current_trans in enumerate(translations):
+            try:
+                next_trans = translations[idx + 1]
+            except IndexError:
+                next_trans = current_trans
+
+            if current_trans["time"] >= next_sub["time"]:
+                return translations[:idx]
+
+            if (
+                next_trans["time"] >= current_sub["time"]
+                and next_trans["time"] < next_sub["time"]
+            ):
+                continue
+
+            if current_trans["time"] >= current_sub["time"]:
                 break
-        return idx
+
+        return translations[: idx + 1]
 
     def _concat_translations(self, partition: SubtitleList):
         translation = ""
@@ -140,22 +179,29 @@ class SubtitleMatcher:
         return translation
 
     def match(self):
-        prev_idx = 0
+        """Match subtitle and translation"""
+
         matched = SubtitleList()
-        for each in self._subtitles:
-            lte_idx = self._find_lte_idx(
-                self._translations[prev_idx:], lte_time=each["time"]
-            )
-            new_translation = self._concat_translations(
-                self._translations[prev_idx : prev_idx + lte_idx]  # noqa
-            )
+        prev_idx = 0
+
+        for i, current_subtitle in enumerate(self._subtitles):
+            try:
+                next_subtitle = self._subtitles[i + 1]
+                trans_chunk = self._find_lte_idx(
+                    self._translations[prev_idx:], current_subtitle, next_subtitle
+                )
+            except IndexError:
+                # Last subtitle
+                trans_chunk = self._translations[prev_idx:]
+
+            new_translation = self._concat_translations(trans_chunk)
             matched.append(
                 {
-                    "time": each.pop("time"),
-                    "subtitle": each.pop("line"),
-                    "trnaslation": new_translation,
-                    **each,
+                    "time": current_subtitle.pop("time"),
+                    "subtitle": current_subtitle.pop("line"),
+                    "translation": new_translation,
+                    **current_subtitle,
                 }
             )
-            prev_idx += lte_idx
+            prev_idx += len(trans_chunk)
         return matched
