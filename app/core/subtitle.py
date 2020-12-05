@@ -1,5 +1,7 @@
 import abc
+import csv
 import re
+import io
 
 import pandas as pd
 
@@ -8,8 +10,14 @@ class SubtitleList(list):
     def to_df(self):
         return pd.DataFrame(self).set_index("time")
 
-    def to_csv(self, path: str, encoding="utf-8"):
-        self.to_df().to_csv(path, encoding=encoding)
+    def to_csv(self):
+        csvfile = io.StringIO()
+        fields = list(self[0].keys())
+        writer = csv.DictWriter(csvfile, fieldnames=fields)
+        writer.writeheader()
+        for each in self:
+            writer.writerow(each)
+        return csvfile
 
     def __repr__(self):
         return super().__repr__()
@@ -75,14 +83,14 @@ class SRTSubtitle(BaseSubtitle):
                 prev_seconds = self._process_time(each.group(1))
                 continue
 
-            lines.append({"time": prev_seconds, "line": line})
+            lines.append({"time": prev_seconds, "subtitle": line})
             prev_seconds = self._process_time(each.group(1))
 
         # process last group
-        line = text[each.start() :]
+        line = text[each.start() :]  # noqa:E203
         line = re.sub(re_sync, "", line).strip()
         time = self._process_time(each.group(1))
-        lines.append({"time": time, "line": line})
+        lines.append({"time": time, "subtitle": line})
 
         return lines
 
@@ -128,13 +136,13 @@ class SMISubtitle(BaseSubtitle):
                 prev_seconds = self._process_time(each.group(1))
                 continue
 
-            lines.append({"time": prev_seconds, "line": line})
+            lines.append({"time": prev_seconds, "subtitle": line})
             prev_seconds = self._process_time(each.group(1))
         # process last group
-        line = text[each.start() :]
+        line = text[each.start() :]  # noqa:E203
         time = self._process_time(each.group(1))
         line = re.sub(r"(<.*?>|^[\s]*-|\(.*\))", "", line).strip()
-        lines.append({"time": time, "line": line})
+        lines.append({"time": time, "subtitle": line})
 
         return lines
 
@@ -175,7 +183,7 @@ class SubtitleMatcher:
         for i, each in enumerate(partition):
             if i != 0:
                 translation += " "
-            translation += each["line"]
+            translation += each["subtitle"]
         return translation
 
     def match(self):
@@ -198,7 +206,7 @@ class SubtitleMatcher:
             matched.append(
                 {
                     "time": current_subtitle.pop("time"),
-                    "subtitle": current_subtitle.pop("line"),
+                    "subtitle": current_subtitle.pop("subtitle"),
                     "translation": new_translation,
                     **current_subtitle,
                 }
