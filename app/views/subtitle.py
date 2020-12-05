@@ -11,7 +11,7 @@ from pydantic import constr
 import pandas as pd
 import asyncpg
 
-from app.models import User, Subtitle, Translation, Content
+from app.models import User, Subtitle, Translation
 from app.decorators import expect_query, expect_body, admin_required
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
@@ -45,7 +45,7 @@ class SubtitleList(HTTPMethodView):
     async def _upload_translation(self, df):
         content_id = df["content_id"].iloc[0]
         subtitle_ids = await subtitle_service.fetch_all_ids_by_content_id(content_id)
-        translation = df[["translation", "content_id"]]
+        translation = df[["translation"]]
         translation["line_id"] = subtitle_ids
         translations = translation.to_dict(orient="records")
         await Translation.insert().gino.all(translations)
@@ -53,7 +53,7 @@ class SubtitleList(HTTPMethodView):
     @admin_required
     @expect_query(content_id=(int, ...))
     async def post(self, request: Request, content_id: int, token: Token):
-        content = await Content.get(content_id)
+        content = await content_service.get_by_id(content_id)
         if content is None:
             raise ServerError("No Such Instance", status_code=404)
 
