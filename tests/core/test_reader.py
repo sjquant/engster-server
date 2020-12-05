@@ -18,13 +18,13 @@ def test_read_smi():
     subtitle = SMISubtitle(text)
     assert len(subtitle) == 4
     assert subtitle[0]["time"] == 50
-    assert subtitle[0]["line"] == "누군가를 보며 궁금해한 적 있나요"
+    assert subtitle[0]["subtitle"] == "누군가를 보며 궁금해한 적 있나요"
     assert subtitle[1]["time"] == 52
-    assert subtitle[1]["line"] == "머릿속에서 무슨 일이 벌어지고 있을지?"
+    assert subtitle[1]["subtitle"] == "머릿속에서 무슨 일이 벌어지고 있을지?"
     assert subtitle[2]["time"] == 55
-    assert subtitle[2]["line"] == "음, 전 알아요"
+    assert subtitle[2]["subtitle"] == "음, 전 알아요"
     assert subtitle[3]["time"] == 56
-    assert subtitle[3]["line"] == "라일리의 머릿속은 잘 알죠"
+    assert subtitle[3]["subtitle"] == "라일리의 머릿속은 잘 알죠"
 
 
 def test_read_srt():
@@ -55,13 +55,13 @@ Hmm?
     assert len(subtitle) == 4
 
     assert subtitle[0]["time"] == 51
-    assert subtitle[0]["line"] == "JOY: Do you ever look at someone and wonder..."
+    assert subtitle[0]["subtitle"] == "JOY: Do you ever look at someone and wonder..."
     assert subtitle[1]["time"] == 53
-    assert subtitle[1]["line"] == '"What is going on inside their head?"'
+    assert subtitle[1]["subtitle"] == '"What is going on inside their head?"'
     assert subtitle[2]["time"] == 56
-    assert subtitle[2]["line"] == "Well, I know. Well, I know Riley's head."
+    assert subtitle[2]["subtitle"] == "Well, I know. Well, I know Riley's head."
     assert subtitle[3]["time"] == 95
-    assert subtitle[3]["line"] == "Hmm?"
+    assert subtitle[3]["subtitle"] == "Hmm?"
 
 
 @pytest.mark.parametrize("subtitle,translation,matched", subtitle_matcher_data)

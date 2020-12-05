@@ -38,6 +38,23 @@ Content-Type: text/csv
 < ../data/csv/TheMazeRunner.csv
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 
+### Convert subtitle files into csv
+POST {{ host }}/subtitles/convert-to-csv
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="subtitle"; filename="InsideOut.srt"
+Content-Type: text/plain
+
+< ../data/subtitles/InsideOut.srt
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="translation"; filename="InsideOut.smi"
+Content-Type: text/plain
+
+< ../data/subtitles/InsideOut.smi
+------WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ### Randomly pick subtitles
 GET {{ host }}/subtitles/random?max_count=30

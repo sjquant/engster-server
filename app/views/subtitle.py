@@ -2,6 +2,7 @@ from typing import List, Tuple, Dict, Any, Optional
 from io import BytesIO
 
 from sanic.request import Request
+from sanic.response import text as text_response
 from sanic.views import HTTPMethodView
 from sanic.blueprints import Blueprint
 from sanic.exceptions import ServerError
@@ -16,8 +17,9 @@ from app.decorators import expect_query, expect_body, admin_required
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
 from app.services import translation as translation_service
-from app import db
+from app.core.subtitle import SRTSubtitle, SMISubtitle, SubtitleMatcher
 from app.utils import JsonResponse
+from app import db
 
 blueprint = Blueprint("subtitle_blueprint", url_prefix="/subtitles")
 
@@ -38,7 +40,7 @@ class SubtitleList(HTTPMethodView):
         return JsonResponse(resp, status=200)
 
     async def _upload_subtitle(self, df):
-        subtitle = df[["time", "line", "content_id"]]
+        subtitle = df[["time", "subtitle", "content_id"]]
         subtitltes = subtitle.to_dict(orient="records")
         await Subtitle.insert().gino.all(subtitltes)
 
@@ -53,6 +55,7 @@ class SubtitleList(HTTPMethodView):
     @admin_required
     @expect_query(content_id=(int, ...))
     async def post(self, request: Request, content_id: int, token: Token):
+        """Upload subtitles with csv file"""
         content = await content_service.get_by_id(content_id)
         if content is None:
             raise ServerError("No Such Instance", status_code=404)
@@ -70,6 +73,48 @@ class SubtitleList(HTTPMethodView):
             if "translation" in df.columns:
                 await self._upload_translation(df)
         return JsonResponse({"message": "success"})
+
+
+class SubtitleToCSV(HTTPMethodView):
+    def _get_subtitle(self, file):
+        ext = file.name.split(".")[-1]
+        try:
+            text = file.body.decode()
+        except UnicodeDecodeError:
+            text = file.body.decode(encoding="euc-kr", errors="ignore")
+
+        if ext.lower() == "smi":
+            subtitle = SMISubtitle(text)
+        elif ext.lower() == "srt":
+            subtitle = SRTSubtitle(text)
+        else:
+            raise ServerError("Extension '{ext}' is not supported .", 400)
+
+        return subtitle
+
+    @admin_required
+    async def post(self, request: Request, token: Token):
+        """
+        Convert subtitle file into csv format
+        It is used for manual processing of subtitle files not for user.
+        """
+        sub_file = request.files.get("subtitle")
+        trans_file = request.files.get("translation")
+
+        if not sub_file:
+            raise ServerError("Subtitle file is required.", 400)
+
+        subtitle = self._get_subtitle(sub_file)
+        if trans_file:
+            translation = self._get_subtitle(trans_file)
+            subtitle = SubtitleMatcher(subtitle, translation).match()
+
+        csvfile = subtitle.to_csv().getvalue()
+        return text_response(
+            csvfile,
+            headers={"Content-Disposition": "attachment; filename=export.csv"},
+            content_type="text/csv",
+        )
 
 
 class RandomSubtitles(HTTPMethodView):
@@ -279,6 +324,7 @@ class UserLikedSubtitles(HTTPMethodView):
 
 
 blueprint.add_route(SubtitleList.as_view(), "")
+blueprint.add_route(SubtitleToCSV.as_view(), "/convert-to-csv")
 blueprint.add_route(SearchSubtitles.as_view(), "/search")
 blueprint.add_route(RandomSubtitles.as_view(), "/random")
 blueprint.add_route(TranslationList.as_view(), "/<line_id:int>/translations")
