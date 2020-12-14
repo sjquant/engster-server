@@ -194,12 +194,12 @@ async def fetch_by_content_id(
 ) -> List[Dict[str, Any]]:
     """Fetch lines of a content"""
     condition = (
-        db.and_(Subtitle.id < cursor, Subtitle.content_id == content_id)
+        db.and_(Subtitle.id > cursor, Subtitle.content_id == content_id)
         if cursor
         else Subtitle.content_id == content_id
     )
 
-    query = Subtitle.query.where(condition).order_by(Subtitle.id.desc()).limit(limit)
+    query = Subtitle.query.where(condition).order_by(Subtitle.id.asc()).limit(limit)
     data = await query.gino.all()
     return [each.to_dict() for each in data]
 
