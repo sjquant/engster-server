@@ -41,8 +41,9 @@ class SubtitleList(HTTPMethodView):
 
     async def _upload_subtitle(self, df):
         subtitle = df[["time", "subtitle", "content_id"]]
-        subtitltes = subtitle.to_dict(orient="records")
-        await Subtitle.insert().gino.all(subtitltes)
+        subtitle = subtitle.rename(columns={"subtitle": "line"})
+        subtitles = subtitle.to_dict(orient="records")
+        await Subtitle.insert().gino.all(subtitles)
 
     async def _upload_translation(self, df):
         content_id = df["content_id"].iloc[0]

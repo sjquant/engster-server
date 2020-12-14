@@ -206,6 +206,10 @@ async def fetch_by_content_id(
 
 async def fetch_all_ids_by_content_id(content_id: int) -> List[Dict[str, Any]]:
     """Fetch subtitle line ids of a content"""
-    query = db.select([Subtitle.id]).order_by(Subtitle.id.asc())
+    query = (
+        db.select([Subtitle.id])
+        .where(Subtitle.content_id == content_id)
+        .order_by(Subtitle.id.asc())
+    )
     data = [each[0] for each in await query.gino.all()]
     return data
