@@ -17,14 +17,14 @@ from app.decorators import expect_query, expect_body, admin_required
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
 from app.services import translation as translation_service
-from app.core.subtitle import SRTSubtitle, SMISubtitle, SubtitleMatcher
+from app.core.subtitle import SRTSubtitle, SMISubtitle, SubtitleMatcher, SubtitleList
 from app.utils import JsonResponse
 from app import db
 
 blueprint = Blueprint("subtitle_blueprint", url_prefix="/subtitles")
 
 
-class SubtitleList(HTTPMethodView):
+class SubtitleListView(HTTPMethodView):
     @expect_query(content_id=(int, None), cursor=(int, None), limit=(int, 20))
     async def get(self, request: Request, content_id: int, cursor: int, limit: int):
 
@@ -47,9 +47,9 @@ class SubtitleList(HTTPMethodView):
 
     async def _upload_translation(self, df):
         content_id = df["content_id"].iloc[0]
-        subtitle_ids = await subtitle_service.fetch_all_ids_by_content_id(content_id)
+        subtitles = await subtitle_service.fetch_all_by_content_id(content_id)
         translation = df[["translation"]]
-        translation["line_id"] = subtitle_ids
+        translation["line_id"] = [each["id"] for each in subtitles]
         translations = translation.to_dict(orient="records")
         await Translation.insert().gino.all(translations)
 
@@ -74,6 +74,28 @@ class SubtitleList(HTTPMethodView):
             if "translation" in df.columns:
                 await self._upload_translation(df)
         return JsonResponse({"message": "success"})
+
+
+class DownloadSubtitle(HTTPMethodView):
+    @admin_required
+    @expect_body(content_id=(int, ...))
+    async def post(self, request: Request, token: Token):
+        content_id = request.json.get("content_id")
+        content = await content_service.get_by_id(content_id)
+        if content is None:
+            raise ServerError("No Such Instance", status_code=404)
+
+        lines = await subtitle_service.fetch_all_by_content_id(content_id)
+        lines = [{"line_id": each["id"], "line": each["line"]} for each in lines]
+        lines = SubtitleList(lines)
+        csvfile = lines.to_csv().getvalue()
+        return text_response(
+            csvfile,
+            headers={
+                "Content-Disposition": f"attachment; filename={content.title}.csv"
+            },
+            content_type="text/csv",
+        )
 
 
 class SubtitleToCSV(HTTPMethodView):
@@ -324,7 +346,8 @@ class UserLikedSubtitles(HTTPMethodView):
         return JsonResponse(resp, status=200,)
 
 
-blueprint.add_route(SubtitleList.as_view(), "")
+blueprint.add_route(SubtitleListView.as_view(), "")
+blueprint.add_route(DownloadSubtitle.as_view(), "/download-as-csv")
 blueprint.add_route(SubtitleToCSV.as_view(), "/convert-to-csv")
 blueprint.add_route(SearchSubtitles.as_view(), "/search")
 blueprint.add_route(RandomSubtitles.as_view(), "/random")

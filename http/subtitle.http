@@ -38,6 +38,15 @@ Content-Type: text/csv
 < ../data/csv/TheMazeRunner.csv
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 
+### Download subtitle files as csv
+POST {{ host }}/subtitles/download-as-csv
+Content-Type: application/json
+
+{
+    "content_id": 1
+}
+
+
 ### Convert subtitle files into csv
 POST {{ host }}/subtitles/convert-to-csv
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW

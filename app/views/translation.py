@@ -22,20 +22,15 @@ from app.utils import JsonResponse
 blueprint = Blueprint("translation_blueprint", url_prefix="translations")
 
 
-class TranslationList(HTTPMethodView):
+class AddTranslationCSV(HTTPMethodView):
     async def _upload_translation(self, df):
         translation = df[["translation", "line_id"]]
         translations = translation.to_dict(orient="records")
         await Translation.insert().gino.all(translations)
 
     @admin_required
-    @expect_query(content_id=(int, ...))
-    async def post(self, request: Request, content_id: int, token: Token):
-        content = await content_service.get_by_id(content_id)
-        if content is None:
-            raise ServerError("No Such Instance", status_code=404)
-
-        input_file = request.files.get("input")
+    async def post(self, request: Request, token: Token):
+        input_file = request.files.get("file")
         data = BytesIO(input_file.body)
         df = pd.read_csv(data, encoding="utf-8")
 
@@ -231,8 +226,8 @@ class UserWrittenTranslations(HTTPMethodView):
         )
 
 
-blueprint.add_route(TranslationList.as_view(), "")
 blueprint.add_route(SearchTranslation.as_view(), "/search")
+blueprint.add_route(AddTranslationCSV.as_view(), "/add-csv")
 blueprint.add_route(UserLikedTranslations.as_view(), "/liked")
 blueprint.add_route(UserWrittenTranslations.as_view(), "/written")
 blueprint.add_route(TranslationDetail.as_view(), "/<translation_id:int>")

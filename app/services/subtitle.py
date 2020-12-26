@@ -50,7 +50,7 @@ async def count(keyword: str) -> int:
 
 async def pick_randomly(max_count=30) -> List[Optional[Dict[str, Any]]]:
     """Pick subtitles randomly
-    
+
     Args:
         max_count: maximum length of subtitles to pick
     """
@@ -204,12 +204,12 @@ async def fetch_by_content_id(
     return [each.to_dict() for each in data]
 
 
-async def fetch_all_ids_by_content_id(content_id: int) -> List[Dict[str, Any]]:
+async def fetch_all_by_content_id(content_id: int) -> List[Dict[str, Any]]:
     """Fetch subtitle line ids of a content"""
     query = (
-        db.select([Subtitle.id])
+        db.select([Subtitle.id, Subtitle.line])
         .where(Subtitle.content_id == content_id)
         .order_by(Subtitle.id.asc())
     )
-    data = [each[0] for each in await query.gino.all()]
+    data = await fetch_all(query)
     return data
