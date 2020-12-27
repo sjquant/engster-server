@@ -44,5 +44,4 @@ class UserActivitySummary(HTTPMethodView):
 
 
 blueprint.add_route(UserProfileView.as_view(), "/<user_id:uuid>/profile")
-
 blueprint.add_route(UserActivitySummary.as_view(), "/<user_id:uuid>/activity-summary")

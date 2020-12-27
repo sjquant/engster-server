@@ -62,7 +62,7 @@ async def pick_randomly(max_count=30) -> List[Optional[Dict[str, Any]]]:
     query = (
         db.select(
             [
-                db.func.distinct(Subtitle.id).label("id"),
+                Subtitle.id,
                 Subtitle.line,
                 Subtitle.time,
                 Translation.id.label("translation_id"),
@@ -70,7 +70,8 @@ async def pick_randomly(max_count=30) -> List[Optional[Dict[str, Any]]]:
                 Content.id.label("content_id"),
                 Content.title.label("content_title"),
                 Content.year.label("content_year"),
-            ]
+            ],
+            distinct=Subtitle.id,
         )
         .select_from(
             Subtitle.join(Content, Subtitle.content_id == Content.id).join(
@@ -194,14 +195,40 @@ async def fetch_by_content_id(
 ) -> List[Dict[str, Any]]:
     """Fetch lines of a content"""
     condition = (
-        db.and_(Subtitle.id > cursor, Subtitle.content_id == content_id)
+        db.and_(
+            Subtitle.id > cursor,
+            Subtitle.content_id == content_id,
+            Translation.user_id.is_(None),
+        )
         if cursor
-        else Subtitle.content_id == content_id
+        else db.and_(Subtitle.content_id == content_id, Translation.user_id.is_(None))
     )
 
-    query = Subtitle.query.where(condition).order_by(Subtitle.id.asc()).limit(limit)
-    data = await query.gino.all()
-    return [each.to_dict() for each in data]
+    query = (
+        db.select(
+            [
+                Subtitle.id,
+                Subtitle.line,
+                Subtitle.time,
+                Translation.id.label("translation_id"),
+                Translation.translation.label("translation"),
+                Content.id.label("content_id"),
+                Content.title.label("content_title"),
+                Content.year.label("content_year"),
+            ],
+            distinct=Subtitle.id,
+        )
+        .select_from(
+            Subtitle.join(Content, Subtitle.content_id == Content.id).outerjoin(
+                Translation, Subtitle.id == Translation.line_id
+            )
+        )
+        .where(condition)
+        .order_by(Subtitle.id.asc())
+        .limit(limit)
+    )
+    data = await fetch_all(query)
+    return data
 
 
 async def fetch_all_by_content_id(content_id: int) -> List[Dict[str, Any]]:
