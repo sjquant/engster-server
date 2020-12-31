@@ -1,5 +1,5 @@
 from typing import List, Tuple, Dict, Any, Optional
-from io import BytesIO
+from io import StringIO
 
 from sanic.request import Request
 from sanic.response import text as text_response
@@ -9,7 +9,6 @@ from sanic.exceptions import ServerError
 from sanic_jwt_extended import jwt_required, jwt_optional
 from sanic_jwt_extended.tokens import Token
 from pydantic import constr
-import pandas as pd
 import asyncpg
 
 from app.models import User, Subtitle, Translation
@@ -18,7 +17,7 @@ from app.services import subtitle as subtitle_service
 from app.services import content as content_service
 from app.services import translation as translation_service
 from app.core.subtitle import SRTSubtitle, SMISubtitle, SubtitleMatcher, SubtitleList
-from app.utils import JsonResponse
+from app.utils import JsonResponse, csv_to_dict
 from app import db
 
 blueprint = Blueprint("subtitle_blueprint", url_prefix="/subtitles")
@@ -39,18 +38,23 @@ class SubtitleListView(HTTPMethodView):
         }
         return JsonResponse(resp, status=200)
 
-    async def _upload_subtitle(self, df):
-        subtitle = df[["time", "subtitle", "content_id"]]
-        subtitle = subtitle.rename(columns={"subtitle": "line"})
-        subtitles = subtitle.to_dict(orient="records")
+    async def _upload_subtitle(self, data):
+        subtitles = [
+            {"time": int(time), "line": line, "content_id": content_id}
+            for time, line, content_id in zip(
+                data["time"], data["subtitle"], data["content_id"]
+            )
+        ]
         await Subtitle.insert().gino.all(subtitles)
 
-    async def _upload_translation(self, df):
-        content_id = df["content_id"].iloc[0]
+    async def _upload_translation(self, data):
+        content_id = data["content_id"][0]
         subtitles = await subtitle_service.fetch_all_by_content_id(content_id)
-        translation = df[["translation"]]
-        translation["line_id"] = [each["id"] for each in subtitles]
-        translations = translation.to_dict(orient="records")
+        translations = [
+            {"translation": trans, "line_id": sub["id"]}
+            for trans, sub in zip(data["translation"], subtitles)
+        ]
+
         await Translation.insert().gino.all(translations)
 
     @admin_required
@@ -66,13 +70,12 @@ class SubtitleListView(HTTPMethodView):
             raise ServerError("Subtitle already exists.", status_code=400)
 
         input_file = request.files.get("input")
-        data = BytesIO(input_file.body)
-        df = pd.read_csv(data, encoding="utf-8")
-        df["content_id"] = content_id
+        data = csv_to_dict(StringIO(input_file.body.decode("utf-8-sig")))
+        data["content_id"] = [content_id] * len(data["subtitle"])
         async with db.transaction():
-            await self._upload_subtitle(df)
-            if "translation" in df.columns:
-                await self._upload_translation(df)
+            await self._upload_subtitle(data)
+            if "translation" in data.keys():
+                await self._upload_translation(data)
         return JsonResponse({"message": "success"})
 
 

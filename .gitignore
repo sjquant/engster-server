@@ -14,3 +14,4 @@ __pycache__
 .python-version
 
 **/media/*
+*.zip
