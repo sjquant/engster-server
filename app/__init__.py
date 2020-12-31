@@ -42,7 +42,7 @@ def create_app():
     """
     Create Sanic Application
     """
-    app = Sanic()
+    app = Sanic(name="engster")
     app.config.from_object(config)
     init_oauth(app)
     init_jwt(app)

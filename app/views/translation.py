@@ -1,5 +1,5 @@
 from typing import List, Tuple, Dict, Any, Optional
-from io import BytesIO
+from io import StringIO
 
 from sanic.request import Request
 from sanic.views import HTTPMethodView
@@ -9,7 +9,6 @@ from sanic_jwt_extended import jwt_required, jwt_optional
 from sanic_jwt_extended.tokens import Token
 from pydantic import constr
 
-import pandas as pd
 import asyncpg
 
 from app.decorators import expect_query, self_required, admin_required
@@ -17,29 +16,30 @@ from app.services import translation as translation_service
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
 from app.models import Translation
-from app.utils import JsonResponse
+from app.utils import JsonResponse, csv_to_dict
 
 blueprint = Blueprint("translation_blueprint", url_prefix="translations")
 
 
 class AddTranslationCSV(HTTPMethodView):
-    async def _upload_translation(self, df):
-        translation = df[["translation", "line_id"]]
-        translations = translation.to_dict(orient="records")
+    async def _upload_translation(self, data):
+        translations = [
+            {"translation": trans, "line_id": int(line_id)}
+            for trans, line_id in zip(data["translation"], data["line_id"])
+        ]
         await Translation.insert().gino.all(translations)
 
     @admin_required
     async def post(self, request: Request, token: Token):
         input_file = request.files.get("file")
-        data = BytesIO(input_file.body)
-        df = pd.read_csv(data, encoding="utf-8")
+        data = csv_to_dict(StringIO(input_file.body.decode("utf-8-sig")))
 
-        if "line_id" not in df.columns:
+        if "line_id" not in data.keys():
             raise ServerError(
                 "line_id field is not found in given csv.", status_code=400
             )
 
-        await self._upload_translation(df)
+        await self._upload_translation(data)
         return JsonResponse({"message": "success"})
 
 
