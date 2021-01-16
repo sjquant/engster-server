@@ -1,66 +1,66 @@
 [
   {
     "id": 1,
-    "genre": "drama"
+    "genre": "Drama"
   },
   {
     "id": 2,
-    "genre": "romance"
+    "genre": "Romance"
   },
   {
     "id": 3,
-    "genre": "cult"
+    "genre": "Cult"
   },
   {
     "id": 4,
-    "genre": "mystery"
+    "genre": "Mystery"
   },
   {
     "id": 5,
-    "genre": "musical"
+    "genre": "Musical"
   },
   {
     "id": 6,
-    "genre": "fantasy"
+    "genre": "Fantasy"
   },
   {
     "id": 7,
-    "genre": "adventure"
+    "genre": "Adventure"
   },
   {
     "id": 8,
-    "genre": "documentary"
+    "genre": "Documentary"
   },
   {
     "id": 9,
-    "genre": "war"
+    "genre": "War"
   },
   {
     "id": 10,
-    "genre": "science fiction"
+    "genre": "Sience Fiction"
   },
   {
     "id": 11,
-    "genre": "thriller"
+    "genre": "Thriller"
   },
   {
     "id": 12,
-    "genre": "comdey"
+    "genre": "Comdey"
   },
   {
     "id": 13,
-    "genre": "anime"
+    "genre": "Anime"
   },
   {
     "id": 14,
-    "genre": "action"
+    "genre": "Action"
   },
   {
     "id": 15,
-    "genre": "horror"
+    "genre": "Horror"
   },
   {
     "id": 16,
-    "genre": "crime"
+    "genre": "Crime"
   }
 ]
