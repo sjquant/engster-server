@@ -337,6 +337,17 @@ babel = ["babel"]
 lingua = ["lingua"]
 
 [[package]]
+name = "mangum"
+version = "0.10.0"
+description = "AWS Lambda & API Gateway support for ASGI"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+typing-extensions = "*"
+
+[[package]]
 name = "markupsafe"
 version = "1.1.1"
 description = "Safely add untrusted strings to HTML/XML markup."
@@ -787,7 +798,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "49d3af1f08c1495eeeb6d11eac19fe8c6a597204d73468b28cc76f21936e0db0"
+content-hash = "c5d8fed1df302ffe9979d3d1f75d20f63077606b238a8ba1ba9f81580e9fe068"
 
 [metadata.files]
 aiocontextvars = [
@@ -1022,6 +1033,10 @@ jmespath = [
 mako = [
     {file = "Mako-1.1.3-py2.py3-none-any.whl", hash = "sha256:93729a258e4ff0747c876bd9e20df1b9758028946e976324ccd2d68245c7b6a9"},
     {file = "Mako-1.1.3.tar.gz", hash = "sha256:8195c8c1400ceb53496064314c6736719c6f25e7479cd24c77be3d9361cddc27"},
+]
+mangum = [
+    {file = "mangum-0.10.0-py3-none-any.whl", hash = "sha256:cd8d2d515226099a5f3491da32c68c5db64a92f559bd9215a22b43f881ba874f"},
+    {file = "mangum-0.10.0.tar.gz", hash = "sha256:17a8bd5d0c71b8c413d3b9a07857e9aafabc08a5876c672a561a7acaa30f0d1f"},
 ]
 markupsafe = [
     {file = "MarkupSafe-1.1.1-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:09027a7803a62ca78792ad89403b1b7a73a01c8cb65909cd876f7fcebd79b161"},
