@@ -178,6 +178,7 @@ async def fetch_translations(
         Translation.load(user=User.on(Translation.user_id == User.id))
         .query.where(condition)
         .limit(limit)
+        .order_by(Translation.id.desc())
     )
     data = await query.gino.all()
     translations = []
