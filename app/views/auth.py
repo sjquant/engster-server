@@ -51,7 +51,10 @@ async def obtain_token(request: Request):
     role = "admin" if user.is_admin else "user"
     access_token = JWT.create_access_token(identity=str(user.id), role=role)
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
-    resp = JsonResponse({"new": False, "user": UserModel.from_orm(user)}, status=201)
+    resp = JsonResponse(
+        {"new": False, "user": UserModel.from_orm(user), "token": access_token},
+        status=201,
+    )
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
     return resp
@@ -121,7 +124,10 @@ async def oauth_obtain_token(request: Request, provider: str):
     role = "admin" if user.is_admin else "user"
     access_token = JWT.create_access_token(identity=str(user.id), role=role)
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
-    resp = JsonResponse({"new": is_new, "user": UserModel.from_orm(user)}, status=201)
+    resp = JsonResponse(
+        {"new": is_new, "user": UserModel.from_orm(user), "token": access_token},
+        status=201,
+    )
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
     return resp
