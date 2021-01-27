@@ -8,7 +8,6 @@ from sanic_jwt_extended.tokens import Token
 
 def get_csrf_token(encoded_token):
     token = Token(encoded_token)
-    print(token.__dict__)
     return token.csrf
 
 
@@ -54,6 +53,8 @@ def set_access_cookies(response, encoded_access_token, max_age=None):
     access_cookie = response.cookies[access_cookie_key]
     access_cookie["max-age"] = max_age or 31540000  # 1 year
     access_cookie["httponly"] = True
+    access_cookie["samesite"] = "lax"
+    access_cookie["secure"] = JWT.config.cookie_secure
     access_cookie["path"] = "/"
     if JWT.config.cookie_domain:
         access_cookie["domain"] = JWT.config.cookie_domain
@@ -64,6 +65,8 @@ def set_access_cookies(response, encoded_access_token, max_age=None):
         access_csrf_cookie = response.cookies[access_cookie_csrf_key]
         access_csrf_cookie["max-age"] = max_age or 31540000
         access_csrf_cookie["httponly"] = False
+        access_csrf_cookie["samesite"] = "lax"
+        access_csrf_cookie["secure"] = JWT.config.cookie_secure
         access_csrf_cookie["path"] = "/"
         if JWT.config.cookie_domain:
             access_csrf_cookie["domain"] = JWT.config.cookie_domain
@@ -78,6 +81,8 @@ def set_refresh_cookies(response, encoded_refresh_token, max_age=None):
     refresh_cookie = response.cookies[refresh_cookie_key]
     refresh_cookie["max-age"] = max_age or 31540000  # 1 year
     refresh_cookie["httponly"] = True
+    refresh_cookie["samesite"] = "lax"
+    refresh_cookie["secure"] = JWT.config.cookie_secure
     refresh_cookie["path"] = "/"
     if JWT.config.cookie_domain:
         refresh_cookie["domain"] = JWT.config.cookie_domain
@@ -90,6 +95,8 @@ def set_refresh_cookies(response, encoded_refresh_token, max_age=None):
         refresh_csrf_cookie = response.cookies[refresh_cookie_csrf_key]
         refresh_csrf_cookie["max-age"] = max_age or 31540000
         refresh_csrf_cookie["httponly"] = False
+        refresh_csrf_cookie["samesite"] = "lax"
+        refresh_csrf_cookie["secure"] = JWT.config.cookie_secure
         refresh_csrf_cookie["path"] = "/"
         if JWT.config.cookie_domain:
             refresh_csrf_cookie["domain"] = JWT.config.cookie_domain
