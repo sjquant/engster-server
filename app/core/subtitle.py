@@ -173,6 +173,8 @@ class SubtitleMatcher:
 
             if current_trans["time"] >= current_sub["time"]:
                 break
+        else:
+            idx = 0
 
         return translations[: idx + 1]
 
