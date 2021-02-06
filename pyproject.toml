@@ -19,6 +19,8 @@ aiohttp = "^3.6.2"
 sanic-cors = "^0.10.0.post3"
 sanic = "^20.9"
 mangum = "^0.10.0"
+aiosmtplib = "^1.1.4"
+Jinja2 = "^2.11.3"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7.9"
