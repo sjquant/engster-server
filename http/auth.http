@@ -39,3 +39,12 @@ Content-Type: application/json
     "original_password": "abcdefghi!!!",
     "new_password": "abcdefg!!!"
 }
+
+
+### Request resetting lost password
+POST {{ host }}/auth/reset-lost-password/request
+Content-Type: application/json
+
+{
+    "email": "seonujang92@gmail.com"
+}

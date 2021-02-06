@@ -45,6 +45,7 @@ JWT = {
     "refresh_jwt_csrf_header": "X-RCSRF-Token",
     "cookie_secure": cookie_secure,
     "cookie_domain": os.getenv("JWT_COOKIE_DOMAIN", None),
+    "default_iss": "engster.co.kr",
 }
 
 # Social Auth
@@ -55,4 +56,7 @@ FB_CLIENT_SECRET = os.getenv("FB_CLIENT_SECRET")
 NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
 NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
 
-CSV_DOWNLOAD_PATH = os.getenv("CSV_DOWNLOAD_PATH", os.path.join(BASE_DIR, "data/csv"))
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "engster.noreply@gmail.com")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+EMAIL_SMTP_HOST = os.getenv("EMAIL_SMTP_HOST", "127.0.0.1")
+EMAIL_SMTP_PORT = os.getenv("EMAIL_SMTP_PORT", 1025)

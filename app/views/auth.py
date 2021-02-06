@@ -1,4 +1,5 @@
-import asyncpg
+import datetime
+import asyncio
 
 from sanic import Blueprint
 from sanic.request import Request
@@ -8,8 +9,11 @@ from sanic_jwt_extended import (
     jwt_required,
 )
 from sanic_jwt_extended.tokens import Token
+import asyncpg
 
 from app import JWT
+from app.core.email import send_password_reset_email
+from app.core.jwt import encode_jwt
 from app.services.user import get_user_by_email, get_user_by_id, create_user
 from app.utils import JsonResponse, set_access_cookies, set_refresh_cookies
 from app.decorators import expect_body
@@ -166,3 +170,21 @@ async def refresh_token(request, token: Token):
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
     return resp
+
+
+@blueprint.route("/reset-lost-password/request", methods=["POST"])
+async def request_password_reset(request):
+    """Request password reset by email"""
+    email = request.json.get("email")
+    user = await get_user_by_email(email)
+    if user is None:
+        return JsonResponse({"message": "User does not exist"}, status=400)
+    token = encode_jwt(
+        {"user_id": str(user.id)}, expires_delta=datetime.timedelta(minutes=30)
+    )
+    reset_password_link = f"https://engster.co.kr/reset-password?t={token}"
+
+    # Send password reset email in background
+    asyncio.create_task(send_password_reset_email(email, reset_password_link))
+
+    return JsonResponse({"message": "success"}, status=200)
