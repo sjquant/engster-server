@@ -1,5 +1,5 @@
 # This module is used for encoding or decoding JWT token, which is not used for login
-
+from typing import Dict, Any
 import datetime
 
 import jwt
@@ -10,7 +10,7 @@ SECRET = JWT["secret_key"]
 ISSUER = JWT["default_iss"]
 
 
-def encode_jwt(payload, expires_delta: datetime.timedelta):
+def encode_jwt(payload, expires_delta: datetime.timedelta) -> str:
     iat = datetime.datetime.utcnow()
     reserved_claims = {"iss": ISSUER, "iat": iat, "exp": iat + expires_delta}
 
@@ -20,7 +20,7 @@ def encode_jwt(payload, expires_delta: datetime.timedelta):
     return token
 
 
-def decode_jwt(token):
+def decode_jwt(token) -> Dict[str, Any]:
     options = {"verify_exp": True, "verify_iss": True}
     return jwt.decode(
         token, SECRET, options=options, leeway=0, issuer=ISSUER, algorithms=["HS256"],
