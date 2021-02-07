@@ -6,8 +6,6 @@ import aiosmtplib
 
 from app.config import EMAIL_ADDRESS, EMAIL_PASSWORD, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT
 
-print(EMAIL_ADDRESS, EMAIL_PASSWORD, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
-
 
 async def send_email(
     to: str, title: str, html_message: str = "", plain_message: str = ""

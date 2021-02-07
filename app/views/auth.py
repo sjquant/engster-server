@@ -1,5 +1,4 @@
 import datetime
-import asyncio
 
 from sanic import Blueprint
 from sanic.request import Request
@@ -13,7 +12,7 @@ import asyncpg
 
 from app import JWT
 from app.core.email import send_password_reset_email
-from app.core.jwt import encode_jwt
+from app.core.jwt import encode_jwt, decode_jwt
 from app.services.user import get_user_by_email, get_user_by_id, create_user
 from app.utils import JsonResponse, set_access_cookies, set_refresh_cookies
 from app.decorators import expect_body
@@ -182,9 +181,21 @@ async def request_password_reset(request):
     token = encode_jwt(
         {"user_id": str(user.id)}, expires_delta=datetime.timedelta(minutes=30)
     )
-    reset_password_link = f"https://engster.co.kr/reset-password?t={token}"
+    reset_password_link = f"https://engster.co.kr/reset-lost-password?t={token}"
+    await send_password_reset_email(email, reset_password_link)
+    return JsonResponse({"message": "success"}, status=200)
 
-    # Send password reset email in background
-    asyncio.create_task(send_password_reset_email(email, reset_password_link))
+
+@blueprint.route("/reset-lost-password", methods=["POST"])
+async def reset_lost_password(request):
+    """Request password reset by email"""
+    password = request.json.get("password")
+    token = request.json.get("token")
+
+    data = decode_jwt(token)
+    user_id = data["user_id"]
+    user = await get_user_by_id(user_id)
+    user.set_password(password)
+    await user.update(password_hash=user.password_hash).apply()
 
     return JsonResponse({"message": "success"}, status=200)
