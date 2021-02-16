@@ -21,13 +21,13 @@ sanic = "^20.9"
 mangum = "^0.10.0"
 aiosmtplib = "^1.1.4"
 Jinja2 = "^2.11.3"
+aiobotocore = {extras = ["awscli"], version = "^1.2.1"}
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7.9"
 black = "^19.10b0"
 rope = "^0.16.0"
 pytest = "^6.1.2"
-awscli = "^1.18.206"
 python-dotenv = "^0.15.0"
 
 [build-system]
