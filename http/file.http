@@ -1,0 +1,20 @@
+@userid = {{ siginin.response.body.$.user.id }}
+
+### Sign In with admin
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "user@test.com",
+    "password": "abcdefg!!!"
+}
+
+### Create presigned url
+POST {{ host }}/file/image/create-signed-url
+Content-Type: application/json
+
+{
+    "app": "avatar",
+    "filename": "avatar.png"
+}

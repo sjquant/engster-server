@@ -4,7 +4,7 @@ from .subtitle import blueprint as subtitle_bp
 from .translation import blueprint as translation_bp
 from .content import blueprint as content_bp
 from .genre import blueprint as genre_bp
-from .image import blueprint as image_bp
+from .file import blueprint as file_bp
 
 
 def init_app(app):
@@ -15,4 +15,4 @@ def init_app(app):
     app.blueprint(translation_bp)
     app.blueprint(content_bp)
     app.blueprint(genre_bp)
-    app.blueprint(image_bp)
+    app.blueprint(file_bp)

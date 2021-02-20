@@ -2,6 +2,6 @@
 from .hasher import *
 from .jwt import *
 from .serializer import *
-from .upload import *
+from .file import *
 from .db import *
 from .csv import *

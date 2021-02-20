@@ -4,7 +4,7 @@ import random
 import uuid
 
 from app.models import User, Translation
-from app.utils import get_photo_url
+from app.utils import get_file_url
 from app.exceptions import DataDoesNotExist
 from app import config, db
 
@@ -61,7 +61,7 @@ async def get_activitiy_summary(user_id: uuid.UUID) -> Dict[str, Any]:
         data = {
             "user_id": user_id,
             "user_nickname": data[0],
-            "user_photo": get_photo_url(data[1], media_url=config.MEDIA_URL),
+            "user_photo": get_file_url(data[1], file_host=config.MEDIA_URL),
             "translation_count": data[2],
         }
     else:
