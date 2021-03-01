@@ -5,13 +5,14 @@ from sanic.request import Request
 from sanic.views import HTTPMethodView
 from sanic.blueprints import Blueprint
 from sanic.exceptions import ServerError
-from sanic_jwt_extended import jwt_required, jwt_optional
+from sanic_jwt_extended import jwt_required
 from sanic_jwt_extended.tokens import Token
 from pydantic import constr
 
 import asyncpg
 
-from app.decorators import expect_query, self_required, admin_required
+from app.decorators import expect_query
+from app.core.sanic_jwt_extended import admin_required, self_required, jwt_optional
 from app.services import translation as translation_service
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
@@ -111,11 +112,7 @@ class SearchTranslation(HTTPMethodView):
             }
             for each in translations
         ]
-        resp = {
-            "cursor": cursor,
-            "count": count,
-            "data": data,
-        }
+        resp = {"cursor": cursor, "count": count, "data": data}
         return JsonResponse(resp)
 
 
@@ -177,7 +174,7 @@ class UserLikedTranslations(HTTPMethodView):
         ]
 
         return JsonResponse(
-            {"limit": limit, "cursor": cursor, "data": data}, status=200,
+            {"limit": limit, "cursor": cursor, "data": data}, status=200
         )
 
 
@@ -222,7 +219,7 @@ class UserWrittenTranslations(HTTPMethodView):
         ]
 
         return JsonResponse(
-            {"limit": limit, "cursor": cursor, "data": data}, status=200,
+            {"limit": limit, "cursor": cursor, "data": data}, status=200
         )
 
 

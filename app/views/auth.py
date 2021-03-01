@@ -3,18 +3,16 @@ import datetime
 from sanic import Blueprint
 from sanic.request import Request
 from sanic.exceptions import ServerError
-from sanic_jwt_extended import (
-    refresh_jwt_required,
-    jwt_required,
-)
+from sanic_jwt_extended import jwt_required, refresh_jwt_required, jwt_optional
 from sanic_jwt_extended.tokens import Token
 import asyncpg
 
 from app import JWT
+from app.core.sanic_jwt_extended import set_access_cookies, set_refresh_cookies
 from app.core.email import send_password_reset_email
 from app.core.jwt import encode_jwt, decode_jwt
 from app.services.user import get_user_by_email, get_user_by_id, create_user
-from app.utils import JsonResponse, set_access_cookies, set_refresh_cookies
+from app.utils import JsonResponse
 from app.decorators import expect_body
 from app.schemas import UserModel
 from app.vendors.sanic_oauth import GoogleClient, FacebookClient, NaverClient
@@ -34,7 +32,7 @@ async def register(request: Request):
 
     access_token = JWT.create_access_token(identity=str(user.id), role="user")
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
-    resp = JsonResponse({"new": True, "user": UserModel.from_orm(user)}, status=201,)
+    resp = JsonResponse({"new": True, "user": UserModel.from_orm(user)}, status=201)
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
     return resp
@@ -162,12 +160,29 @@ async def reset_password(request: Request, token: Token):
 async def refresh_token(request, token: Token):
     """refresh access token"""
     access_token = JWT.create_access_token(identity=token.identity, role=token.role)
-    refresh_token = JWT.create_refresh_token(identity=token.identity)
     user_id = token.identity
     user = await get_user_by_id(user_id)
     resp = JsonResponse({"new": False, "user": UserModel.from_orm(user)}, status=201)
     set_access_cookies(resp, access_token)
-    set_refresh_cookies(resp, refresh_token)
+    return resp
+
+
+@blueprint.route("/validate-token", methods=["POST"])
+@jwt_optional
+async def validate_token(request, token: Token):
+    """Inspect token and"""
+    if not token:
+        return JsonResponse({"message": "no token"}, status=404)
+
+    user_id = token.identity
+    user = await get_user_by_id(user_id)
+    resp = JsonResponse(
+        {
+            "expired_at": int(token.exp.timestamp() * 1000),
+            "user": UserModel.from_orm(user),
+        },
+        status=200,
+    )
     return resp
 
 

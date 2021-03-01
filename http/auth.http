@@ -20,6 +20,13 @@ Content-Type: application/json
 POST {{ host }}/auth/refresh-token
 Content-Type: application/json
 
+### Validate Token
+POST {{ host }}/auth/validate-token
+Content-Type: application/json
+
+### Sing Out
+POST {{ host }}/auth/sign-out
+Content-Type: application/js
 
 ### reset user password
 PUT {{ host }}/auth/reset-password

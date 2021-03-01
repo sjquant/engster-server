@@ -10,15 +10,17 @@ db = Gino()
 
 
 def init_jwt(app):
-    from app.utils import encode_jwt
+    from app.core.sanic_jwt_extended import encode_jwt
 
     JWT._encode_jwt = classmethod(encode_jwt)
+
     with JWT.initialize(app) as manager:
         manager.config.public_claim_namespace = config.JWT["namespace"]
         manager.config.private_claim_prefix = config.JWT["private_claim_prefix"]
         manager.config.secret_key = config.JWT["secret_key"]
         manager.config.token_location = config.JWT["token_location"]
-        manager.config.access_token_expires = config.JWT["access_expires"]
+        manager.config.access_token_expires = config.JWT["access_token_expires"]
+        manager.config.refresh_token_expires = config.JWT["refresh_token_expires"]
         manager.config.cookie_secure = config.JWT["cookie_secure"]
         manager.config.jwt_csrf_header = config.JWT["jwt_csrf_header"]
         manager.config.refresh_jwt_csrf_header = config.JWT["refresh_jwt_csrf_header"]

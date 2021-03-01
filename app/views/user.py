@@ -9,7 +9,7 @@ from sanic_jwt_extended.tokens import Token
 from app.services import user as service
 from app.schemas import UserModel
 from app.exceptions import DataDoesNotExist
-from app.decorators import self_required
+from app.core.sanic_jwt_extended import self_required
 from app.utils import JsonResponse
 
 blueprint = Blueprint("user_blueprint", url_prefix="/users")
