@@ -5,7 +5,8 @@ from sanic.blueprints import Blueprint
 from sanic_jwt_extended.tokens import Token
 
 from app.models import Genre
-from app.decorators import expect_body, admin_required
+from app.decorators import expect_body
+from app.core.sanic_jwt_extended import admin_required
 from app.services import genre as service
 from app.utils import JsonResponse
 

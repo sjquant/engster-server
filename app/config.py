@@ -39,7 +39,12 @@ JWT = {
     "private_claim_prefix": "engster_private",
     "secret_key": os.getenv("JWT_SECRET_KEY", "secret_key"),
     "token_location": ("cookies",),
-    "access_expires": datetime.timedelta(int(os.getenv("JWT_ACCESS_EXPIRES", "10080"))),
+    "access_token_expires": datetime.timedelta(
+        seconds=int(os.getenv("JWT_ACCESS_EXPIRES", "86400"))
+    ),
+    "refresh_token_expires": datetime.timedelta(
+        seconds=int(os.getenv("JWT_REFRESH_EXPIRES", "2419200"))
+    ),
     "csrf_protect": csrf_protect,
     "jwt_csrf_header": "X-CSRF-Token",
     "refresh_jwt_csrf_header": "X-RCSRF-Token",

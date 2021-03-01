@@ -6,13 +6,14 @@ from sanic.response import text as text_response
 from sanic.views import HTTPMethodView
 from sanic.blueprints import Blueprint
 from sanic.exceptions import ServerError
-from sanic_jwt_extended import jwt_required, jwt_optional
+from sanic_jwt_extended import jwt_required
 from sanic_jwt_extended.tokens import Token
 from pydantic import constr
 import asyncpg
 
 from app.models import User, Subtitle, Translation
-from app.decorators import expect_query, expect_body, admin_required
+from app.decorators import expect_query, expect_body
+from app.core.sanic_jwt_extended import admin_required, jwt_optional
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
 from app.services import translation as translation_service
@@ -32,10 +33,7 @@ class SubtitleListView(HTTPMethodView):
         if content_id:
             data = await subtitle_service.fetch_by_content_id(content_id, limit, cursor)
 
-        resp = {
-            "cursor": cursor,
-            "data": data,
-        }
+        resp = {"cursor": cursor, "data": data}
         return JsonResponse(resp, status=200)
 
     async def _upload_subtitle(self, data):
@@ -184,12 +182,7 @@ class RandomSubtitles(HTTPMethodView):
             }
             for line in lines
         ]
-        resp = {
-            "max_page": 1,
-            "page": 1,
-            "count": len(data),
-            "data": data,
-        }
+        resp = {"max_page": 1, "page": 1, "count": len(data), "data": data}
         return JsonResponse(resp, status=200)
 
 
@@ -234,11 +227,7 @@ class SearchSubtitles(HTTPMethodView):
             }
             for line in lines
         ]
-        resp = {
-            "cursor": cursor,
-            "count": count,
-            "data": data,
-        }
+        resp = {"cursor": cursor, "count": count, "data": data}
         return JsonResponse(resp, status=200)
 
 
@@ -340,13 +329,9 @@ class UserLikedSubtitles(HTTPMethodView):
             }
             for line in lines
         ]
-        resp = {
-            "limit": limit,
-            "cursor": cursor,
-            "data": data,
-        }
+        resp = {"limit": limit, "cursor": cursor, "data": data}
 
-        return JsonResponse(resp, status=200,)
+        return JsonResponse(resp, status=200)
 
 
 blueprint.add_route(SubtitleListView.as_view(), "")
