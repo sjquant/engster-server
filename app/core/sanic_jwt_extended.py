@@ -1,7 +1,7 @@
 # This core file is used to replace or supplement
 # [SANIC-JWT-EXTENDED](https://github.com/NovemberOscar/Sanic-JWT-Extended) library
 
-from functools import wraps
+from functools import wraps, partial
 from typing import Optional
 import datetime
 import uuid
@@ -56,62 +56,76 @@ def encode_jwt(cls, token_type, payload, expires_delta):
     return token
 
 
-def set_access_cookies(response, encoded_access_token, max_age=None):
+def set_jwt_cookie(response, encoded_token, *, max_age=None, is_access=True):
     """
     Set the access JWT in the cookie
     """
-    access_cookie_key = JWT.config.jwt_cookie
-    response.cookies[access_cookie_key] = encoded_access_token
-    access_cookie = response.cookies[access_cookie_key]
-    access_cookie["max-age"] = max_age or 31540000  # 1 year
-    access_cookie["httponly"] = True
-    access_cookie["samesite"] = "lax"
-    access_cookie["secure"] = JWT.config.cookie_secure
-    access_cookie["path"] = "/"
+    cookie_key = JWT.config.jwt_cookie if is_access else JWT.config.refresh_jwt_cookie
+    response.cookies[cookie_key] = encoded_token
+    cookie = response.cookies[cookie_key]
+    cookie["max-age"] = max_age or 31540000  # 1 year
+    cookie["httponly"] = True
+    cookie["samesite"] = "lax"
+    cookie["secure"] = JWT.config.cookie_secure
+    cookie["path"] = "/"
     if JWT.config.cookie_domain:
-        access_cookie["domain"] = JWT.config.cookie_domain
+        cookie["domain"] = JWT.config.cookie_domain
 
     if JWT.config.csrf_protect:
-        access_cookie_csrf_key = JWT.config.jwt_csrf_header
-        response.cookies[access_cookie_csrf_key] = get_csrf_token(encoded_access_token)
-        access_csrf_cookie = response.cookies[access_cookie_csrf_key]
-        access_csrf_cookie["max-age"] = max_age or 31540000
-        access_csrf_cookie["httponly"] = False
-        access_csrf_cookie["samesite"] = "lax"
-        access_csrf_cookie["secure"] = JWT.config.cookie_secure
-        access_csrf_cookie["path"] = "/"
-        if JWT.config.cookie_domain:
-            access_csrf_cookie["domain"] = JWT.config.cookie_domain
-
-
-def set_refresh_cookies(response, encoded_refresh_token, max_age=None):
-    """
-    Set the refresh JWT in the cookie
-    """
-    refresh_cookie_key = JWT.config.refresh_jwt_cookie
-    response.cookies[refresh_cookie_key] = encoded_refresh_token
-    refresh_cookie = response.cookies[refresh_cookie_key]
-    refresh_cookie["max-age"] = max_age or 31540000  # 1 year
-    refresh_cookie["httponly"] = True
-    refresh_cookie["samesite"] = "lax"
-    refresh_cookie["secure"] = JWT.config.cookie_secure
-    refresh_cookie["path"] = "/"
-    if JWT.config.cookie_domain:
-        refresh_cookie["domain"] = JWT.config.cookie_domain
-
-    if JWT.config.csrf_protect:
-        refresh_cookie_csrf_key = JWT.config.refresh_jwt_csrf_header
-        response.cookies[refresh_cookie_csrf_key] = get_csrf_token(
-            encoded_refresh_token
+        cookie_csrf_key = (
+            JWT.config.jwt_csrf_header
+            if is_access
+            else JWT.config.refresh_jwt_csrf_header
         )
-        refresh_csrf_cookie = response.cookies[refresh_cookie_csrf_key]
-        refresh_csrf_cookie["max-age"] = max_age or 31540000
-        refresh_csrf_cookie["httponly"] = False
-        refresh_csrf_cookie["samesite"] = "lax"
-        refresh_csrf_cookie["secure"] = JWT.config.cookie_secure
-        refresh_csrf_cookie["path"] = "/"
+        response.cookies[cookie_csrf_key] = get_csrf_token(encoded_token)
+        csrf_cookie = response.cookies[cookie_csrf_key]
+        csrf_cookie["max-age"] = max_age or 31540000
+        csrf_cookie["httponly"] = False
+        csrf_cookie["samesite"] = "lax"
+        csrf_cookie["secure"] = JWT.config.cookie_secure
+        csrf_cookie["path"] = "/"
         if JWT.config.cookie_domain:
-            refresh_csrf_cookie["domain"] = JWT.config.cookie_domain
+            csrf_cookie["domain"] = JWT.config.cookie_domain
+
+
+set_access_cookie = partial(set_jwt_cookie, is_access=True)
+set_refresh_cookie = partial(set_jwt_cookie, is_access=False)
+
+
+def remove_jwt_cookie(response, is_access=True):
+    """Remove jwt cookies"""
+    cookie_key = JWT.config.jwt_cookie if is_access else JWT.config.refresh_jwt_cookie
+    response.cookies[cookie_key] = ""
+
+    cookie = response.cookies[cookie_key]
+    cookie["max-age"] = -9999
+    cookie["httponly"] = True
+    cookie["samesite"] = "lax"
+    cookie["secure"] = JWT.config.cookie_secure
+    cookie["path"] = "/"
+
+    if JWT.config.cookie_domain:
+        cookie["domain"] = JWT.config.cookie_domain
+
+    if JWT.config.csrf_protect:
+        cookie_csrf_key = (
+            JWT.config.jwt_csrf_header
+            if is_access
+            else JWT.config.refresh_jwt_csrf_header
+        )
+        response.cookies[cookie_csrf_key] = ""
+        csrf_cookie = response.cookies[cookie_csrf_key]
+        csrf_cookie["max-age"] = -9999
+        csrf_cookie["httponly"] = False
+        csrf_cookie["samesite"] = "lax"
+        csrf_cookie["secure"] = JWT.config.cookie_secure
+        csrf_cookie["path"] = "/"
+        if JWT.config.cookie_domain:
+            csrf_cookie["domain"] = JWT.config.cookie_domain
+
+
+remove_access_cookie = partial(remove_jwt_cookie, is_access=True)
+remove_refresh_cookie = partial(remove_jwt_cookie, is_access=False)
 
 
 def jwt_optional(function):

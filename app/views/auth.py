@@ -8,7 +8,12 @@ from sanic_jwt_extended.tokens import Token
 import asyncpg
 
 from app import JWT
-from app.core.sanic_jwt_extended import set_access_cookies, set_refresh_cookies
+from app.core.sanic_jwt_extended import (
+    set_access_cookie,
+    set_refresh_cookie,
+    remove_access_cookie,
+    remove_refresh_cookie,
+)
 from app.core.email import send_password_reset_email
 from app.core.jwt import encode_jwt, decode_jwt
 from app.services.user import get_user_by_email, get_user_by_id, create_user
@@ -33,8 +38,8 @@ async def register(request: Request):
     access_token = JWT.create_access_token(identity=str(user.id), role="user")
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
     resp = JsonResponse({"new": True, "user": UserModel.from_orm(user)}, status=201)
-    set_access_cookies(resp, access_token)
-    set_refresh_cookies(resp, refresh_token)
+    set_access_cookie(resp, access_token)
+    set_refresh_cookie(resp, refresh_token)
     return resp
 
 
@@ -56,8 +61,8 @@ async def obtain_token(request: Request):
         {"new": False, "user": UserModel.from_orm(user), "token": access_token},
         status=201,
     )
-    set_access_cookies(resp, access_token)
-    set_refresh_cookies(resp, refresh_token)
+    set_access_cookie(resp, access_token)
+    set_refresh_cookie(resp, refresh_token)
     return resp
 
 
@@ -65,21 +70,8 @@ async def obtain_token(request: Request):
 async def sign_out(request: Request):
 
     resp = JsonResponse({"message": "success"}, status=200)
-
-    access_cookie_key = JWT.config.jwt_cookie
-    refresh_cookie_key = JWT.config.refresh_jwt_cookie
-    resp.cookies[access_cookie_key] = ""
-    resp.cookies[access_cookie_key]["max-age"] = -9999
-    resp.cookies[refresh_cookie_key] = ""
-    resp.cookies[refresh_cookie_key]["max-age"] = -9999
-
-    if JWT.config.csrf_protect:
-        access_cookie_csrf_key = JWT.config.jwt_csrf_header
-        refresh_cookie_csrf_key = JWT.config.refresh_jwt_csrf_header
-        resp.cookies[access_cookie_csrf_key] = ""
-        resp.cookies[access_cookie_csrf_key]["max-age"] = -9999
-        resp.cookies[refresh_cookie_csrf_key] = ""
-        resp.cookies[refresh_cookie_csrf_key]["max-age"] = -9999
+    remove_access_cookie(resp)
+    remove_refresh_cookie(resp)
     return resp
 
 
@@ -129,8 +121,8 @@ async def oauth_obtain_token(request: Request, provider: str):
         {"new": is_new, "user": UserModel.from_orm(user), "token": access_token},
         status=201,
     )
-    set_access_cookies(resp, access_token)
-    set_refresh_cookies(resp, refresh_token)
+    set_access_cookie(resp, access_token)
+    set_refresh_cookie(resp, refresh_token)
     return resp
 
 
@@ -163,7 +155,7 @@ async def refresh_token(request, token: Token):
     user_id = token.identity
     user = await get_user_by_id(user_id)
     resp = JsonResponse({"new": False, "user": UserModel.from_orm(user)}, status=201)
-    set_access_cookies(resp, access_token)
+    set_access_cookie(resp, access_token)
     return resp
 
 
