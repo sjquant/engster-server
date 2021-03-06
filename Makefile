@@ -20,7 +20,7 @@ dev-down:
 dev-init-db:
 	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/bash scripts/init-db.sh
 dev-migrations:
-	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/bash -c "python manage.py makemigrations"
+	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/bash -c "python manage.py make-migrations"
 dev-migrate:
 	docker-compose -f docker-compose.dev.yml run --rm engster_server /bin/bash -c "python manage.py migrate"
 

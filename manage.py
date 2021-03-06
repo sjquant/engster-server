@@ -59,7 +59,7 @@ def migrations_history(ctx):
 
 
 @cli.command()
-@click.option("--mesagae", "-m", help="Migration message")
+@click.option("--message", "-m", help="Migration message")
 @click.pass_context
 def make_migrations(ctx, message):
     """Create migration file"""
