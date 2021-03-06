@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from sqlalchemy.dialects.postgresql import UUID
-from sanic.exceptions import ServerError
 
 from app import db
 from app.utils import PBKDF2PasswordHasher
@@ -46,7 +45,7 @@ class User(TimeStampedModel):
 
     id = db.Column(UUID, primary_key=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    nickname = db.Column(db.String(10), unique=True, nullable=False)
+    nickname = db.Column(db.String(12), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     photo = db.Column(db.String(255))
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
@@ -63,10 +62,7 @@ class User(TimeStampedModel):
 
     def check_password(self, password: str) -> bool:
         """ check password """
-        try:
-            return self.hasher.verify_password(password, self.password_hash)
-        except ValueError:
-            raise ServerError("cannot interpret password.", status_code=422)
+        return self.hasher.verify_password(password, self.password_hash)
 
     def to_dict(self, **kwargs):
         kwargs["hide"] = ["password_hash"]
@@ -136,7 +132,7 @@ class SubtitleLike(TimeStampedModel):
 
     id = db.Column("id", db.Integer, db.Sequence("line_like_id_seq"), primary_key=True)
     user_id = db.Column(UUID, db.ForeignKey("user.id"))
-    line_id = db.Column(db.Integer, db.ForeignKey("line.id"))
+    line_id = db.Column(db.Integer, db.ForeignKey("subtitle.id"))
 
     _id_idx = db.Index("line_like_idx_id", "id")
     _unique = db.UniqueConstraint("user_id", "line_id", name="line_like_unique")
@@ -148,7 +144,7 @@ class Translation(TimeStampedModel):
 
     id = db.Column(db.Integer, db.Sequence("translation_id_seq"), primary_key=True)
     translation = db.Column(db.Text, nullable=False)
-    line_id = db.Column(db.Integer, db.ForeignKey("line.id"), nullable=False)
+    line_id = db.Column(db.Integer, db.ForeignKey("subtitle.id"), nullable=False)
     user_id = db.Column(UUID, db.ForeignKey("user.id"))
 
     _id_idx = db.Index("translation_idx_id", "id")

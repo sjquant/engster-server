@@ -2,7 +2,6 @@ from typing import List
 
 from sanic.request import Request
 from sanic.views import HTTPMethodView
-from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
 from sanic_jwt_extended.tokens import Token
 
@@ -45,7 +44,7 @@ class ContentDetail(HTTPMethodView):
     async def get(self, request: Request, content_id: int):
         content = await service.get_by_id(content_id)
         if not content:
-            raise ServerError("no such content", 404)
+            return JsonResponse({"message": "Content not found"}, status=404)
         genres = await service.fetch_genres([content_id])
         return JsonResponse(
             {**content.to_dict(), "genres": genres.get(content_id, [])}, 200
@@ -59,7 +58,7 @@ class ContentDetail(HTTPMethodView):
         data = request.json
         content = await service.get_by_id(content_id)
         if not content:
-            raise ServerError("no such content", 404)
+            return JsonResponse({"message": "Content not found"}, status=404)
 
         async with db.transaction():
             await content.update(
@@ -73,7 +72,7 @@ class ContentDetail(HTTPMethodView):
     async def delete(self, request: Request, content_id: int, token: Token):
         content = await service.get_by_id(content_id)
         if not content:
-            raise ServerError("no such content", 404)
+            return JsonResponse({"message": "Content not found"}, status=404)
         await content.delete()
         return JsonResponse({"message": "success"}, status=204)
 

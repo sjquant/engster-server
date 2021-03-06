@@ -4,7 +4,6 @@ from io import StringIO
 from sanic.request import Request
 from sanic.views import HTTPMethodView
 from sanic.blueprints import Blueprint
-from sanic.exceptions import ServerError
 from sanic_jwt_extended import jwt_required
 from sanic_jwt_extended.tokens import Token
 from pydantic import constr
@@ -36,9 +35,7 @@ class AddTranslationCSV(HTTPMethodView):
         data = csv_to_dict(StringIO(input_file.body.decode("utf-8-sig")))
 
         if "line_id" not in data.keys():
-            raise ServerError(
-                "line_id field is not found in given csv.", status_code=400
-            )
+            return JsonResponse({"message": "line_id field not found"}, status=400)
 
         await self._upload_translation(data)
         return JsonResponse({"message": "success"})
@@ -48,14 +45,14 @@ class TranslationDetail(HTTPMethodView):
     async def get(self, request, translation_id: int):
         translation = await translation_service.get_by_id(translation_id)
         if not translation:
-            raise ServerError("no such translation", 404)
+            return JsonResponse({"message": "Translation not found"}, status=404)
         return JsonResponse(translation.to_dict(), 200)
 
     @self_required
     async def patch(self, request: Request, translation_id: int, token: Token):
         translation = await translation_service.get_by_id(translation_id)
         if not translation:
-            raise ServerError("no such translation", 404)
+            return JsonResponse({"message": "Translation not found"}, status=404)
         await translation.update(**request.json).apply()
         return JsonResponse({"message": "success"}, status=202)
 
@@ -63,7 +60,7 @@ class TranslationDetail(HTTPMethodView):
     async def delete(self, request: Request, translation_id: int, token: Token):
         translation = await translation_service.get_by_id(translation_id)
         if not translation:
-            raise ServerError("no such translation", 404)
+            return JsonResponse({"message": "Translation not found"}, status=404)
         await translation.delete()
         return JsonResponse({"message": "success"}, status=204)
 
@@ -123,7 +120,7 @@ class LikeTranslation(HTTPMethodView):
         try:
             await translation_service.add_like(translation_id, user_id)
         except asyncpg.exceptions.UniqueViolationError:
-            return JsonResponse({"message": "already liked"}, status=400)
+            return JsonResponse({"message": "Already liked"}, status=400)
         return JsonResponse({"message": "liked"}, status=201)
 
     @jwt_required

@@ -65,5 +65,5 @@ async def get_activitiy_summary(user_id: uuid.UUID) -> Dict[str, Any]:
             "translation_count": data[2],
         }
     else:
-        raise DataDoesNotExist("User activity summary does not exist.")
+        raise DataDoesNotExist("User activity summary not found")
     return data
