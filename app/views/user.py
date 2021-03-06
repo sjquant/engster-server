@@ -5,6 +5,7 @@ from sanic.request import Request
 from sanic.views import HTTPMethodView
 from sanic.exceptions import ServerError
 from sanic_jwt_extended.tokens import Token
+import asyncpg
 
 from app.services import user as service
 from app.schemas import UserModel
@@ -27,7 +28,11 @@ class UserProfileView(HTTPMethodView):
         user_id = token.identity
         data = {key: value for key, value in request.json.items()}
         user = await service.get_user_by_id(user_id)
-        await user.update(**data).apply()
+        try:
+            await user.update(**data).apply()
+        except asyncpg.exceptions.UniqueViolationError:
+            return JsonResponse({"message": "User already exists"}, status=400)
+
         return JsonResponse(UserModel.from_orm(user), status=202)
 
     async def delete(self):
@@ -39,7 +44,7 @@ class UserActivitySummary(HTTPMethodView):
         try:
             resp = await service.get_activitiy_summary(user_id)
         except DataDoesNotExist as e:
-            raise ServerError(str(e), status_code=404)
+            return JsonResponse({"message": str(e)}, status=404)
         return JsonResponse(resp, status=200)
 
 

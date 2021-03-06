@@ -5,7 +5,6 @@ from sanic.request import Request
 from sanic.response import text as text_response
 from sanic.views import HTTPMethodView
 from sanic.blueprints import Blueprint
-from sanic.exceptions import ServerError
 from sanic_jwt_extended import jwt_required
 from sanic_jwt_extended.tokens import Token
 from pydantic import constr
@@ -61,11 +60,11 @@ class SubtitleListView(HTTPMethodView):
         """Upload subtitles with csv file"""
         content = await content_service.get_by_id(content_id)
         if content is None:
-            raise ServerError("No Such Instance", status_code=404)
+            return JsonResponse({"message": "Content not found"}, status=404)
 
         existing_lines = await subtitle_service.fetch_by_content_id(content_id)
         if existing_lines:
-            raise ServerError("Subtitle already exists.", status_code=400)
+            return JsonResponse({"message": "Subtitle already exists"}, status=400)
 
         input_file = request.files.get("input")
         data = csv_to_dict(StringIO(input_file.body.decode("utf-8-sig")))
@@ -84,7 +83,7 @@ class DownloadSubtitle(HTTPMethodView):
         content_id = request.json.get("content_id")
         content = await content_service.get_by_id(content_id)
         if content is None:
-            raise ServerError("No Such Instance", status_code=404)
+            return JsonResponse({"message": "Content not found"}, status=404)
 
         lines = await subtitle_service.fetch_all_by_content_id(content_id)
         lines = [{"line_id": each["id"], "line": each["line"]} for each in lines]
@@ -112,7 +111,9 @@ class SubtitleToCSV(HTTPMethodView):
         elif ext.lower() == "srt":
             subtitle = SRTSubtitle(text)
         else:
-            raise ServerError("Extension '{ext}' is not supported .", 400)
+            return JsonResponse(
+                {"message": "Extension '{ext}' not supported"}, status=400
+            )
 
         return subtitle
 
@@ -126,7 +127,7 @@ class SubtitleToCSV(HTTPMethodView):
         trans_file = request.files.get("translation")
 
         if not sub_file:
-            raise ServerError("Subtitle file is required.", 400)
+            return JsonResponse({"message": "Subtitle file required"}, status=400)
 
         subtitle = self._get_subtitle(sub_file)
         if trans_file:
@@ -284,7 +285,7 @@ class LikeSubtitle(HTTPMethodView):
         try:
             await subtitle_service.add_like(line_id, user_id)
         except asyncpg.exceptions.UniqueViolationError:
-            return JsonResponse({"message": "already liked"}, status=400)
+            return JsonResponse({"message": "Already liked"}, status=400)
         return JsonResponse({"message": "liked"}, status=201)
 
     @jwt_required

@@ -2,7 +2,6 @@ import datetime
 
 from sanic import Blueprint
 from sanic.request import Request
-from sanic.exceptions import ServerError
 from sanic_jwt_extended import jwt_required, refresh_jwt_required, jwt_optional
 from sanic_jwt_extended.tokens import Token
 import asyncpg
@@ -33,7 +32,7 @@ async def register(request: Request):
     try:
         user = await create_user(**request.json, is_admin=False)
     except asyncpg.exceptions.UniqueViolationError:
-        raise ServerError("Already Registered", status_code=400)
+        return JsonResponse({"message": "User already exists"}, status=400)
 
     access_token = JWT.create_access_token(identity=str(user.id), role="user")
     refresh_token = JWT.create_refresh_token(identity=str(user.id))
@@ -50,9 +49,12 @@ async def obtain_token(request: Request):
 
     user = await get_user_by_email(email)
     if user is None:
-        raise ServerError("User not found.", status_code=404)
-    if not user.check_password(password):
-        raise ServerError("Password is wrong.", status_code=400)
+        return JsonResponse({"message": "User not found."}, status=404)
+    try:
+        if not user.check_password(password):
+            return JsonResponse({"message": "Wrong password"}, status=400)
+    except ValueError:
+        return JsonResponse({"message": "Wrong password"}, status=400)
 
     role = "admin" if user.is_admin else "user"
     access_token = JWT.create_access_token(identity=str(user.id), role=role)
@@ -96,7 +98,7 @@ def get_client(request, provider: str):
             client_secret=app.config["NAVER_CLIENT_SECRET"],
         )
     else:
-        raise ServerError("Unknown Provider", status_code=400)
+        return JsonResponse({"message": "Unknown Provider"}, status=400)
     return client
 
 
@@ -137,13 +139,17 @@ async def reset_password(request: Request, token: Token):
     user = await get_user_by_id(user_id)
 
     if user is None:
-        raise ServerError("User not found.", status_code=404)
+        return JsonResponse({"message": "User not found"}, status=404)
 
-    if user.check_password(original_password):
+    try:
+        validated = user.check_password(original_password)
+    except ValueError:
+        return JsonResponse({"message": "Wrong password"}, status=400)
+    if validated:
         user.set_password(new_password)
         await user.update(password_hash=user.password_hash).apply()
     else:
-        raise ServerError("Password is wrong.", status_code=400)
+        return JsonResponse({"message": "Wrong password"}, status=400)
     return JsonResponse({"message": "Password successfully updated"}, status=202)
 
 
@@ -164,7 +170,7 @@ async def refresh_token(request, token: Token):
 async def validate_token(request, token: Token):
     """Inspect token and"""
     if not token:
-        return JsonResponse({"message": "no token"}, status=404)
+        return JsonResponse({"message": "No token"}, status=404)
 
     user_id = token.identity
     user = await get_user_by_id(user_id)
@@ -184,7 +190,7 @@ async def request_password_reset(request):
     email = request.json.get("email")
     user = await get_user_by_email(email)
     if user is None:
-        return JsonResponse({"message": "User does not exist"}, status=400)
+        return JsonResponse({"message": "User not found"}, status=404)
     token = encode_jwt(
         {"user_id": str(user.id)}, expires_delta=datetime.timedelta(minutes=30)
     )

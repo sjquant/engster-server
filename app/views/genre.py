@@ -1,6 +1,5 @@
 from sanic.request import Request
 from sanic.views import HTTPMethodView
-from sanic.exceptions import ServerError
 from sanic.blueprints import Blueprint
 from sanic_jwt_extended.tokens import Token
 
@@ -29,14 +28,14 @@ class GenreDetail(HTTPMethodView):
     async def get(self, request, genre_id: int):
         genre = await service.get_by_id(genre_id)
         if not genre:
-            raise ServerError("no such genre", 404)
+            return JsonResponse({"message": "Genre not found"}, status=404)
         return JsonResponse(genre.to_dict(), 200)
 
     @admin_required
     async def put(self, request: Request, genre_id: int, token: Token):
         genre = await service.get_by_id(genre_id)
         if not genre:
-            raise ServerError("no such genre", 404)
+            return JsonResponse({"message": "Genre not found"}, status=404)
         await genre.update(**request.json).apply()
         return JsonResponse({"message": "success"}, status=202)
 
@@ -44,7 +43,7 @@ class GenreDetail(HTTPMethodView):
     async def delete(self, request: Request, genre_id: int, token: Token):
         genre = await service.get_by_id(genre_id)
         if not genre:
-            raise ServerError("no such genre", 404)
+            return JsonResponse({"message": "Genre not found"}, status=404)
         await genre.delete()
         return JsonResponse({"message": "success"}, status=204)
 
