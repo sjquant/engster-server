@@ -144,6 +144,7 @@ class Translation(TimeStampedModel):
 
     id = db.Column(db.Integer, db.Sequence("translation_id_seq"), primary_key=True)
     translation = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(15), default="PENDING")
     line_id = db.Column(db.Integer, db.ForeignKey("subtitle.id"), nullable=False)
     user_id = db.Column(UUID, db.ForeignKey("user.id"))
 
@@ -167,3 +168,19 @@ class TranslationLike(TimeStampedModel):
     _unique = db.UniqueConstraint(
         "user_id", "translation_id", name="translation_like_unique"
     )
+
+
+class TranslationReview(TimeStampedModel):
+
+    __tablename__ = "translation_review"
+
+    id = db.Column(
+        "id", db.Integer, db.Sequence("translation_review_id_seq"), primary_key=True
+    )
+    status = db.Column(db.String(15), default="PENDING")
+    translation = db.Column(db.Text, nullable=False)
+    message = db.Column(db.String(400))
+    translation_id = db.Column(
+        db.Integer, db.ForeignKey("translation.id"), nullable=False
+    )
+    reviewer_id = db.Column(UUID, db.ForeignKey("user.id"))
