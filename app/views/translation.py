@@ -98,7 +98,12 @@ class SearchTranslation(HTTPMethodView):
         limit=(int, 20), cursor=(int, None), keyword=(constr(min_length=2), ...)
     )
     async def get(
-        self, request, limit: int, cursor: int, keyword: str, token: Optional[Token]
+        self,
+        request,
+        limit: int,
+        cursor: Optional[int],
+        keyword: str,
+        token: Optional[Token],
     ):
         """search korean(translations)"""
         count = await translation_service.count(keyword) if cursor is None else None
@@ -161,7 +166,12 @@ class UserLikedTranslations(HTTPMethodView):
     @jwt_optional
     @expect_query(user_id=(str, ...), limit=(int, 20), cursor=(int, None))
     async def get(
-        self, request: Request, user_id: str, limit: int, cursor: int, token: Token
+        self,
+        request: Request,
+        user_id: str,
+        limit: int,
+        cursor: Optional[int],
+        token: Token,
     ):
         translations = await translation_service.fetch_user_liked(
             user_id, limit=limit, cursor=cursor
@@ -206,7 +216,12 @@ class UserWrittenTranslations(HTTPMethodView):
     @jwt_optional
     @expect_query(user_id=(str, ...), limit=(int, 20), cursor=(int, None))
     async def get(
-        self, request: Request, user_id: str, limit: int, cursor: int, token: Token
+        self,
+        request: Request,
+        user_id: str,
+        limit: int,
+        cursor: Optional[int],
+        token: Token,
     ):
         translations = await translation_service.fetch_user_written(
             user_id, limit=limit, cursor=cursor
@@ -253,6 +268,29 @@ class TranslationChangeStatusView(HTTPMethodView):
         return JsonResponse({"message": "success"}, status=200)
 
 
+class TranslationReviewList(HTTPMethodView):
+    @admin_required
+    @expect_query(limit=(int, 20), cursor=(int, None))
+    async def get(
+        self,
+        request: Request,
+        translation_id: int,
+        limit: int,
+        cursor: Optional[int],
+        token: Token,
+    ):
+
+        count = (
+            await translation_service.count_reviews(translation_id)
+            if cursor is None
+            else None
+        )
+        data = await translation_service.fetch_reviews(translation_id, limit, cursor)
+        return JsonResponse(
+            {"count": count, "data": data, "cursor": cursor, "limit": limit}
+        )
+
+
 blueprint.add_route(SearchTranslation.as_view(), "/search")
 blueprint.add_route(AddTranslationCSV.as_view(), "/add-csv")
 blueprint.add_route(UserLikedTranslations.as_view(), "/liked")
@@ -262,3 +300,4 @@ blueprint.add_route(LikeTranslation.as_view(), "/<translation_id:int>/like")
 blueprint.add_route(
     TranslationChangeStatusView.as_view(), "/<translation_id:int>/change-status"
 )
+blueprint.add_route(TranslationReviewList.as_view(), "/<translation_id:int>/reviews")

@@ -57,10 +57,14 @@ GET {{ host }}/translations/written?user_id={{userid}}&limit=20
 Content-Type: application/json
 
 ### Change translation status
-POST {{ host }}/translations/1/change-status
+POST {{ host }}/translations/15530/change-status
 Content-Type: application/json
 
 {
     "status": "CHANGE_REQUESTED",
     "message": "오타가 있습니다. hpapy -> happy로 바꿔주시면 좋을거 같습니다."
 }
+
+### Get reveiews for a translation
+GET {{ host }}/translations/15530/reviews?limit=5
+Content-Type: application/json

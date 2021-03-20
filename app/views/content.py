@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from sanic.request import Request
 from sanic.views import HTTPMethodView
@@ -17,7 +17,7 @@ blueprint = Blueprint("content_blueprint", url_prefix="/contents")
 
 class ContentList(HTTPMethodView):
     @expect_query(limit=(int, 10), cursor=(int, None))
-    async def get(self, request: Request, limit: int, cursor: int):
+    async def get(self, request: Request, limit: int, cursor: Optional[int]):
         contents = await service.fetch(limit, cursor)
         genres = await service.fetch_genres([each["id"] for each in contents])
         data = [{**each, "genres": genres.get(each["id"], [])} for each in contents]
