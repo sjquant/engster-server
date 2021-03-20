@@ -10,6 +10,16 @@ Content-Type: application/json
     "password": "abcdefg!!!"
 }
 
+### Sign In with admin
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "admin@test.com",
+    "password": "abcdefg!!!"
+}
+
 
 ### Get Specific translation
 GET {{ host }}/translations/1423
@@ -45,3 +55,12 @@ Content-Type: application/json
 ### Get Translations a user created
 GET {{ host }}/translations/written?user_id={{userid}}&limit=20
 Content-Type: application/json
+
+### Change translation status
+POST {{ host }}/translations/1/change-status
+Content-Type: application/json
+
+{
+    "status": "CHANGE_REQUESTED",
+    "message": "오타가 있습니다. hpapy -> happy로 바꿔주시면 좋을거 같습니다."
+}

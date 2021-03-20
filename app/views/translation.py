@@ -237,9 +237,28 @@ class UserWrittenTranslations(HTTPMethodView):
         )
 
 
+class TranslationChangeStatusView(HTTPMethodView):
+    @admin_required
+    @expect_body(status=(str, ...), message=(str, None))
+    async def post(self, request: Request, translation_id: int, token: Token):
+        status = request.json["status"]
+        message = request.json["message"]
+        reviewer_id = token.identity
+        try:
+            await translation_service.change_status(
+                translation_id, status, reviewer_id, message
+            )
+        except ValueError as e:
+            return JsonResponse({"message": str(e)}, status=400)
+        return JsonResponse({"message": "success"}, status=200)
+
+
 blueprint.add_route(SearchTranslation.as_view(), "/search")
 blueprint.add_route(AddTranslationCSV.as_view(), "/add-csv")
 blueprint.add_route(UserLikedTranslations.as_view(), "/liked")
 blueprint.add_route(UserWrittenTranslations.as_view(), "/written")
 blueprint.add_route(TranslationDetail.as_view(), "/<translation_id:int>")
 blueprint.add_route(LikeTranslation.as_view(), "/<translation_id:int>/like")
+blueprint.add_route(
+    TranslationChangeStatusView.as_view(), "/<translation_id:int>/change-status"
+)
