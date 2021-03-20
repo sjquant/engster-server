@@ -66,7 +66,7 @@ class ContentDetail(HTTPMethodView):
             ).apply()
             await service.clear_genres(content_id)
             await service.add_genres(content, data["genre_ids"])
-        return JsonResponse({"message": "success"}, status=202)
+        return JsonResponse({"message": "success"}, status=200)
 
     @admin_required
     async def delete(self, request: Request, content_id: int, token: Token):

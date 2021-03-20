@@ -150,7 +150,7 @@ async def reset_password(request: Request, token: Token):
         await user.update(password_hash=user.password_hash).apply()
     else:
         return JsonResponse({"message": "Wrong password"}, status=400)
-    return JsonResponse({"message": "Password successfully updated"}, status=202)
+    return JsonResponse({"message": "Password successfully updated"}, status=200)
 
 
 @blueprint.route("/refresh-token", methods=["POST"])
