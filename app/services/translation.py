@@ -6,6 +6,7 @@ from app.models import (
     Translation,
     Content,
     TranslationLike,
+    TranslationReview,
 )
 from app import db
 from app.utils import fetch_all
@@ -169,3 +170,25 @@ async def pick_user_liked(user_id: UUID, translation_ids: List[int]) -> List[int
     )
     data = await query.gino.all()
     return [each[0] for each in data]
+
+
+async def change_status(
+    translation_id, status: str, reviewer_id: str, message: Optional[str] = None
+):
+    if status not in {"PENDING", "APPROVED", "CHANGE_REQUESTED", "REJECTED"}:
+        raise ValueError("Invalid status")
+
+    async with db.transaction():
+        translation = await Translation.query.where(
+            Translation.id == translation_id
+        ).gino.first()
+        if not translation:
+            raise ValueError("Translation not found")
+        await translation.update(status=status).apply()
+        await TranslationReview(
+            status=status,
+            translation=translation.translation,
+            message=message,
+            translation_id=translation.id,
+            reviewer_id=reviewer_id,
+        ).create()
