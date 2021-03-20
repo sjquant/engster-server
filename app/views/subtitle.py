@@ -268,8 +268,12 @@ class TranslationList(HTTPMethodView):
     @expect_body(translation=(str, ...))
     async def post(self, request: Request, line_id: int, token: Token):
         user_id = token.identity
+        is_admin = token.role == "admin"
+        trans = request.json["translation"]
+        status = "APPROVED" if is_admin else "PENDING"
+
         translation = await Translation(
-            **request.json, line_id=line_id, user_id=user_id
+            translation=trans, status=status, line_id=line_id, user_id=user_id
         ).create()
         nickname = await User.select("nickname").where(User.id == user_id).gino.scalar()
         return JsonResponse(
