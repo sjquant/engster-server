@@ -10,8 +10,8 @@ from pydantic import constr
 
 import asyncpg
 
-from app.decorators import expect_query
-from app.core.sanic_jwt_extended import admin_required, self_required, jwt_optional
+from app.decorators import expect_query, expect_body
+from app.core.sanic_jwt_extended import admin_required, jwt_optional
 from app.services import translation as translation_service
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
@@ -48,19 +48,36 @@ class TranslationDetail(HTTPMethodView):
             return JsonResponse({"message": "Translation not found"}, status=404)
         return JsonResponse(translation.to_dict(), 200)
 
-    @self_required
+    @jwt_required
+    @expect_body(translation=(str, ...))
     async def patch(self, request: Request, translation_id: int, token: Token):
+        user_id = token.identity
+        is_admin = token.role == "admin"
+        trans = request.json["translation"]
+
         translation = await translation_service.get_by_id(translation_id)
         if not translation:
             return JsonResponse({"message": "Translation not found"}, status=404)
-        await translation.update(**request.json).apply()
+
+        if translation.user_id != user_id:
+            return JsonResponse({"message": "Permission Denied"}, status=403)
+
+        status = "APPROVED" if is_admin else "PENDING"
+
+        await translation.update(translation=trans, status=status).apply()
         return JsonResponse({"message": "success"}, status=202)
 
-    @self_required
+    @jwt_required
     async def delete(self, request: Request, translation_id: int, token: Token):
+        user_id = token.identity
+
         translation = await translation_service.get_by_id(translation_id)
         if not translation:
             return JsonResponse({"message": "Translation not found"}, status=404)
+
+        if translation.user_id != user_id:
+            return JsonResponse({"message": "Permission Denied"}, status=403)
+
         await translation.delete()
         return JsonResponse({"message": "success"}, status=204)
 

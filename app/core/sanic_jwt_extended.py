@@ -160,15 +160,3 @@ def admin_required(func):
         return func(*args, **kwargs)
 
     return wrapper
-
-
-def self_required(func):
-    @jwt_required
-    def wrapper(*args, **kwargs):
-        token = kwargs["token"]
-        user_id = kwargs["user_id"]
-        if token.identity != str(user_id):
-            raise AccessDeniedError("Permission Denied")
-        return func(*args, **kwargs)
-
-    return wrapper

@@ -13,11 +13,13 @@ from app.utils import fetch_all
 
 async def search(keyword: str, limit: int = 20, cursor: Optional[int] = None):
     """Search Korean with a keyword"""
-    condition = (
-        db.and_(Translation.id < cursor, Translation.translation.op("~*")(keyword))
-        if cursor
-        else Translation.translation.op("~*")(keyword)
-    )
+    conditions = [
+        Translation.translation.op("~*")(keyword),
+        Translation.status == "APPROVED",
+    ]
+    if cursor:
+        conditions.append(Translation.id < cursor)
+
     query = (
         db.select(
             [
@@ -31,7 +33,7 @@ async def search(keyword: str, limit: int = 20, cursor: Optional[int] = None):
                 Content.year.label("content_year"),
             ]
         )
-        .where(condition)
+        .where(db.and_(*conditions))
         .select_from(
             Translation.join(Subtitle, Translation.line_id == Subtitle.id).join(
                 Content, Subtitle.content_id == Content.id
@@ -62,11 +64,10 @@ async def get_by_id(translation_id: int) -> Translation:
 async def fetch_user_liked(
     user_id: UUID, limit: int = 20, cursor: Optional[int] = None
 ) -> List[Dict["str", Any]]:
-    condition = (
-        db.and_(TranslationLike.id < cursor, TranslationLike.user_id == user_id)
-        if cursor
-        else TranslationLike.user_id == user_id
-    )
+    conditions = [TranslationLike.user_id == user_id]
+    if cursor:
+        conditions.append(TranslationLike.id < cursor)
+
     query = (
         db.select(
             [
@@ -81,7 +82,7 @@ async def fetch_user_liked(
                 TranslationLike.created_at,
             ]
         )
-        .where(condition)
+        .where(db.and_(*conditions))
         .select_from(
             Translation.join(Subtitle, Translation.line_id == Subtitle.id)
             .join(Content, Subtitle.content_id == Content.id)
@@ -98,11 +99,10 @@ async def fetch_user_liked(
 async def fetch_user_written(
     user_id: UUID, limit: int = 20, cursor: Optional[int] = None
 ) -> List[Dict["str", Any]]:
-    condition = (
-        db.and_(Translation.id < cursor, Translation.user_id == user_id)
-        if cursor
-        else Translation.user_id == user_id
-    )
+    conditions = [Translation.user_id == user_id]
+    if cursor:
+        conditions.append(Translation.id < cursor)
+
     query = (
         db.select(
             [
@@ -116,7 +116,7 @@ async def fetch_user_written(
                 Content.year.label("content_year"),
             ]
         )
-        .where(condition)
+        .where(db.and_(*conditions))
         .select_from(
             Translation.join(Subtitle, Translation.line_id == Subtitle.id).join(
                 Content, Subtitle.content_id == Content.id

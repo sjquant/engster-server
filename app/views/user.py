@@ -10,22 +10,26 @@ import asyncpg
 from app.services import user as service
 from app.schemas import UserModel
 from app.exceptions import DataDoesNotExist
-from app.core.sanic_jwt_extended import self_required
+from app.core.sanic_jwt_extended import jwt_required
 from app.utils import JsonResponse
 
 blueprint = Blueprint("user_blueprint", url_prefix="/users")
 
 
 class UserProfileView(HTTPMethodView):
-    @self_required
+    @jwt_required
     async def get(self, request, user_id: str, token: Token):
-        user_id = token.identity
+        if user_id != token.identity:
+            return JsonResponse({"message": "Permission Denied"}, status=403)
+
         user = await service.get_user_by_id(user_id)
         return JsonResponse(UserModel.from_orm(user), status=200)
 
-    @self_required
+    @jwt_required
     async def patch(self, request: Request, user_id: str, token: Token):
-        user_id = token.identity
+        if user_id != token.identity:
+            return JsonResponse({"message": "Permission Denied"}, status=403)
+
         data = {key: value for key, value in request.json.items()}
         user = await service.get_user_by_id(user_id)
         try:
