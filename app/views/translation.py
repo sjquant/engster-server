@@ -65,7 +65,7 @@ class TranslationDetail(HTTPMethodView):
         status = "APPROVED" if is_admin else "PENDING"
 
         await translation.update(translation=trans, status=status).apply()
-        return JsonResponse({"message": "success"}, status=202)
+        return JsonResponse({"message": "success"}, status=200)
 
     @jwt_required
     async def delete(self, request: Request, translation_id: int, token: Token):

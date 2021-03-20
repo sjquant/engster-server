@@ -37,7 +37,7 @@ class GenreDetail(HTTPMethodView):
         if not genre:
             return JsonResponse({"message": "Genre not found"}, status=404)
         await genre.update(**request.json).apply()
-        return JsonResponse({"message": "success"}, status=202)
+        return JsonResponse({"message": "success"}, status=200)
 
     @admin_required
     async def delete(self, request: Request, genre_id: int, token: Token):

@@ -37,7 +37,7 @@ class UserProfileView(HTTPMethodView):
         except asyncpg.exceptions.UniqueViolationError:
             return JsonResponse({"message": "User already exists"}, status=400)
 
-        return JsonResponse(UserModel.from_orm(user), status=202)
+        return JsonResponse(UserModel.from_orm(user), status=200)
 
     async def delete(self):
         raise ServerError(status_code=405)
