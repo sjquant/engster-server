@@ -25,7 +25,9 @@ blueprint = Blueprint("subtitle_blueprint", url_prefix="/subtitles")
 
 class SubtitleListView(HTTPMethodView):
     @expect_query(content_id=(int, None), cursor=(int, None), limit=(int, 20))
-    async def get(self, request: Request, content_id: int, cursor: int, limit: int):
+    async def get(
+        self, request: Request, content_id: int, cursor: Optional[int], limit: int
+    ):
 
         data = []
 
@@ -201,7 +203,12 @@ class SearchSubtitles(HTTPMethodView):
         limit=(int, 20), cursor=(int, None), keyword=(constr(min_length=2), ...)
     )
     async def get(
-        self, request, limit: int, cursor: int, keyword: str, token: Optional[Token]
+        self,
+        request,
+        limit: int,
+        cursor: Optional[int],
+        keyword: str,
+        token: Optional[Token],
     ):
         """search english"""
 
@@ -240,7 +247,7 @@ class TranslationList(HTTPMethodView):
         request: Request,
         line_id: int,
         limit: int,
-        cursor: int,
+        cursor: Optional[int],
         token: Optional[Token],
     ):
         translations = await subtitle_service.fetch_translations(line_id, limit, cursor)
@@ -311,7 +318,12 @@ class UserLikedSubtitles(HTTPMethodView):
     @jwt_optional
     @expect_query(user_id=(str, ...), limit=(int, 20), cursor=(int, None))
     async def get(
-        self, request: Request, user_id: str, limit: int, cursor: int, token: Token
+        self,
+        request: Request,
+        user_id: str,
+        limit: int,
+        cursor: Optional[int],
+        token: Token,
     ):
         lines = await subtitle_service.fetch_user_liked(
             user_id, limit=limit, cursor=cursor

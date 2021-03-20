@@ -7,6 +7,7 @@ from app.models import (
     Content,
     TranslationLike,
     TranslationReview,
+    User,
 )
 from app import db
 from app.utils import fetch_all
@@ -64,7 +65,7 @@ async def get_by_id(translation_id: int) -> Translation:
 
 async def fetch_user_liked(
     user_id: UUID, limit: int = 20, cursor: Optional[int] = None
-) -> List[Dict["str", Any]]:
+) -> List[Dict[str, Any]]:
     conditions = [TranslationLike.user_id == user_id]
     if cursor:
         conditions.append(TranslationLike.id < cursor)
@@ -99,7 +100,7 @@ async def fetch_user_liked(
 
 async def fetch_user_written(
     user_id: UUID, limit: int = 20, cursor: Optional[int] = None
-) -> List[Dict["str", Any]]:
+) -> List[Dict[str, Any]]:
     conditions = [Translation.user_id == user_id]
     if cursor:
         conditions.append(Translation.id < cursor)
@@ -173,7 +174,7 @@ async def pick_user_liked(user_id: UUID, translation_ids: List[int]) -> List[int
 
 
 async def change_status(
-    translation_id, status: str, reviewer_id: str, message: Optional[str] = None
+    translation_id: int, status: str, reviewer_id: str, message: Optional[str] = None
 ):
     if status not in {"PENDING", "APPROVED", "CHANGE_REQUESTED", "REJECTED"}:
         raise ValueError("Invalid status")
@@ -192,3 +193,33 @@ async def change_status(
             translation_id=translation.id,
             reviewer_id=reviewer_id,
         ).create()
+
+
+async def count_reviews(translation_id: int) -> int:
+    """Count reviews for a translation"""
+    query = db.select([db.func.count(TranslationReview.id)]).where(
+        TranslationReview.translation_id == translation_id
+    )
+    return await query.gino.scalar()
+
+
+async def fetch_reviews(
+    translation_id: int, limit: int, cursor: Optional[int]
+) -> List[Dict[str, Any]]:
+    """Fetch reviews for a translation"""
+    conditions = [TranslationReview.translation_id == translation_id]
+    if cursor:
+        conditions.append(TranslationReview.id < cursor)
+
+    query = (
+        db.select([TranslationReview, User.nickname.label("reviewer")])
+        .where(db.and_(*conditions))
+        .select_from(
+            TranslationReview.join(User, TranslationReview.reviewer_id == User.id)
+        )
+        .order_by(TranslationReview.id.desc())
+        .limit(limit)
+    )
+
+    data = await fetch_all(query)
+    return data
