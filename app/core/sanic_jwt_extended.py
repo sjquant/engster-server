@@ -14,7 +14,7 @@ from sanic_jwt_extended.decorators import (
     _csrf_check,
     jwt_required,
 )
-from sanic_jwt_extended.exceptions import WrongTokenError, AccessDeniedError
+from sanic_jwt_extended.exceptions import WrongTokenError
 from sanic_jwt_extended.tokens import Token
 
 
