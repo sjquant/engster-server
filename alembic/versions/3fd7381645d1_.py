@@ -22,7 +22,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('status', sa.String(length=15), nullable=True),
+    sa.Column('status', sa.String(length=20), nullable=True),
     sa.Column('translation', sa.Text(), nullable=False),
     sa.Column('message', sa.String(length=400), nullable=True),
     sa.Column('translation_id', sa.Integer(), nullable=False),
@@ -31,7 +31,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['translation_id'], ['translation.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.add_column('translation', sa.Column('status', sa.String(length=15), nullable=True))
+    op.add_column('translation', sa.Column('status', sa.String(length=20), nullable=True))
     # ### end Alembic commands ###
 
 
