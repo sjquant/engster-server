@@ -1,3 +1,4 @@
+from typing import Dict, Tuple, Any
 from functools import wraps
 import asyncio
 import uuid
@@ -17,6 +18,33 @@ def _get_request(*args):
     return request
 
 
+def _parse_query(
+    query_args: Tuple[str, Any], field_definitions: Dict[str, Any]
+) -> Dict[str, Any]:
+
+    new_args = {}
+    for key, val in query_args:
+        field_val = field_definitions[key]
+        if isinstance(field_val, tuple):
+            type_hint = field_val[0]
+        else:
+            type_hint = field_val
+
+        try:
+            origin = type_hint.__origin__()
+        except AttributeError:
+            origin = type_hint
+
+        if isinstance(origin, list):
+            try:
+                new_args[key].append(val)
+            except KeyError:
+                new_args[key] = [val]
+        else:
+            new_args[key] = val
+    return new_args
+
+
 def expect_query(**field_definitions):
     def actual_expect_query(func):
         model = create_model(f"QUERY_{uuid.uuid4().hex}", **field_definitions)
@@ -24,7 +52,8 @@ def expect_query(**field_definitions):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             request = _get_request(*args)
-            processed = model(**dict(request.query_args)).dict()
+            parsed_query_args = _parse_query(request.query_args, field_definitions)
+            processed = model(**parsed_query_args).dict()
             kwargs.update(processed)
             if asyncio.iscoroutinefunction(func):
                 return await func(*args, **kwargs)
