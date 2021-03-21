@@ -1,0 +1,31 @@
+@userid = {{ siginin.response.body.$.user.id }}
+
+### Obtain Token
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "user@test.com",
+    "password": "abcdefg!!!"
+}
+
+### Sign In with admin
+# @name siginin
+POST {{ host }}/auth/obtain-token
+Content-Type: application/json
+
+{
+    "email": "admin@test.com",
+    "password": "abcdefg!!!"
+}
+
+
+### Get reveiews for a translation
+GET {{ host }}/translation-reviews?limit=20
+Content-Type: application/json
+
+
+### Get reveiews for a translation where status is PENDING
+GET {{ host }}/translation-reviews?limit=20&status=PENDING
+Content-Type: application/json
