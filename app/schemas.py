@@ -1,10 +1,18 @@
-from uuid import UUID
 from datetime import datetime
+from uuid import UUID
+from enum import Enum
 
 from pydantic import BaseModel, SecretStr, validator
 
 from app import config
 from app.utils import get_file_url
+
+
+class TranslationReviewStatus(str, Enum):
+    pending = "PENDING"
+    approved = "APPROVED"
+    rejected = "REJECTED"
+    change_requested = "CHANGE_REQUESTED"
 
 
 class UserModel(BaseModel):

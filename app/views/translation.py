@@ -15,6 +15,7 @@ from app.core.sanic_jwt_extended import admin_required, jwt_optional
 from app.services import translation as translation_service
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
+from app.schemas import TranslationReviewStatus
 from app.models import Translation
 from app.utils import JsonResponse, csv_to_dict
 
@@ -254,17 +255,14 @@ class UserWrittenTranslations(HTTPMethodView):
 
 class TranslationChangeStatusView(HTTPMethodView):
     @admin_required
-    @expect_body(status=(str, ...), message=(str, None))
+    @expect_body(status=(TranslationReviewStatus, ...), message=(str, None))
     async def post(self, request: Request, translation_id: int, token: Token):
         status = request.json["status"]
         message = request.json["message"]
         reviewer_id = token.identity
-        try:
-            await translation_service.change_status(
-                translation_id, status, reviewer_id, message
-            )
-        except ValueError as e:
-            return JsonResponse({"message": str(e)}, status=400)
+        await translation_service.change_status(
+            translation_id, status, reviewer_id, message
+        )
         return JsonResponse({"message": "success"}, status=200)
 
 
