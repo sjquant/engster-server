@@ -2,7 +2,10 @@ import aiohttp
 from sanic import Sanic
 from gino.ext.sanic import Gino
 from sanic_cors import CORS
+from sanic.response import text
 from sanic_jwt_extended.jwt_manager import JWT
+
+import pydantic
 
 from app import config
 
@@ -40,6 +43,12 @@ def init_oauth(app):
         await sanic_app.async_session.close()
 
 
+def init_error_handler(app):
+    @app.exception(pydantic.ValidationError)
+    async def handle_validation_error(request, e):
+        return text(e.json(), status=422)
+
+
 def create_app():
     """
     Create Sanic Application
@@ -48,6 +57,7 @@ def create_app():
     app.config.from_object(config)
     init_oauth(app)
     init_jwt(app)
+    init_error_handler(app)
 
     CORS(app)
     db.init_app(app)
