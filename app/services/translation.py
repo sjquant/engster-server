@@ -10,7 +10,30 @@ from app.models import (
     User,
 )
 from app import db
+from app.schemas import TranslationReviewStatus
 from app.utils import fetch_all
+
+
+async def fetch(
+    status: Optional[List[TranslationReviewStatus]] = None,
+    limit: int = 20,
+    offset: int = 0,
+) -> List[Dict[str, Any]]:
+    query = (
+        db.select([Translation, User.nickname.label("user_nickname")])
+        .select_from(
+            Translation.join(User, Translation.user_id == User.id, isouter=True)
+        )
+        .order_by(Translation.updated_at.desc())
+        .offset(offset)
+        .limit(limit)
+    )
+
+    if status:
+        query = query.where(Translation.status.in_(status))
+
+    data = await fetch_all(query)
+    return data
 
 
 async def search(keyword: str, limit: int = 20, cursor: Optional[int] = None):
