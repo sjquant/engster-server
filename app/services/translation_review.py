@@ -32,7 +32,7 @@ async def fetch(
         db.select(
             [
                 TranslationReview,
-                User.nickname.label("reviewer"),
+                User.nickname.label("reviewer_nickname"),
                 Subtitle.id.label("subtitle_id"),
                 Subtitle.line.label("subtitle"),
             ]

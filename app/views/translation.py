@@ -42,8 +42,26 @@ class AddTranslationCSV(HTTPMethodView):
         return JsonResponse({"message": "success"})
 
 
+class TranslationListView(HTTPMethodView):
+    @admin_required
+    @expect_query(
+        status=(List[TranslationReviewStatus], None), limit=(int, 20), offset=(int, 0)
+    )
+    async def get(
+        self,
+        request: Request,
+        status: Optional[List[TranslationReviewStatus]],
+        limit: int,
+        offset: int,
+        token: Token,
+    ):
+        data = await translation_service.fetch(status, limit, offset)
+
+        return JsonResponse({"data": data, "limit": limit, "offset": offset})
+
+
 class TranslationDetail(HTTPMethodView):
-    async def get(self, request, translation_id: int):
+    async def get(self, request: Request, translation_id: int):
         translation = await translation_service.get_by_id(translation_id)
         if not translation:
             return JsonResponse({"message": "Translation not found"}, status=404)
@@ -289,6 +307,7 @@ class TranslationReviewList(HTTPMethodView):
         )
 
 
+blueprint.add_route(TranslationListView.as_view(), "")
 blueprint.add_route(SearchTranslation.as_view(), "/search")
 blueprint.add_route(AddTranslationCSV.as_view(), "/add-csv")
 blueprint.add_route(UserLikedTranslations.as_view(), "/liked")
