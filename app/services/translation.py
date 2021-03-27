@@ -20,9 +20,11 @@ async def fetch(
     offset: int = 0,
 ) -> List[Dict[str, Any]]:
     query = (
-        db.select([Translation, User.nickname.label("user_nickname")])
+        db.select([Translation, Subtitle.line, User.nickname.label("user_nickname")])
         .select_from(
-            Translation.join(User, Translation.user_id == User.id, isouter=True)
+            Translation.join(Subtitle, Translation.line_id == Subtitle.id).join(
+                User, Translation.user_id == User.id, isouter=True
+            )
         )
         .order_by(Translation.updated_at.desc())
         .offset(offset)
