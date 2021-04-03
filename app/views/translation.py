@@ -132,7 +132,7 @@ class SearchTranslation(HTTPMethodView):
         translations = await translation_service.search(keyword, limit, cursor)
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
         genres = await content_service.fetch_genres(content_ids)
-        like_count = await translation_service.get_like_count(translation_ids)
+        like_count = await translation_service.fetch_like_count(translation_ids)
         translation_count = await subtitle_service.fetch_translation_count(line_ids)
         user_id = token.identity if token else None
         user_liked = (
@@ -197,7 +197,7 @@ class UserLikedTranslations(HTTPMethodView):
         )
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
         genres = await content_service.fetch_genres(content_ids)
-        like_count = await translation_service.get_like_count(translation_ids)
+        like_count = await translation_service.fetch_like_count(translation_ids)
         translation_count = await subtitle_service.fetch_translation_count(line_ids)
         user_id = token.identity if token else None
         user_liked = (
@@ -247,7 +247,7 @@ class UserWrittenTranslations(HTTPMethodView):
         )
         content_ids, translation_ids, line_ids = self._get_required_ids(translations)
         genres = await content_service.fetch_genres(content_ids)
-        like_count = await translation_service.get_like_count(translation_ids)
+        like_count = await translation_service.fetch_like_count(translation_ids)
         translation_count = await subtitle_service.fetch_translation_count(line_ids)
         user_id = token.identity if token else None
         user_liked = (
@@ -286,24 +286,24 @@ class TranslationChangeStatusView(HTTPMethodView):
 
 class TranslationReviewList(HTTPMethodView):
     @admin_required
-    @expect_query(limit=(int, 20), cursor=(int, None))
+    @expect_query(limit=(int, 20), offset=(int, 0))
     async def get(
         self,
         request: Request,
         translation_id: int,
         limit: int,
-        cursor: Optional[int],
+        offset: int,
         token: Token,
     ):
 
         count = (
             await translation_service.count_reviews(translation_id)
-            if cursor is None
+            if not offset
             else None
         )
-        data = await translation_service.fetch_reviews(translation_id, limit, cursor)
+        data = await translation_service.fetch_reviews(translation_id, limit, offset)
         return JsonResponse(
-            {"count": count, "data": data, "cursor": cursor, "limit": limit}
+            {"count": count, "data": data, "limit": limit, "offset": offset}
         )
 
 

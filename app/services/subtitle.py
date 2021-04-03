@@ -166,21 +166,19 @@ async def pick_user_liked(user_id: UUID, line_ids: List[int]) -> List[int]:
 
 
 async def fetch_translations(
-    line_id: int, limit: int = 15, cursor: Optional[int] = None
+    line_id: int, limit: int = 15, offset: int = 0
 ) -> List[Dict[str, Any]]:
     """Fetch translations for give lines"""
     conditions = [
         Translation.line_id == line_id,
         Translation.status != "REJECTED",
     ]
-    if cursor:
-        conditions.append(Translation.id < cursor)
 
     query = (
         Translation.load(user=User.on(Translation.user_id == User.id))
         .query.where(db.and_(*conditions))
         .limit(limit)
-        .order_by(Translation.id.desc())
+        .offset(offset)
     )
     data = await query.gino.all()
     translations = []

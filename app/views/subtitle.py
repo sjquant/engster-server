@@ -241,18 +241,25 @@ class SearchSubtitles(HTTPMethodView):
 
 class TranslationList(HTTPMethodView):
     @jwt_optional
-    @expect_query(limit=(int, 20), cursor=(int, None))
+    @expect_query(limit=(int, 20), offset=(int, 0))
     async def get(
         self,
         request: Request,
         line_id: int,
         limit: int,
-        cursor: Optional[int],
+        offset: int,
         token: Optional[Token],
     ):
-        translations = await subtitle_service.fetch_translations(line_id, limit, cursor)
+        translations = await subtitle_service.fetch_translations(line_id, limit, offset)
+
+        if offset:
+            count = None
+        else:
+            count_obj = await subtitle_service.fetch_translation_count([line_id])
+            count = count_obj.get(line_id, 0)
+
         translation_ids = [each["id"] for each in translations]
-        like_count = await translation_service.get_like_count(translation_ids)
+        like_count = await translation_service.fetch_like_count(translation_ids)
         user_id = token.identity if token else None
         user_liked = (
             await translation_service.pick_user_liked(user_id, translation_ids)
@@ -268,7 +275,12 @@ class TranslationList(HTTPMethodView):
             }
             for each in translations
         ]
-        resp = {"cursor": cursor, "data": data}
+        resp = {
+            "limit": limit,
+            "offset": offset,
+            "data": data,
+            "count": count,
+        }
         return JsonResponse(resp)
 
     @jwt_required

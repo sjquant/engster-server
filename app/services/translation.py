@@ -26,11 +26,10 @@ async def fetch(
                 User, Translation.user_id == User.id, isouter=True
             )
         )
-        .order_by(Translation.updated_at.desc())
-        .offset(offset)
+        .order_by(Translation.id.desc())
         .limit(limit)
+        .offset(offset)
     )
-
     if status:
         query = query.where(Translation.status.in_(status))
 
@@ -171,7 +170,7 @@ async def remove_like(translation_id: int, user_id: UUID) -> None:
     ).gino.status()
 
 
-async def get_like_count(translation_ids: List[int]) -> Dict[int, int]:
+async def fetch_like_count(translation_ids: List[int]) -> Dict[int, int]:
     """get korean count per translation """
     query = (
         db.select(
@@ -229,21 +228,20 @@ async def count_reviews(translation_id: int) -> int:
 
 
 async def fetch_reviews(
-    translation_id: int, limit: int, cursor: Optional[int]
+    translation_id: int, limit: int, offset: int = 0
 ) -> List[Dict[str, Any]]:
     """Fetch reviews for a translation"""
     conditions = [TranslationReview.translation_id == translation_id]
-    if cursor:
-        conditions.append(TranslationReview.id < cursor)
 
     query = (
-        db.select([TranslationReview, User.nickname.label("reviewer")])
+        db.select([TranslationReview, User.nickname.label("reviewer_nickname")])
         .where(db.and_(*conditions))
         .select_from(
             TranslationReview.join(User, TranslationReview.reviewer_id == User.id)
         )
         .order_by(TranslationReview.id.desc())
         .limit(limit)
+        .offset(offset)
     )
 
     data = await fetch_all(query)
