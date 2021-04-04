@@ -16,6 +16,7 @@ from app.core.sanic_jwt_extended import admin_required, jwt_optional
 from app.services import subtitle as subtitle_service
 from app.services import content as content_service
 from app.services import translation as translation_service
+from app.schemas import TranslationReviewStatus
 from app.core.subtitle import SRTSubtitle, SMISubtitle, SubtitleMatcher, SubtitleList
 from app.utils import JsonResponse, csv_to_dict
 from app import db
@@ -241,16 +242,21 @@ class SearchSubtitles(HTTPMethodView):
 
 class TranslationList(HTTPMethodView):
     @jwt_optional
-    @expect_query(limit=(int, 20), offset=(int, 0))
+    @expect_query(
+        status=(List[TranslationReviewStatus], None), limit=(int, 20), offset=(int, 0),
+    )
     async def get(
         self,
         request: Request,
         line_id: int,
+        status: Optional[List[str]],
         limit: int,
         offset: int,
         token: Optional[Token],
     ):
-        translations = await subtitle_service.fetch_translations(line_id, limit, offset)
+        translations = await subtitle_service.fetch_translations(
+            line_id, status, limit, offset
+        )
 
         if offset:
             count = None

@@ -61,8 +61,8 @@ Content-Type: application/json
 GET {{ host }}/translations/written?user_id={{userid}}&limit=20
 Content-Type: application/json
 
-### Change translation status
-POST {{ host }}/translations/15530/change-status
+### Create Review
+POST {{ host }}/translations/15530/reviews
 Content-Type: application/json
 
 {

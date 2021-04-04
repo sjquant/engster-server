@@ -271,19 +271,6 @@ class UserWrittenTranslations(HTTPMethodView):
         )
 
 
-class TranslationChangeStatusView(HTTPMethodView):
-    @admin_required
-    @expect_body(status=(TranslationReviewStatus, ...), message=(str, None))
-    async def post(self, request: Request, translation_id: int, token: Token):
-        status = request.json["status"]
-        message = request.json["message"]
-        reviewer_id = token.identity
-        await translation_service.change_status(
-            translation_id, status, reviewer_id, message
-        )
-        return JsonResponse({"message": "success"}, status=200)
-
-
 class TranslationReviewList(HTTPMethodView):
     @admin_required
     @expect_query(limit=(int, 20), offset=(int, 0))
@@ -306,6 +293,17 @@ class TranslationReviewList(HTTPMethodView):
             {"count": count, "data": data, "limit": limit, "offset": offset}
         )
 
+    @admin_required
+    @expect_body(status=(TranslationReviewStatus, ...), message=(str, None))
+    async def post(self, request: Request, translation_id: int, token: Token):
+        status = request.json["status"]
+        message = request.json["message"]
+        reviewer_id = token.identity
+        await translation_service.create_review(
+            translation_id, status, reviewer_id, message
+        )
+        return JsonResponse({"message": "success"}, status=201)
+
 
 blueprint.add_route(TranslationListView.as_view(), "")
 blueprint.add_route(SearchTranslation.as_view(), "/search")
@@ -314,7 +312,4 @@ blueprint.add_route(UserLikedTranslations.as_view(), "/liked")
 blueprint.add_route(UserWrittenTranslations.as_view(), "/written")
 blueprint.add_route(TranslationDetail.as_view(), "/<translation_id:int>")
 blueprint.add_route(LikeTranslation.as_view(), "/<translation_id:int>/like")
-blueprint.add_route(
-    TranslationChangeStatusView.as_view(), "/<translation_id:int>/change-status"
-)
 blueprint.add_route(TranslationReviewList.as_view(), "/<translation_id:int>/reviews")

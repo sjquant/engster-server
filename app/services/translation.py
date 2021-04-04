@@ -197,12 +197,9 @@ async def pick_user_liked(user_id: UUID, translation_ids: List[int]) -> List[int
     return [each[0] for each in data]
 
 
-async def change_status(
+async def create_review(
     translation_id: int, status: str, reviewer_id: str, message: Optional[str] = None
 ):
-    if status not in {"PENDING", "APPROVED", "CHANGE_REQUESTED", "REJECTED"}:
-        raise ValueError("Invalid status")
-
     async with db.transaction():
         translation = await Translation.query.where(
             Translation.id == translation_id

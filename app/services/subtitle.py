@@ -166,13 +166,15 @@ async def pick_user_liked(user_id: UUID, line_ids: List[int]) -> List[int]:
 
 
 async def fetch_translations(
-    line_id: int, limit: int = 15, offset: int = 0
+    line_id: int, status: Optional[List[str]], limit: int = 15, offset: int = 0,
 ) -> List[Dict[str, Any]]:
     """Fetch translations for give lines"""
     conditions = [
         Translation.line_id == line_id,
-        Translation.status != "REJECTED",
     ]
+
+    if status:
+        conditions.append(Translation.status.in_(status))
 
     query = (
         Translation.load(user=User.on(Translation.user_id == User.id))
