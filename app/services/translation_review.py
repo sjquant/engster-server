@@ -33,8 +33,8 @@ async def fetch(
             [
                 TranslationReview,
                 User.nickname.label("reviewer_nickname"),
-                Subtitle.id.label("subtitle_id"),
-                Subtitle.line.label("subtitle"),
+                Subtitle.id.label("line_id"),
+                Subtitle.line.label("line"),
             ]
         )
         .select_from(

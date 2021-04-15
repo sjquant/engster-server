@@ -32,9 +32,11 @@ class BaseModel(db.Model):
 
 class TimeStampedModel(BaseModel):
 
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     updated_at = db.Column(
-        db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now()
+        db.DateTime(timezone=True),
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
     )
 
 
