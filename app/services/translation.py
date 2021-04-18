@@ -76,7 +76,9 @@ async def search(keyword: str, limit: int = 20, cursor: Optional[int] = None):
 async def count(keyword: str) -> int:
     """Count translations"""
     query = db.select([db.func.count(Translation.id)]).where(
-        Translation.translation.op("~*")(keyword)
+        db.and_(
+            Translation.translation.op("~*")(keyword), Translation.status == "APPROVED"
+        )
     )
     return await query.gino.scalar()
 
