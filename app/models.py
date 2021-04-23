@@ -133,8 +133,8 @@ class SubtitleLike(TimeStampedModel):
     __tablename__ = "line_like"
 
     id = db.Column("id", db.Integer, db.Sequence("line_like_id_seq"), primary_key=True)
-    user_id = db.Column(UUID, db.ForeignKey("user.id"))
-    line_id = db.Column(db.Integer, db.ForeignKey("subtitle.id"))
+    user_id = db.Column(UUID, db.ForeignKey("user.id", ondelete="CASCADE"))
+    line_id = db.Column(db.Integer, db.ForeignKey("subtitle.id", ondelete="CASCADE"))
 
     _id_idx = db.Index("line_like_idx_id", "id")
     _unique = db.UniqueConstraint("user_id", "line_id", name="line_like_unique")
@@ -147,8 +147,10 @@ class Translation(TimeStampedModel):
     id = db.Column(db.Integer, db.Sequence("translation_id_seq"), primary_key=True)
     translation = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), default="PENDING")
-    line_id = db.Column(db.Integer, db.ForeignKey("subtitle.id"), nullable=False)
-    user_id = db.Column(UUID, db.ForeignKey("user.id"))
+    line_id = db.Column(
+        db.Integer, db.ForeignKey("subtitle.id", ondelete="CASCADE"), nullable=False
+    )
+    user_id = db.Column(UUID, db.ForeignKey("user.id", ondelete="CASCADE"))
 
     _id_idx = db.Index("translation_idx_id", "id")
     _translation_idx = db.Index("translation_idx_translation", "translation")
@@ -161,9 +163,9 @@ class TranslationLike(TimeStampedModel):
     id = db.Column(
         "id", db.Integer, db.Sequence("translation_like_id_seq"), primary_key=True
     )
-    user_id = db.Column(UUID, db.ForeignKey("user.id"))
+    user_id = db.Column(UUID, db.ForeignKey("user.id", ondelete="CASCADE"))
     translation_id = db.Column(
-        db.Integer, db.ForeignKey("translation.id"), nullable=False
+        db.Integer, db.ForeignKey("translation.id", ondelete="CASCADE"), nullable=False
     )
 
     _id_idx = db.Index("translation_like_idx_id", "id")
@@ -183,6 +185,6 @@ class TranslationReview(TimeStampedModel):
     translation = db.Column(db.Text, nullable=False)
     message = db.Column(db.String(400))
     translation_id = db.Column(
-        db.Integer, db.ForeignKey("translation.id"), nullable=False
+        db.Integer, db.ForeignKey("translation.id", ondelete="CASCADE"), nullable=False
     )
     reviewer_id = db.Column(UUID, db.ForeignKey("user.id"))

@@ -78,7 +78,7 @@ class TranslationDetail(HTTPMethodView):
         if not translation:
             return JsonResponse({"message": "Translation not found"}, status=404)
 
-        if translation.user_id != user_id:
+        if str(translation.user_id) != user_id:
             return JsonResponse({"message": "Permission Denied"}, status=403)
 
         status = "APPROVED" if is_admin else "PENDING"
@@ -94,7 +94,7 @@ class TranslationDetail(HTTPMethodView):
         if not translation:
             return JsonResponse({"message": "Translation not found"}, status=404)
 
-        if translation.user_id != user_id:
+        if str(translation.user_id) != user_id:
             return JsonResponse({"message": "Permission Denied"}, status=403)
 
         await translation.delete()
