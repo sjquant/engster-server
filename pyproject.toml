@@ -21,6 +21,7 @@ mangum = "^0.10.0"
 aiosmtplib = "^1.1.4"
 Jinja2 = "^2.11.3"
 aiobotocore = {extras = ["awscli"], version = "^1.2.1"}
+asyncpg = "0.21.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7.9"
