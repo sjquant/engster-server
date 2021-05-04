@@ -51,7 +51,7 @@ class SubtitleListView(HTTPMethodView):
         content_id = data["content_id"][0]
         subtitles = await subtitle_service.fetch_all_by_content_id(content_id)
         translations = [
-            {"translation": trans, "line_id": sub["id"]}
+            {"translation": trans, "line_id": sub["id"], "status": "APPROVED"}
             for trans, sub in zip(data["translation"], subtitles)
         ]
 
