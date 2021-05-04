@@ -25,7 +25,7 @@ blueprint = Blueprint("translation_blueprint", url_prefix="translations")
 class AddTranslationCSV(HTTPMethodView):
     async def _upload_translation(self, data):
         translations = [
-            {"translation": trans, "line_id": int(line_id)}
+            {"translation": trans, "line_id": int(line_id), "status": "APPROVED"}
             for trans, line_id in zip(data["translation"], data["line_id"])
         ]
         await Translation.insert().gino.all(translations)
