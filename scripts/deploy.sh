@@ -4,7 +4,7 @@ set -u
 set -x
 
 
-package_dir="$(poetry env info --path)/lib/python3.8/site-packages"
+package_dir=$(python -c 'import site; print(site.getsitepackages()[0])')
 project_dir=$PWD
 
 trap 'rm -f $project_dir/lambda.zip' SIGHUP SIGINT SIGQUIT SIGABRT SIGTERM
