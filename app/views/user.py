@@ -5,7 +5,6 @@ from sanic.request import Request
 from sanic.views import HTTPMethodView
 from sanic.exceptions import ServerError
 from sanic_jwt_extended.tokens import Token
-import asyncpg
 
 from app.services import user as service
 from app.schemas import UserModel
@@ -19,7 +18,7 @@ blueprint = Blueprint("user_blueprint", url_prefix="/users")
 class UserProfileView(HTTPMethodView):
     @jwt_required
     async def get(self, request, user_id: str, token: Token):
-        if user_id != token.identity:
+        if str(user_id) != token.identity:
             return JsonResponse({"message": "Permission Denied"}, status=403)
 
         user = await service.get_user_by_id(user_id)
@@ -27,16 +26,12 @@ class UserProfileView(HTTPMethodView):
 
     @jwt_required
     async def patch(self, request: Request, user_id: str, token: Token):
-        if user_id != token.identity:
+        if str(user_id) != token.identity:
             return JsonResponse({"message": "Permission Denied"}, status=403)
 
         data = {key: value for key, value in request.json.items()}
         user = await service.get_user_by_id(user_id)
-        try:
-            await user.update(**data).apply()
-        except asyncpg.exceptions.UniqueViolationError:
-            return JsonResponse({"message": "User already exists"}, status=400)
-
+        await user.update(**data).apply()
         return JsonResponse(UserModel.from_orm(user), status=200)
 
     async def delete(self):
