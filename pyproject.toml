@@ -19,7 +19,7 @@ sanic-cors = "^0.10.0.post3"
 sanic = "^20.12"
 mangum = "^0.10.0"
 aiosmtplib = "^1.1.4"
-Jinja2 = "^2.11.3"
+Jinja2 = ">=2.11.3,<4.0.0"
 aiobotocore = {extras = ["awscli"], version = "^1.2.1"}
 asyncpg = "0.21.0"
 
